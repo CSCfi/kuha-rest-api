@@ -14,9 +14,13 @@ type config struct {
 	addr string
 }
 
-func (app *api) run() error {
-
+func (app *api) mount() *http.ServeMux {
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /v1/health", app.healthCheckHandler)
+	return mux
+}
+
+func (app *api) run(mux *http.ServeMux) error {
 
 	srv := &http.Server{
 		Addr:         app.config.addr,
