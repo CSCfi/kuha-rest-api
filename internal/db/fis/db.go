@@ -54,6 +54,12 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getNordicCombinedSeasonsStmt, err = db.PrepareContext(ctx, getNordicCombinedSeasons); err != nil {
 		return nil, fmt.Errorf("error preparing query GetNordicCombinedSeasons: %w", err)
 	}
+	if q.getRaceResultsJPByRaceIDStmt, err = db.PrepareContext(ctx, getRaceResultsJPByRaceID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRaceResultsJPByRaceID: %w", err)
+	}
+	if q.getRaceResultsNKByRaceIDStmt, err = db.PrepareContext(ctx, getRaceResultsNKByRaceID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRaceResultsNKByRaceID: %w", err)
+	}
 	if q.getResultsByCompetitorsJPStmt, err = db.PrepareContext(ctx, getResultsByCompetitorsJP); err != nil {
 		return nil, fmt.Errorf("error preparing query GetResultsByCompetitorsJP: %w", err)
 	}
@@ -119,6 +125,16 @@ func (q *Queries) Close() error {
 	if q.getNordicCombinedSeasonsStmt != nil {
 		if cerr := q.getNordicCombinedSeasonsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getNordicCombinedSeasonsStmt: %w", cerr)
+		}
+	}
+	if q.getRaceResultsJPByRaceIDStmt != nil {
+		if cerr := q.getRaceResultsJPByRaceIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRaceResultsJPByRaceIDStmt: %w", cerr)
+		}
+	}
+	if q.getRaceResultsNKByRaceIDStmt != nil {
+		if cerr := q.getRaceResultsNKByRaceIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRaceResultsNKByRaceIDStmt: %w", cerr)
 		}
 	}
 	if q.getResultsByCompetitorsJPStmt != nil {
@@ -190,6 +206,8 @@ type Queries struct {
 	getNordicCombinedCategoriesStmt         *sql.Stmt
 	getNordicCombinedDisciplinesStmt        *sql.Stmt
 	getNordicCombinedSeasonsStmt            *sql.Stmt
+	getRaceResultsJPByRaceIDStmt            *sql.Stmt
+	getRaceResultsNKByRaceIDStmt            *sql.Stmt
 	getResultsByCompetitorsJPStmt           *sql.Stmt
 	getSkiJumpingCategoriesStmt             *sql.Stmt
 	getSkiJumpingDisciplinesStmt            *sql.Stmt
@@ -210,6 +228,8 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getNordicCombinedCategoriesStmt:         q.getNordicCombinedCategoriesStmt,
 		getNordicCombinedDisciplinesStmt:        q.getNordicCombinedDisciplinesStmt,
 		getNordicCombinedSeasonsStmt:            q.getNordicCombinedSeasonsStmt,
+		getRaceResultsJPByRaceIDStmt:            q.getRaceResultsJPByRaceIDStmt,
+		getRaceResultsNKByRaceIDStmt:            q.getRaceResultsNKByRaceIDStmt,
 		getResultsByCompetitorsJPStmt:           q.getResultsByCompetitorsJPStmt,
 		getSkiJumpingCategoriesStmt:             q.getSkiJumpingCategoriesStmt,
 		getSkiJumpingDisciplinesStmt:            q.getSkiJumpingDisciplinesStmt,

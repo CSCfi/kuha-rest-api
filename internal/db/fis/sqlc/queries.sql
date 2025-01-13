@@ -86,6 +86,26 @@ WHERE A_resultNK.CompetitorID = $1
 ORDER BY A_raceNK.RaceDate;
 
 
+-- name: GetRaceResultsNKByRaceID :many
+SELECT 
+    RecID,
+    RaceID,
+    Position,
+    SpeedR1,
+    DistR1,
+    JudptsR1,
+    PosR1,
+    GateR1,
+    TotRun1,
+    Pointsjump,
+    Poscc,
+    Timetot,
+    Timetotint
+FROM A_resultnk
+WHERE (RaceID = ANY($1))
+ORDER BY RaceID;
+
+
 -- name: GetCompetitorIDByFiscodeJP :one
 SELECT CompetitorID
 FROM A_competitor
@@ -122,6 +142,27 @@ WHERE A_resultJP.CompetitorID = $1
   AND (A_raceJP.DisciplineCode = ANY($3) OR $3 IS NULL)
   AND (A_raceJP.CatCode = ANY($4) OR $4 IS NULL)
 ORDER BY A_raceJP.RaceDate;
+
+
+
+-- name: GetRaceResultsJPByRaceID :many
+SELECT 
+    RecID,
+    RaceID,
+    Position,
+    SpeedR1,
+    DistR1,
+    JudptsR1,
+    PosR1,
+    GateR1,
+    SpeedR2,
+    DistR2,
+    JudptsR2,
+    PosR2,
+    GateR2
+FROM A_resultjp
+WHERE (RaceID = ANY($1))
+ORDER BY RaceID;
 
 
 -- name: GetCompetitorIDsByGenderAndNationJP :many

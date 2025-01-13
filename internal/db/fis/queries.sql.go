@@ -452,6 +452,152 @@ func (q *Queries) GetNordicCombinedSeasons(ctx context.Context) ([]sql.NullInt32
 	return items, nil
 }
 
+const getRaceResultsJPByRaceID = `-- name: GetRaceResultsJPByRaceID :many
+SELECT 
+    RecID,
+    RaceID,
+    Position,
+    SpeedR1,
+    DistR1,
+    JudptsR1,
+    PosR1,
+    GateR1,
+    SpeedR2,
+    DistR2,
+    JudptsR2,
+    PosR2,
+    GateR2
+FROM A_resultjp
+WHERE (RaceID = ANY($1))
+ORDER BY RaceID
+`
+
+type GetRaceResultsJPByRaceIDRow struct {
+	Recid    sql.NullInt32
+	Raceid   sql.NullInt32
+	Position sql.NullInt32
+	Speedr1  sql.NullString
+	Distr1   sql.NullString
+	Judptsr1 sql.NullString
+	Posr1    sql.NullInt32
+	Gater1   sql.NullInt32
+	Speedr2  sql.NullString
+	Distr2   sql.NullString
+	Judptsr2 sql.NullString
+	Posr2    sql.NullInt32
+	Gater2   sql.NullInt32
+}
+
+func (q *Queries) GetRaceResultsJPByRaceID(ctx context.Context, raceid sql.NullInt32) ([]GetRaceResultsJPByRaceIDRow, error) {
+	rows, err := q.query(ctx, q.getRaceResultsJPByRaceIDStmt, getRaceResultsJPByRaceID, raceid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetRaceResultsJPByRaceIDRow
+	for rows.Next() {
+		var i GetRaceResultsJPByRaceIDRow
+		if err := rows.Scan(
+			&i.Recid,
+			&i.Raceid,
+			&i.Position,
+			&i.Speedr1,
+			&i.Distr1,
+			&i.Judptsr1,
+			&i.Posr1,
+			&i.Gater1,
+			&i.Speedr2,
+			&i.Distr2,
+			&i.Judptsr2,
+			&i.Posr2,
+			&i.Gater2,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRaceResultsNKByRaceID = `-- name: GetRaceResultsNKByRaceID :many
+SELECT 
+    RecID,
+    RaceID,
+    Position,
+    SpeedR1,
+    DistR1,
+    JudptsR1,
+    PosR1,
+    GateR1,
+    TotRun1,
+    Pointsjump,
+    Poscc,
+    Timetot,
+    Timetotint
+FROM A_resultnk
+WHERE (RaceID = ANY($1))
+ORDER BY RaceID
+`
+
+type GetRaceResultsNKByRaceIDRow struct {
+	Recid      sql.NullInt32
+	Raceid     sql.NullInt32
+	Position   sql.NullInt32
+	Speedr1    sql.NullString
+	Distr1     sql.NullString
+	Judptsr1   sql.NullString
+	Posr1      sql.NullInt32
+	Gater1     sql.NullInt32
+	Totrun1    sql.NullString
+	Pointsjump sql.NullString
+	Poscc      sql.NullInt32
+	Timetot    sql.NullString
+	Timetotint sql.NullInt32
+}
+
+func (q *Queries) GetRaceResultsNKByRaceID(ctx context.Context, raceid sql.NullInt32) ([]GetRaceResultsNKByRaceIDRow, error) {
+	rows, err := q.query(ctx, q.getRaceResultsNKByRaceIDStmt, getRaceResultsNKByRaceID, raceid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetRaceResultsNKByRaceIDRow
+	for rows.Next() {
+		var i GetRaceResultsNKByRaceIDRow
+		if err := rows.Scan(
+			&i.Recid,
+			&i.Raceid,
+			&i.Position,
+			&i.Speedr1,
+			&i.Distr1,
+			&i.Judptsr1,
+			&i.Posr1,
+			&i.Gater1,
+			&i.Totrun1,
+			&i.Pointsjump,
+			&i.Poscc,
+			&i.Timetot,
+			&i.Timetotint,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getResultsByCompetitorsJP = `-- name: GetResultsByCompetitorsJP :many
 SELECT 
     A_resultJP.RaceID,
