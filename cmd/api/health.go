@@ -2,6 +2,8 @@ package main
 
 import (
 	"net/http"
+
+	"github.com/DeRuina/KUHA-REST-API/internal/utils"
 )
 
 func (app *api) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
@@ -10,7 +12,7 @@ func (app *api) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 		"env":    app.config.env,
 	}
 
-	if err := WriteJSON(w, http.StatusOK, data); err != nil {
-		app.internalServerError(w, r, err)
+	if err := utils.WriteJSON(w, http.StatusOK, data); err != nil {
+		utils.InternalServerError(w, r, err)
 	}
 }
