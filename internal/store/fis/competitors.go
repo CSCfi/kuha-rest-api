@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"log"
 )
 
 // CompetitorsStore struct
@@ -60,52 +59,41 @@ func (s *CompetitorsStore) GetBySector(ctx context.Context, sectorCode string) (
 		competitors = append(competitors, c)
 	}
 
-	if len(competitors) == 0 {
-		log.Println("⚠️ No competitors found")
-	}
 	return competitors, nil
 }
 
 // Implement GetByFiscodeJP
 func (s *CompetitorsStore) GetByFiscodeJP(ctx context.Context, fiscode int32) (int32, error) {
 	query := `SELECT CompetitorID FROM A_competitor WHERE Fiscode = $1 AND SectorCode = 'JP'`
-	log.Printf("🟡 Executing SQL Query: %s | Fiscode: %d", query, fiscode)
 
 	var competitorID int32
 	err := s.db.QueryRowContext(ctx, query, fiscode).Scan(&competitorID)
 	if err != nil {
-		log.Printf("❌ SQL Query failed: %v", err)
 		return 0, err
 	}
 
-	log.Printf("✅ Found Competitor ID: %d", competitorID)
 	return competitorID, nil
 }
 
 // Implement GetByFiscodeNK
 func (s *CompetitorsStore) GetByFiscodeNK(ctx context.Context, fiscode int32) (int32, error) {
 	query := `SELECT CompetitorID FROM A_competitor WHERE Fiscode = $1 AND SectorCode = 'NK'`
-	log.Printf("🟡 Executing SQL Query: %s | Fiscode: %d", query, fiscode)
 
 	var competitorID int32
 	err := s.db.QueryRowContext(ctx, query, fiscode).Scan(&competitorID)
 	if err != nil {
-		log.Printf("❌ SQL Query failed: %v", err)
 		return 0, err
 	}
 
-	log.Printf("✅ Found Competitor ID: %d", competitorID)
 	return competitorID, nil
 }
 
 // Implement GetByGenderAndNationJP
 func (s *CompetitorsStore) GetByGenderAndNationJP(ctx context.Context, gender, nation string) ([]int32, error) {
 	query := `SELECT CompetitorID FROM A_competitor WHERE Gender = $1 AND NationCode = $2 AND SectorCode = 'JP'`
-	log.Printf("🟡 Executing SQL Query: %s | Gender: %s, Nation: %s", query, gender, nation)
 
 	rows, err := s.db.QueryContext(ctx, query, gender, nation)
 	if err != nil {
-		log.Printf("❌ SQL Query failed: %v", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -114,12 +102,10 @@ func (s *CompetitorsStore) GetByGenderAndNationJP(ctx context.Context, gender, n
 	for rows.Next() {
 		var competitorID int32
 		if err := rows.Scan(&competitorID); err != nil {
-			log.Printf("❌ Row Scan failed: %v", err)
 			return nil, err
 		}
 		competitorIDs = append(competitorIDs, competitorID)
 	}
 
-	log.Printf("✅ Found %d Competitors", len(competitorIDs))
 	return competitorIDs, nil
 }
