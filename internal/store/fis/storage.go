@@ -15,7 +15,7 @@ type Competitors interface {
 
 // Ensure `FISStorage` implements `FIS`
 type FISStorage struct {
-	competitors Competitors // ✅ Private field holding the actual implementation
+	competitors Competitors
 }
 
 // Implement the `Competitors()` method to return the interface
@@ -26,6 +26,6 @@ func (s *FISStorage) Competitors() Competitors {
 // `NewFISStorage` initializes storage for FIS database tables
 func NewFISStorage(db *sql.DB) *FISStorage {
 	return &FISStorage{
-		competitors: &CompetitorsStore{db}, // ✅ Correctly assign CompetitorsStore
+		competitors: &CompetitorsStore{db},
 	}
 }

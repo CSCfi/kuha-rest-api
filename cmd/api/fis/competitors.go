@@ -12,7 +12,6 @@ type CompetitorsHandler struct {
 	store fis.Competitors
 }
 
-// Modify to accept `fis.Competitors` interface
 func NewCompetitorsHandler(store fis.Competitors) *CompetitorsHandler {
 	return &CompetitorsHandler{store: store}
 }
