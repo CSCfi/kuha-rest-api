@@ -3,32 +3,13 @@ package fis
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
+
+	fissqlc "github.com/DeRuina/KUHA-REST-API/internal/db/fis"
 )
 
 // CompetitorsStore struct
 type CompetitorsStore struct {
 	db *sql.DB
-}
-
-// Competitor model with sql.NullString
-type Competitor struct {
-	FirstName sql.NullString `json:"-"`
-	LastName  sql.NullString `json:"-"`
-	FisCode   int32          `json:"fis_code"`
-}
-
-// Custom JSON Marshaller for handling NULL values
-func (c Competitor) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		FirstName string `json:"first_name"`
-		LastName  string `json:"last_name"`
-		FisCode   int32  `json:"fis_code"`
-	}{
-		FirstName: nullStringToString(c.FirstName),
-		LastName:  nullStringToString(c.LastName),
-		FisCode:   c.FisCode,
-	})
 }
 
 // Helper function to convert `sql.NullString` to a regular string
@@ -39,8 +20,9 @@ func nullStringToString(ns sql.NullString) string {
 	return ""
 }
 
-// Ensure `CompetitorsStore` implements `Competitors` interface
-func (s *CompetitorsStore) GetBySector(ctx context.Context, sectorCode string) ([]Competitor, error) {
+// GetBySector
+
+func (s *CompetitorsStore) GetBySector(ctx context.Context, sectorCode string) ([]map[string]interface{}, error) {
 	query := `SELECT Firstname, Lastname, Fiscode FROM A_competitor WHERE SectorCode = $1 ORDER BY Fiscode`
 
 	rows, err := s.db.QueryContext(ctx, query, sectorCode)
@@ -49,14 +31,19 @@ func (s *CompetitorsStore) GetBySector(ctx context.Context, sectorCode string) (
 	}
 	defer rows.Close()
 
-	var competitors []Competitor
+	var competitors []map[string]interface{}
 	for rows.Next() {
-		var c Competitor
-		err := rows.Scan(&c.FirstName, &c.LastName, &c.FisCode)
+		var c fissqlc.ACompetitor
+		err := rows.Scan(&c.Firstname, &c.Lastname, &c.Fiscode)
 		if err != nil {
 			return nil, err
 		}
-		competitors = append(competitors, c)
+
+		competitors = append(competitors, map[string]interface{}{
+			"first_name": nullStringToString(c.Firstname),
+			"last_name":  nullStringToString(c.Lastname),
+			"fis_code":   c.Fiscode.Int32,
+		})
 	}
 
 	return competitors, nil
