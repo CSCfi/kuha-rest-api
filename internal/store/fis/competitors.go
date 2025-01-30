@@ -5,19 +5,12 @@ import (
 	"database/sql"
 
 	fissqlc "github.com/DeRuina/KUHA-REST-API/internal/db/fis"
+	"github.com/DeRuina/KUHA-REST-API/internal/utils"
 )
 
 // CompetitorsStore struct
 type CompetitorsStore struct {
 	db *sql.DB
-}
-
-// Helper function to convert `sql.NullString` to a regular string
-func nullStringToString(ns sql.NullString) string {
-	if ns.Valid {
-		return ns.String
-	}
-	return ""
 }
 
 // GetBySector
@@ -40,8 +33,8 @@ func (s *CompetitorsStore) GetBySector(ctx context.Context, sectorCode string) (
 		}
 
 		competitors = append(competitors, map[string]interface{}{
-			"first_name": nullStringToString(c.Firstname),
-			"last_name":  nullStringToString(c.Lastname),
+			"first_name": utils.NullStringToString(c.Firstname),
+			"last_name":  utils.NullStringToString(c.Lastname),
 			"fis_code":   c.Fiscode.Int32,
 		})
 	}
