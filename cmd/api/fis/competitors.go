@@ -2,6 +2,7 @@ package fisapi
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/DeRuina/KUHA-REST-API/internal/store/fis"
@@ -16,17 +17,29 @@ func NewCompetitorsHandler(store fis.Competitors) *CompetitorsHandler {
 	return &CompetitorsHandler{store: store}
 }
 
-// GetBySector handles the GET request to fetch competitors by sector
+// GetBySector Getter
 func (h *CompetitorsHandler) GetBySector(w http.ResponseWriter, r *http.Request) {
 	sectorCode := r.URL.Query().Get("sector")
+
 	if sectorCode == "" {
-		http.Error(w, "Sector code is required", http.StatusBadRequest)
+		utils.BadRequestResponse(w, r, fmt.Errorf("sector code is required"))
+		return
+	}
+
+	validSectors := map[string]bool{"JP": true, "NK": true}
+	if !validSectors[sectorCode] {
+		utils.BadRequestResponse(w, r, fmt.Errorf("invalid sector code. Allowed values: JP, NK"))
 		return
 	}
 
 	competitors, err := h.store.GetBySector(context.Background(), sectorCode)
 	if err != nil {
-		http.Error(w, "Error fetching competitors", http.StatusInternalServerError)
+		utils.InternalServerError(w, r, err)
+		return
+	}
+
+	if len(competitors) == 0 {
+		utils.NotFoundResponse(w, r, fmt.Errorf("no competitors found for sector %s", sectorCode))
 		return
 	}
 

@@ -39,11 +39,6 @@ func (s *CompetitorsStore) GetBySector(ctx context.Context, sectorCode string) (
 		})
 	}
 
-	// Empty array instead of null result
-	if len(competitors) == 0 {
-		return []GetBySectorResponse{}, nil
-	}
-
 	return response, nil
 }
 
