@@ -21,35 +21,30 @@ type GetBySectorResponse struct {
 }
 
 func (s *CompetitorsStore) GetBySector(ctx context.Context, sectorCode string) ([]GetBySectorResponse, error) {
-	query := `SELECT Firstname, Lastname, Fiscode FROM A_competitor WHERE SectorCode = $1 ORDER BY Fiscode`
+	queries := fissqlc.New(s.db) // Create a new instance of sqlc queries
 
-	rows, err := s.db.QueryContext(ctx, query, sectorCode)
+	dbSectorCode := sql.NullString{String: sectorCode, Valid: true}
+	competitors, err := queries.GetAthletesBySector(ctx, dbSectorCode)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
-	var competitors []GetBySectorResponse
-	for rows.Next() {
-		var c fissqlc.ACompetitor
-		err := rows.Scan(&c.Firstname, &c.Lastname, &c.Fiscode)
-		if err != nil {
-			return nil, err
-		}
-
-		competitors = append(competitors, GetBySectorResponse{
+	// Convert `GetAthletesBySectorRow` to `GetBySectorResponse`
+	var response []GetBySectorResponse
+	for _, c := range competitors {
+		response = append(response, GetBySectorResponse{
 			FirstName: c.Firstname.String,
 			LastName:  c.Lastname.String,
 			FisCode:   c.Fiscode.Int32,
 		})
 	}
 
-	// Empty array instead of null
+	// Empty array instead of null result
 	if len(competitors) == 0 {
 		return []GetBySectorResponse{}, nil
 	}
 
-	return competitors, nil
+	return response, nil
 }
 
 // Implement GetByFiscodeJP

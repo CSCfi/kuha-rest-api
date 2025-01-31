@@ -26,6 +26,6 @@ func (s *FISStorage) Competitors() Competitors {
 // `NewFISStorage` initializes storage for FIS database tables
 func NewFISStorage(db *sql.DB) *FISStorage {
 	return &FISStorage{
-		competitors: &CompetitorsStore{db},
+		competitors: &CompetitorsStore{db: db},
 	}
 }
