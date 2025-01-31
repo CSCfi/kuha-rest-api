@@ -49,8 +49,10 @@ func (app *api) mount() http.Handler {
 
 		// FIS routes
 		r.Route("/fis", func(r chi.Router) {
-			competitorsHandler := fisapi.NewCompetitorsHandler(app.store.FIS.Competitors()) // ✅ Corrected
+			competitorsHandler := fisapi.NewCompetitorsHandler(app.store.FIS.Competitors())
+
 			r.Get("/competitors", competitorsHandler.GetAthletesBySector)
+			r.Get("/nations", competitorsHandler.GetNationsBySector)
 		})
 
 	})

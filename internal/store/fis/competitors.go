@@ -42,7 +42,26 @@ func (s *CompetitorsStore) GetAthletesBySector(ctx context.Context, sectorCode s
 	return response, nil
 }
 
-//
+// GetNationsBySector
+
+func (s *CompetitorsStore) GetNationsBySector(ctx context.Context, sectorCode string) ([]string, error) {
+	queries := fissqlc.New(s.db)
+
+	dbSectorCode := sql.NullString{String: sectorCode, Valid: true}
+	nations, err := queries.GetNationsBySector(ctx, dbSectorCode)
+	if err != nil {
+		return nil, err
+	}
+
+	var response []string
+	for _, n := range nations {
+		if n.Valid {
+			response = append(response, n.String)
+		}
+	}
+
+	return response, nil
+}
 
 // Implement GetByFiscodeJP
 func (s *CompetitorsStore) GetByFiscodeJP(ctx context.Context, fiscode int32) (int32, error) {

@@ -17,7 +17,8 @@ func NewCompetitorsHandler(store fis.Competitors) *CompetitorsHandler {
 	return &CompetitorsHandler{store: store}
 }
 
-// GetBySector Getter
+// GetAthletesBySector
+
 func (h *CompetitorsHandler) GetAthletesBySector(w http.ResponseWriter, r *http.Request) {
 	sectorCode := r.URL.Query().Get("sector")
 
@@ -44,4 +45,34 @@ func (h *CompetitorsHandler) GetAthletesBySector(w http.ResponseWriter, r *http.
 	}
 
 	utils.WriteJSON(w, http.StatusOK, competitors)
+}
+
+// GetNationsBySector
+
+func (h *CompetitorsHandler) GetNationsBySector(w http.ResponseWriter, r *http.Request) {
+	sectorCode := r.URL.Query().Get("sector")
+
+	if sectorCode == "" {
+		utils.BadRequestResponse(w, r, fmt.Errorf("sector code is required"))
+		return
+	}
+
+	validSectors := map[string]bool{"JP": true, "NK": true, "CC": true}
+	if !validSectors[sectorCode] {
+		utils.BadRequestResponse(w, r, fmt.Errorf("invalid sector code. Allowed values: JP, NK, CC"))
+		return
+	}
+
+	nations, err := h.store.GetNationsBySector(context.Background(), sectorCode)
+	if err != nil {
+		utils.InternalServerError(w, r, err)
+		return
+	}
+
+	if len(nations) == 0 {
+		utils.NotFoundResponse(w, r, fmt.Errorf("no nations found for sector %s", sectorCode))
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, nations)
 }
