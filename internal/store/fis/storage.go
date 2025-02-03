@@ -9,9 +9,6 @@ import (
 type Competitors interface {
 	GetAthletesBySector(ctx context.Context, sectorCode string) ([]GetBySectorResponse, error)
 	GetNationsBySector(ctx context.Context, sectorCode string) ([]string, error)
-	GetByFiscodeJP(ctx context.Context, fiscode int32) (int32, error)
-	GetByFiscodeNK(ctx context.Context, fiscode int32) (int32, error)
-	GetByGenderAndNationJP(ctx context.Context, gender, nation string) ([]int32, error)
 }
 
 // Implement the `Competitors()` method to return the interface
