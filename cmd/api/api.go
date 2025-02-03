@@ -24,7 +24,8 @@ type config struct {
 }
 
 type dbConfig struct {
-	addr         string
+	fisAddr      string
+	utvAddr      string
 	maxOpenConns int
 	maxIdleConns int
 	maxIdleTime  string

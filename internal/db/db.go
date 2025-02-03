@@ -8,7 +8,27 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func New(addr string, maxOpenConns, maxIdleConns int, maxIdleTime string) (*sql.DB, error) {
+// Database struct to hold multiple connections
+type Database struct {
+	FIS *sql.DB
+	UTV *sql.DB
+}
+
+func New(fisAddr, utvAddr string, maxOpenConns, maxIdleConns int, maxIdleTime string) (*Database, error) {
+	fisDB, err := connectDB(fisAddr, maxOpenConns, maxIdleConns, maxIdleTime)
+	if err != nil {
+		return nil, err
+	}
+
+	utvDB, err := connectDB(utvAddr, maxOpenConns, maxIdleConns, maxIdleTime)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Database{FIS: fisDB, UTV: utvDB}, nil
+}
+
+func connectDB(addr string, maxOpenConns, maxIdleConns int, maxIdleTime string) (*sql.DB, error) {
 	db, err := sql.Open("postgres", addr)
 	if err != nil {
 		return nil, err
