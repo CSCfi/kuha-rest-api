@@ -178,6 +178,25 @@ FROM(
 ) as acceptables
 ORDER BY summary_date DESC;
 
+-- name: GetDataPointFromSuuntoData :many
+SELECT DISTINCT data->$1
+FROM suunto_data
+WHERE summary_date = $2
+AND user_id = $3;
+
+-- name: GetTypesFromSuuntoData :many
+SELECT DISTINCT jsonb_object_keys(data)
+FROM suunto_data
+WHERE summary_date = $1
+AND user_id = $2;
+
+-- name: GetUniqueSuuntoDataTypes :many
+SELECT DISTINCT jsonb_object_keys(data)
+FROM suunto_data
+WHERE user_id = $1
+AND summary_date BETWEEN $2 AND $3;
+
+
 -- name: GetTypesFromCoachtechData :many
 WITH cte AS (
     SELECT coachtech_id
