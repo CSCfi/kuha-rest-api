@@ -22,9 +22,9 @@ type Storage struct {
 }
 
 // NewStorage initializes storage for multiple databases
-func NewStorage(databases *db.Database) *Storage { // ✅ Accept *db.Database directly
+func NewStorage(databases *db.Database) *Storage {
 	return &Storage{
-		FIS: fis.NewFISStorage(databases.FIS), // ✅ Correctly assigns FIS DB
-		UTV: utv.NewUTVStorage(databases.UTV), // ✅ Correctly assigns UTV DB
+		FIS: fis.NewFISStorage(databases.FIS),
+		UTV: utv.NewUTVStorage(databases.UTV),
 	}
 }
