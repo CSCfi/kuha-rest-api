@@ -42,6 +42,10 @@ func (h *OuraDataHandler) GetDates(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if dates == nil {
+		dates = []string{}
+	}
+
 	utils.WriteJSON(w, http.StatusOK, dates)
 }
 
