@@ -144,16 +144,13 @@ ORDER BY summary_date DESC;
 
 -- name: GetDatesFromOuraData :many
 SELECT DISTINCT summary_date
-FROM(
-    SELECT summary_date
-    FROM oura_data
-    WHERE user_id = $1
-    AND
-    summary_date BETWEEN $2 AND $3
-    AND
-    data ->> $4 <> '[]'::text
-) AS acceptables
+FROM oura_data
+WHERE user_id = @user_id
+AND (@start_date::date IS NULL OR summary_date >= @start_date)
+AND (@end_date::date IS NULL OR summary_date <= @end_date)
 ORDER BY summary_date DESC;
+
+
 
 -- name: GetDatesFromPolarData :many
 SELECT summary_date
@@ -215,8 +212,11 @@ WHERE summary_date = $2
 -- name: GetTypesFromOuraData :many
 SELECT DISTINCT jsonb_object_keys(data)
 FROM oura_data
-WHERE summary_date = $1
-AND user_id = $2;
+WHERE user_id = @user_id
+AND (@specific_date::date IS NULL OR summary_date = @specific_date)
+AND (@start_date::date IS NULL OR summary_date >= @start_date)
+AND (@end_date::date IS NULL OR summary_date <= @end_date);
+
 
 -- name: GetTypesFromPolarData :many
 SELECT physical_info IS NULL AS physical_info,
@@ -241,11 +241,18 @@ FROM coachtech_data
 WHERE summary_date=$2
 AND coachtech_id = (SELECT coachtech_id FROM cte);
 
--- name: GetDataPointFromOuraData :many
-SELECT DISTINCT data->$1
+-- name: GetAllDataForDate :one
+SELECT data
 FROM oura_data
-WHERE summary_date = $2
-AND user_id = $3;
+WHERE user_id = $1
+AND summary_date = $2;
+
+-- name: GetSpecificDataForDate :one
+SELECT data->$3::text
+FROM oura_data
+WHERE user_id = $1
+AND summary_date = $2;
+
 
 -- name: GetDataPointFromPolarData :many
 SELECT data->$1
@@ -263,13 +270,6 @@ SELECT DISTINCT data->>'testType'
 FROM coachtech_data
 WHERE coachtech_id = (SELECT coachtech_id FROM cte)
 AND summary_date BETWEEN to_timestamp($2)::date AND to_timestamp($3)::date;
-
--- name: GetUniqueOuraDataTypes :many
-SELECT DISTINCT jsonb_object_keys(data)
-FROM oura_data
-WHERE user_id = $1
-AND summary_date BETWEEN
-to_timestamp($2)::date and to_timestamp($3)::date;
 
 -- name: GetUniquePolarDataTypes :many
 SELECT physical_info IS NULL AS physical_info,

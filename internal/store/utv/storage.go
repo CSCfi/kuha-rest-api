@@ -6,12 +6,11 @@ import (
 	"time"
 )
 
-// Define OuraData interface
+// OuraData interface
 type OuraData interface {
-	GetDates(ctx context.Context, userID string, startDate string, endDate string) ([]time.Time, error)
-	GetTypes(ctx context.Context, userID string, summaryDate string) ([]string, error)
-	GetDataPoint(ctx context.Context, userID string, summaryDate string, key string) (interface{}, error)
-	GetUniqueTypes(ctx context.Context, userID string, startDate string, endDate string) ([]string, error)
+	GetDates(ctx context.Context, userID string, startDate *string, endDate *string) ([]time.Time, error)
+	GetTypes(ctx context.Context, userID string, specificDate *string, startDate *string, endDate *string) ([]string, error)
+	GetData(ctx context.Context, userID string, summaryDate string, key *string) (interface{}, error)
 }
 
 // type PolarData interface {

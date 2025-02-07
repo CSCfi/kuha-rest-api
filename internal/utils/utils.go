@@ -17,8 +17,12 @@ func ParseUUID(id string) (uuid.UUID, error) {
 	return parsedUUID, nil
 }
 
-// Parse date string (YYYY-MM-DD) to time.Time
+// ParseDate converts a string (YYYY-MM-DD) to time.Time
 func ParseDate(dateStr string) (time.Time, error) {
+	if dateStr == "" {
+		return time.Time{}, errors.New("date string is empty")
+	}
+
 	parsedTime, err := time.Parse("2006-01-02", dateStr)
 	if err != nil {
 		return time.Time{}, errors.New("invalid date format, expected YYYY-MM-DD")
@@ -26,16 +30,27 @@ func ParseDate(dateStr string) (time.Time, error) {
 	return parsedTime, nil
 }
 
-// Parse date string (YYYY-MM-DD) to Unix timestamp (float64)
-func ParseTimestamp(dateStr string) (float64, error) {
-	parsedTime, err := time.Parse("2006-01-02", dateStr)
-	if err != nil {
-		return 0, errors.New("invalid timestamp format, expected YYYY-MM-DD")
+// ParseDatePtr converts a string (YYYY-MM-DD) to *time.Time
+func ParseDatePtr(dateStr *string) (time.Time, error) {
+	if dateStr == nil || *dateStr == "" {
+		return time.Time{}, nil
 	}
-	return float64(parsedTime.Unix()), nil
+	parsedTime, err := time.Parse("2006-01-02", *dateStr)
+	if err != nil {
+		return time.Time{}, errors.New("invalid date format, expected YYYY-MM-DD")
+	}
+	return parsedTime, nil
 }
 
 // Convert string to JSON raw message
 func ParseJSONKey(key string) json.RawMessage {
 	return json.RawMessage(`"` + key + `"`)
+}
+
+// NilIfEmpty returns nil if the string is empty, otherwise returns the string pointer
+func NilIfEmpty(s string) *string {
+	if s == "" {
+		return nil
+	}
+	return &s
 }

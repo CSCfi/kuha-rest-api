@@ -139,6 +139,25 @@ func (q *Queries) DeleteUser(ctx context.Context, userID uuid.UUID) error {
 	return err
 }
 
+const getAllDataForDate = `-- name: GetAllDataForDate :one
+SELECT data
+FROM oura_data
+WHERE user_id = $1
+AND summary_date = $2
+`
+
+type GetAllDataForDateParams struct {
+	UserID      uuid.UUID
+	SummaryDate time.Time
+}
+
+func (q *Queries) GetAllDataForDate(ctx context.Context, arg GetAllDataForDateParams) (json.RawMessage, error) {
+	row := q.queryRow(ctx, q.getAllDataForDateStmt, getAllDataForDate, arg.UserID, arg.SummaryDate)
+	var data json.RawMessage
+	err := row.Scan(&data)
+	return data, err
+}
+
 const getAllDataTypes = `-- name: GetAllDataTypes :many
 
 SELECT data
@@ -235,42 +254,6 @@ func (q *Queries) GetDataPointFromCoachtechData(ctx context.Context, arg GetData
 			return nil, err
 		}
 		items = append(items, data)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getDataPointFromOuraData = `-- name: GetDataPointFromOuraData :many
-SELECT DISTINCT data->$1
-FROM oura_data
-WHERE summary_date = $2
-AND user_id = $3
-`
-
-type GetDataPointFromOuraDataParams struct {
-	Data        json.RawMessage
-	SummaryDate time.Time
-	UserID      uuid.UUID
-}
-
-func (q *Queries) GetDataPointFromOuraData(ctx context.Context, arg GetDataPointFromOuraDataParams) ([]interface{}, error) {
-	rows, err := q.query(ctx, q.getDataPointFromOuraDataStmt, getDataPointFromOuraData, arg.Data, arg.SummaryDate, arg.UserID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []interface{}
-	for rows.Next() {
-		var column_1 interface{}
-		if err := rows.Scan(&column_1); err != nil {
-			return nil, err
-		}
-		items = append(items, column_1)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -413,32 +396,21 @@ func (q *Queries) GetDatesFromCoachtechData(ctx context.Context, arg GetDatesFro
 
 const getDatesFromOuraData = `-- name: GetDatesFromOuraData :many
 SELECT DISTINCT summary_date
-FROM(
-    SELECT summary_date
-    FROM oura_data
-    WHERE user_id = $1
-    AND
-    summary_date BETWEEN $2 AND $3
-    AND
-    data ->> $4 <> '[]'::text
-) AS acceptables
+FROM oura_data
+WHERE user_id = $1
+AND ($2::date IS NULL OR summary_date >= $2)
+AND ($3::date IS NULL OR summary_date <= $3)
 ORDER BY summary_date DESC
 `
 
 type GetDatesFromOuraDataParams struct {
-	UserID        uuid.UUID
-	SummaryDate   time.Time
-	SummaryDate_2 time.Time
-	Data          json.RawMessage
+	UserID    uuid.UUID
+	StartDate time.Time
+	EndDate   time.Time
 }
 
 func (q *Queries) GetDatesFromOuraData(ctx context.Context, arg GetDatesFromOuraDataParams) ([]time.Time, error) {
-	rows, err := q.query(ctx, q.getDatesFromOuraDataStmt, getDatesFromOuraData,
-		arg.UserID,
-		arg.SummaryDate,
-		arg.SummaryDate_2,
-		arg.Data,
-	)
+	rows, err := q.query(ctx, q.getDatesFromOuraDataStmt, getDatesFromOuraData, arg.UserID, arg.StartDate, arg.EndDate)
 	if err != nil {
 		return nil, err
 	}
@@ -603,6 +575,26 @@ func (q *Queries) GetResourceMetadata(ctx context.Context, resourceID string) ([
 	return items, nil
 }
 
+const getSpecificDataForDate = `-- name: GetSpecificDataForDate :one
+SELECT data->$3::text
+FROM oura_data
+WHERE user_id = $1
+AND summary_date = $2
+`
+
+type GetSpecificDataForDateParams struct {
+	UserID      uuid.UUID
+	SummaryDate time.Time
+	Column3     string
+}
+
+func (q *Queries) GetSpecificDataForDate(ctx context.Context, arg GetSpecificDataForDateParams) (interface{}, error) {
+	row := q.queryRow(ctx, q.getSpecificDataForDateStmt, getSpecificDataForDate, arg.UserID, arg.SummaryDate, arg.Column3)
+	var column_1 interface{}
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const getTypesFromCoachtechData = `-- name: GetTypesFromCoachtechData :many
 WITH cte AS (
     SELECT coachtech_id
@@ -657,17 +649,26 @@ func (q *Queries) GetTypesFromCoachtechData(ctx context.Context, arg GetTypesFro
 const getTypesFromOuraData = `-- name: GetTypesFromOuraData :many
 SELECT DISTINCT jsonb_object_keys(data)
 FROM oura_data
-WHERE summary_date = $1
-AND user_id = $2
+WHERE user_id = $1
+AND ($2::date IS NULL OR summary_date = $2)
+AND ($3::date IS NULL OR summary_date >= $3)
+AND ($4::date IS NULL OR summary_date <= $4)
 `
 
 type GetTypesFromOuraDataParams struct {
-	SummaryDate time.Time
-	UserID      uuid.UUID
+	UserID       uuid.UUID
+	SpecificDate time.Time
+	StartDate    time.Time
+	EndDate      time.Time
 }
 
 func (q *Queries) GetTypesFromOuraData(ctx context.Context, arg GetTypesFromOuraDataParams) ([]string, error) {
-	rows, err := q.query(ctx, q.getTypesFromOuraDataStmt, getTypesFromOuraData, arg.SummaryDate, arg.UserID)
+	rows, err := q.query(ctx, q.getTypesFromOuraDataStmt, getTypesFromOuraData,
+		arg.UserID,
+		arg.SpecificDate,
+		arg.StartDate,
+		arg.EndDate,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -814,43 +815,6 @@ func (q *Queries) GetUniqueCoachtechDataTypes(ctx context.Context, arg GetUnique
 			return nil, err
 		}
 		items = append(items, column_1)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getUniqueOuraDataTypes = `-- name: GetUniqueOuraDataTypes :many
-SELECT DISTINCT jsonb_object_keys(data)
-FROM oura_data
-WHERE user_id = $1
-AND summary_date BETWEEN
-to_timestamp($2)::date and to_timestamp($3)::date
-`
-
-type GetUniqueOuraDataTypesParams struct {
-	UserID        uuid.UUID
-	ToTimestamp   float64
-	ToTimestamp_2 float64
-}
-
-func (q *Queries) GetUniqueOuraDataTypes(ctx context.Context, arg GetUniqueOuraDataTypesParams) ([]string, error) {
-	rows, err := q.query(ctx, q.getUniqueOuraDataTypesStmt, getUniqueOuraDataTypes, arg.UserID, arg.ToTimestamp, arg.ToTimestamp_2)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []string
-	for rows.Next() {
-		var jsonb_object_keys string
-		if err := rows.Scan(&jsonb_object_keys); err != nil {
-			return nil, err
-		}
-		items = append(items, jsonb_object_keys)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
