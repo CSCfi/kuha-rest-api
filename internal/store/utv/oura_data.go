@@ -15,7 +15,7 @@ type OuraDataStore struct {
 }
 
 // Get available dates for Oura data
-func (s *OuraDataStore) GetDates(ctx context.Context, userID string, startDate *string, endDate *string) ([]time.Time, error) {
+func (s *OuraDataStore) GetDates(ctx context.Context, userID string, startDate *string, endDate *string) ([]string, error) {
 	queries := utvsql.New(s.db)
 
 	uid, err := utils.ParseUUID(userID)
@@ -40,7 +40,17 @@ func (s *OuraDataStore) GetDates(ctx context.Context, userID string, startDate *
 		EndDate:   utils.NullTimeIfEmpty(end),
 	}
 
-	return queries.GetDatesFromOuraData(ctx, arg)
+	rawDates, err := queries.GetDatesFromOuraData(ctx, arg)
+	if err != nil {
+		return nil, err
+	}
+
+	var formattedDates []string
+	for _, date := range rawDates {
+		formattedDates = append(formattedDates, date.Format("2006-01-02"))
+	}
+
+	return formattedDates, nil
 }
 
 // // Get all JSON keys (types) from Oura data
