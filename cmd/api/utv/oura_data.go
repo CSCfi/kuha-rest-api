@@ -29,9 +29,14 @@ func (h *OuraDataHandler) GetDates(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := utils.ValidateQueryParams(r, []string{"user_id", "after_date", "before_date"})
+	err := utils.ValidateParams(r, []string{"user_id", "after_date", "before_date"})
 	if err != nil {
 		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	if afterDate != "" && beforeDate != "" && afterDate > beforeDate {
+		utils.UnprocessableEntityResponse(w, r, utils.ErrInvalidDateRange)
 		return
 	}
 
@@ -48,9 +53,9 @@ func (h *OuraDataHandler) GetDates(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// If no dates found, return an empty list
-	if dates == nil {
-		dates = []string{}
+	if len(dates) == 0 {
+		w.WriteHeader(http.StatusNoContent)
+		return
 	}
 
 	utils.WriteJSON(w, http.StatusOK, dates)

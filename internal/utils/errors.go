@@ -11,25 +11,32 @@ var (
 	ErrInvalidDate      = errors.New("invalid date format, expected YYYY-MM-DD")
 	ErrMissingUserID    = errors.New("user_id is required")
 	ErrInvalidParameter = errors.New("invalid parameter provided")
+	ErrInvalidDateRange = errors.New("invalid date range")
 )
 
+// 500 Internal Server Error
 func InternalServerError(w http.ResponseWriter, r *http.Request, err error) {
-	// will implement proper logging
 	log.Printf("Internal server error: %s path: %s error: %s", r.Method, r.URL.Path, err)
 
 	WriteJSONError(w, http.StatusInternalServerError, "The server encountered a problem")
 }
 
+// 400 Bad Request
 func BadRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
-	// will implement proper logging
 	log.Printf("Bad request error: %s path: %s error: %s", r.Method, r.URL.Path, err)
 
 	WriteJSONError(w, http.StatusBadRequest, err.Error())
 }
 
+// 404 Not Found
 func NotFoundResponse(w http.ResponseWriter, r *http.Request, err error) {
-	// will implement proper logging
 	log.Printf("Not found error: %s path: %s error: %s", r.Method, r.URL.Path, err)
 
 	WriteJSONError(w, http.StatusNotFound, "Not found")
+}
+
+// 422 Unprocessable Entity
+func UnprocessableEntityResponse(w http.ResponseWriter, r *http.Request, err error) {
+	log.Printf("Unprocessable Entity: %s path: %s error: %s", r.Method, r.URL.Path, err)
+	WriteJSONError(w, http.StatusUnprocessableEntity, err.Error())
 }

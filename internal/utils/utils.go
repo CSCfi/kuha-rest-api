@@ -65,7 +65,7 @@ func NullTimeIfEmpty(t *time.Time) sql.NullTime {
 }
 
 // checks if only allowed parameters are used in the request.
-func ValidateQueryParams(r *http.Request, allowedParams []string) error {
+func ValidateParams(r *http.Request, allowedParams []string) error {
 	allowed := make(map[string]bool)
 	for _, param := range allowedParams {
 		allowed[param] = true
