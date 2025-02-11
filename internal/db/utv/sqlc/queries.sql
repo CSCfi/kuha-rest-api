@@ -153,46 +153,38 @@ ORDER BY summary_date DESC;
 
 
 -- name: GetDatesFromPolarData :many
-SELECT summary_date
+SELECT DISTINCT summary_date
 FROM polar_data
-WHERE user_id = $1
-AND
-summary_date BETWEEN $2 AND $3
-AND
-$4 IS NOT NULL
+WHERE user_id = @user_id
+AND (@after_date::date IS NULL OR summary_date >= @after_date)
+AND (@before_date::date IS NULL OR summary_date <= @before_date)
 ORDER BY summary_date DESC;
-
--- The following one has not been verified: GetDatesFromSuuntoData
 
 -- name: GetDatesFromSuuntoData :many
 SELECT DISTINCT summary_date
-FROM(
-    SELECT summary_date
-    FROM suunto_data
-    WHERE user_id = $1
-    AND
-    summary_date BETWEEN $2 AND $3
-) as acceptables
-ORDER BY summary_date DESC;
-
--- name: GetDataPointFromSuuntoData :many
-SELECT DISTINCT data->$1
 FROM suunto_data
-WHERE summary_date = $2
-AND user_id = $3;
+WHERE user_id = @user_id
+AND (@after_date::date IS NULL OR summary_date >= @after_date)
+AND (@before_date::date IS NULL OR summary_date <= @before_date)
+ORDER BY summary_date DESC;
 
 -- name: GetTypesFromSuuntoData :many
 SELECT DISTINCT jsonb_object_keys(data)
 FROM suunto_data
-WHERE summary_date = $1
-AND user_id = $2;
+WHERE user_id = @user_id
+AND summary_date = @date;
 
--- name: GetUniqueSuuntoDataTypes :many
-SELECT DISTINCT jsonb_object_keys(data)
+-- name: GetAllDataForDateSuunto :one
+SELECT data
 FROM suunto_data
 WHERE user_id = $1
-AND summary_date BETWEEN $2 AND $3;
+AND summary_date = $2;
 
+-- name: GetSpecificDataForDateSuunto :one
+SELECT data->$3::text
+FROM suunto_data
+WHERE user_id = $1
+AND summary_date = $2;
 
 -- name: GetTypesFromCoachtechData :many
 WITH cte AS (
@@ -217,16 +209,10 @@ AND summary_date = @date;
 
 
 -- name: GetTypesFromPolarData :many
-SELECT physical_info IS NULL AS physical_info,
-activity_summary IS NULL AS activity_summary,
-step_samples IS NULL AS step_samples,
-zone_samples IS NULL AS zone_samples,
-sleep IS NULL AS sleep,
-nightly_recharge IS NULL AS nightly_recharge,
-exercise_summaries IS NULL AS exercise_summaries
+SELECT DISTINCT jsonb_object_keys(data)
 FROM polar_data
-WHERE summary_date = $1
-AND user_id = $2;
+WHERE user_id = @user_id
+AND summary_date = @date;
 
 -- name: GetDataPointFromCoachtechData :many
 WITH cte AS (
@@ -239,24 +225,24 @@ FROM coachtech_data
 WHERE summary_date=$2
 AND coachtech_id = (SELECT coachtech_id FROM cte);
 
--- name: GetAllDataForDate :one
+-- name: GetAllDataForDateOura :one
 SELECT data
 FROM oura_data
 WHERE user_id = $1
 AND summary_date = $2;
 
--- name: GetSpecificDataForDate :one
+-- name: GetSpecificDataForDateOura :one
 SELECT data->$3::text
 FROM oura_data
 WHERE user_id = $1
 AND summary_date = $2;
 
 
--- name: GetDataPointFromPolarData :many
-SELECT data->$1
+-- name: GetAllDataForDatePolar :one
+SELECT data
 FROM polar_data
-WHERE summary_date = $2
-AND user_id = $3;
+WHERE user_id = $1
+AND summary_date = $2;
 
 -- name: GetUniqueCoachtechDataTypes :many
 WITH cte AS (
@@ -269,15 +255,8 @@ FROM coachtech_data
 WHERE coachtech_id = (SELECT coachtech_id FROM cte)
 AND summary_date BETWEEN to_timestamp($2)::date AND to_timestamp($3)::date;
 
--- name: GetUniquePolarDataTypes :many
-SELECT physical_info IS NULL AS physical_info,
-activity_summary IS NULL AS activity_summary,
-step_samples IS NULL AS step_samples,
-zone_samples IS NULL AS zone_samples,
-sleep IS NULL AS sleep,
-nightly_recharge IS NULL AS nightly_recharge,
-exercise_summaries IS NULL AS exercise_summaries
+--- name: GetSpecificDataForDatePolar :one
+SELECT data->$3::text
 FROM polar_data
 WHERE user_id = $1
-AND summary_date BETWEEN
-to_timestamp($2)::date AND to_timestamp($3)::date;
+AND summary_date = $2;
