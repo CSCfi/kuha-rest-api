@@ -3,6 +3,8 @@ package utv
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
+	"errors"
 	"time"
 
 	utvsqlc "github.com/DeRuina/KUHA-REST-API/internal/db/utv"
@@ -57,7 +59,6 @@ func (s *OuraDataStore) GetDates(ctx context.Context, userID string, startDate *
 func (s *OuraDataStore) GetTypes(ctx context.Context, userID string, summaryDate string) ([]string, error) {
 	queries := utvsqlc.New(s.db)
 
-	// Validate and convert inputs
 	uid, err := utils.ParseUUID(userID)
 	if err != nil {
 		return nil, err
@@ -67,7 +68,6 @@ func (s *OuraDataStore) GetTypes(ctx context.Context, userID string, summaryDate
 		return nil, err
 	}
 
-	// Call the SQLC-generated query
 	arg := utvsqlc.GetTypesFromOuraDataParams{
 		UserID: uid,
 		Date:   date,
@@ -81,43 +81,59 @@ func (s *OuraDataStore) GetTypes(ctx context.Context, userID string, summaryDate
 	return types, nil
 }
 
-// // Get all data for a specific date (or filter by type)
-// func (s *OuraDataStore) GetData(ctx context.Context, userID string, summaryDate string, key *string) (interface{}, error) {
-// 	queries := utvsql.New(s.db)
+// Get all data for a specific date (or filter by key)
+func (s *OuraDataStore) GetData(ctx context.Context, userID string, Date string, key *string) (json.RawMessage, error) {
+	queries := utvsqlc.New(s.db)
 
-// 	uid, err := utils.ParseUUID(userID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	uid, err := utils.ParseUUID(userID)
+	if err != nil {
+		return nil, err
+	}
+	date, err := utils.ParseDate(Date)
+	if err != nil {
+		return nil, err
+	}
 
-// 	date, err := utils.ParseDate(summaryDate)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	// If a key is provided, fetch only that specific type
+	if key != nil {
+		arg := utvsqlc.GetSpecificDataForDateParams{
+			UserID: uid,
+			Date:   date,
+			Key:    key,
+		}
+		data, err := queries.GetSpecificDataForDate(ctx, arg)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return nil, nil
+			}
+			return nil, err
+		}
 
-// 	if key != nil {
-// 		arg := utvsql.GetSpecificDataForDateParams{
-// 			UserID:      uid,
-// 			SummaryDate: date,
-// 			Column3:     *key,
-// 		}
-// 		return queries.GetSpecificDataForDate(ctx, arg)
-// 	}
+		switch v := data.(type) {
+		case nil:
+			return nil, nil
+		case string:
+			return json.RawMessage(v), nil
+		case []byte:
+			return json.RawMessage(v), nil
+		default:
+			return json.Marshal(data)
 
-// 	arg := utvsql.GetAllDataForDateParams{
-// 		UserID:      uid,
-// 		SummaryDate: date,
-// 	}
+		}
+	}
 
-// 	data, err := queries.GetAllDataForDate(ctx, arg)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	// If no key is provided, return all data
+	arg := utvsqlc.GetAllDataForDateParams{
+		UserID: uid,
+		Date:   date,
+	}
+	data, err := queries.GetAllDataForDate(ctx, arg)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
 
-// 	var jsonData map[string]interface{}
-// 	if err := json.Unmarshal(data, &jsonData); err != nil {
-// 		return nil, err
-// 	}
-
-// 	return jsonData, nil
-// }
+	return data, nil
+}

@@ -3,13 +3,14 @@ package utv
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 )
 
 // OuraData interface
 type OuraData interface {
 	GetDates(ctx context.Context, userID string, startDate *string, endDate *string) ([]string, error)
 	GetTypes(ctx context.Context, userID string, summaryDate string) ([]string, error)
-	// GetData(ctx context.Context, userID string, summaryDate string, key *string) (interface{}, error)
+	GetData(ctx context.Context, userID string, summaryDate string, key *string) (json.RawMessage, error)
 }
 
 // type PolarData interface {

@@ -43,18 +43,13 @@ func ParseDatePtr(dateStr *string) (*time.Time, error) {
 	return &parsedTime, nil
 }
 
-// // Convert string to JSON raw message
-// func ParseJSONKey(key string) json.RawMessage {
-// 	return json.RawMessage(`"` + key + `"`)
-// }
-
-// // NilIfEmpty returns nil if the string is empty, otherwise returns the string pointer
-// func NilIfEmpty(s *string) *string {
-// 	if s == nil || *s == "" {
-// 		return nil
-// 	}
-// 	return s
-// }
+// NilIfEmpty returns nil if the string is empty, otherwise returns the string pointer
+func NilIfEmpty(s *string) *string {
+	if s == nil || *s == "" {
+		return nil
+	}
+	return s
+}
 
 // NullTimeIfEmpty converts an empty string to NULL for SQL compatibility
 func NullTimeIfEmpty(t *time.Time) sql.NullTime {

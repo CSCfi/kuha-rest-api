@@ -104,22 +104,45 @@ func (h *OuraDataHandler) GetTypes(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, types)
 }
 
-// // Get all data for a specific date (or filter by type)
-// func (h *OuraDataHandler) GetData(w http.ResponseWriter, r *http.Request) {
-// 	userID := r.URL.Query().Get("user_id")
-// 	summaryDate := r.URL.Query().Get("summary_date")
-// 	key := r.URL.Query().Get("key")
+// Get all data or a specific type for a given user and date
+func (h *OuraDataHandler) GetData(w http.ResponseWriter, r *http.Request) {
+	userID := r.URL.Query().Get("user_id")
+	summaryDate := r.URL.Query().Get("date")
+	key := r.URL.Query().Get("key")
 
-// 	if userID == "" || summaryDate == "" {
-// 		utils.BadRequestResponse(w, r, fmt.Errorf("user_id and summary_date are required"))
-// 		return
-// 	}
+	if userID == "" {
+		utils.BadRequestResponse(w, r, utils.ErrMissingUserID)
+		return
+	}
+	if summaryDate == "" {
+		utils.BadRequestResponse(w, r, utils.ErrMissingDate)
+		return
+	}
 
-// 	data, err := h.store.GetData(context.Background(), userID, summaryDate, &key)
-// 	if err != nil {
-// 		utils.InternalServerError(w, r, err)
-// 		return
-// 	}
+	err := utils.ValidateParams(r, []string{"user_id", "date", "key"})
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
 
-// 	utils.WriteJSON(w, http.StatusOK, data)
-// }
+	data, err := h.store.GetData(context.Background(), userID, summaryDate, utils.NilIfEmpty(&key))
+	if err != nil {
+		switch {
+		case errors.Is(err, utils.ErrInvalidUUID):
+			utils.BadRequestResponse(w, r, err)
+		case errors.Is(err, utils.ErrInvalidDate):
+			utils.BadRequestResponse(w, r, err)
+		default:
+			utils.InternalServerError(w, r, err)
+		}
+		return
+	}
+
+	if len(data) == 0 {
+		w.Header().Set("Content-Length", "0")
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, data)
+}

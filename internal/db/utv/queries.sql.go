@@ -149,11 +149,11 @@ AND summary_date = $2
 
 type GetAllDataForDateParams struct {
 	UserID      uuid.UUID
-	SummaryDate time.Time
+	Date time.Time
 }
 
 func (q *Queries) GetAllDataForDate(ctx context.Context, arg GetAllDataForDateParams) (json.RawMessage, error) {
-	row := q.queryRow(ctx, q.getAllDataForDateStmt, getAllDataForDate, arg.UserID, arg.SummaryDate)
+	row := q.queryRow(ctx, q.getAllDataForDateStmt, getAllDataForDate, arg.UserID, arg.Date)
 	var data json.RawMessage
 	err := row.Scan(&data)
 	return data, err
@@ -585,12 +585,12 @@ AND summary_date = $2
 
 type GetSpecificDataForDateParams struct {
 	UserID      uuid.UUID
-	SummaryDate time.Time
-	Column3     string
+	Date 		time.Time
+	Key     	*string
 }
 
 func (q *Queries) GetSpecificDataForDate(ctx context.Context, arg GetSpecificDataForDateParams) (interface{}, error) {
-	row := q.queryRow(ctx, q.getSpecificDataForDateStmt, getSpecificDataForDate, arg.UserID, arg.SummaryDate, arg.Column3)
+	row := q.queryRow(ctx, q.getSpecificDataForDateStmt, getSpecificDataForDate, arg.UserID, arg.Date, arg.Key)
 	var column_1 interface{}
 	err := row.Scan(&column_1)
 	return column_1, err
