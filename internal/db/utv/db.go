@@ -45,8 +45,14 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.deleteUserStmt, err = db.PrepareContext(ctx, deleteUser); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteUser: %w", err)
 	}
-	if q.getAllDataForDateStmt, err = db.PrepareContext(ctx, getAllDataForDate); err != nil {
-		return nil, fmt.Errorf("error preparing query GetAllDataForDate: %w", err)
+	if q.getAllDataForDateOuraStmt, err = db.PrepareContext(ctx, getAllDataForDateOura); err != nil {
+		return nil, fmt.Errorf("error preparing query GetAllDataForDateOura: %w", err)
+	}
+	if q.getAllDataForDatePolarStmt, err = db.PrepareContext(ctx, getAllDataForDatePolar); err != nil {
+		return nil, fmt.Errorf("error preparing query GetAllDataForDatePolar: %w", err)
+	}
+	if q.getAllDataForDateSuuntoStmt, err = db.PrepareContext(ctx, getAllDataForDateSuunto); err != nil {
+		return nil, fmt.Errorf("error preparing query GetAllDataForDateSuunto: %w", err)
 	}
 	if q.getAllDataTypesStmt, err = db.PrepareContext(ctx, getAllDataTypes); err != nil {
 		return nil, fmt.Errorf("error preparing query GetAllDataTypes: %w", err)
@@ -56,12 +62,6 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.getDataPointFromCoachtechDataStmt, err = db.PrepareContext(ctx, getDataPointFromCoachtechData); err != nil {
 		return nil, fmt.Errorf("error preparing query GetDataPointFromCoachtechData: %w", err)
-	}
-	if q.getDataPointFromPolarDataStmt, err = db.PrepareContext(ctx, getDataPointFromPolarData); err != nil {
-		return nil, fmt.Errorf("error preparing query GetDataPointFromPolarData: %w", err)
-	}
-	if q.getDataPointFromSuuntoDataStmt, err = db.PrepareContext(ctx, getDataPointFromSuuntoData); err != nil {
-		return nil, fmt.Errorf("error preparing query GetDataPointFromSuuntoData: %w", err)
 	}
 	if q.getDatesFromCoachtechDataStmt, err = db.PrepareContext(ctx, getDatesFromCoachtechData); err != nil {
 		return nil, fmt.Errorf("error preparing query GetDatesFromCoachtechData: %w", err)
@@ -81,8 +81,11 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getResourceMetadataStmt, err = db.PrepareContext(ctx, getResourceMetadata); err != nil {
 		return nil, fmt.Errorf("error preparing query GetResourceMetadata: %w", err)
 	}
-	if q.getSpecificDataForDateStmt, err = db.PrepareContext(ctx, getSpecificDataForDate); err != nil {
-		return nil, fmt.Errorf("error preparing query GetSpecificDataForDate: %w", err)
+	if q.getSpecificDataForDateOuraStmt, err = db.PrepareContext(ctx, getSpecificDataForDateOura); err != nil {
+		return nil, fmt.Errorf("error preparing query GetSpecificDataForDateOura: %w", err)
+	}
+	if q.getSpecificDataForDateSuuntoStmt, err = db.PrepareContext(ctx, getSpecificDataForDateSuunto); err != nil {
+		return nil, fmt.Errorf("error preparing query GetSpecificDataForDateSuunto: %w", err)
 	}
 	if q.getTypesFromCoachtechDataStmt, err = db.PrepareContext(ctx, getTypesFromCoachtechData); err != nil {
 		return nil, fmt.Errorf("error preparing query GetTypesFromCoachtechData: %w", err)
@@ -98,12 +101,6 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.getUniqueCoachtechDataTypesStmt, err = db.PrepareContext(ctx, getUniqueCoachtechDataTypes); err != nil {
 		return nil, fmt.Errorf("error preparing query GetUniqueCoachtechDataTypes: %w", err)
-	}
-	if q.getUniquePolarDataTypesStmt, err = db.PrepareContext(ctx, getUniquePolarDataTypes); err != nil {
-		return nil, fmt.Errorf("error preparing query GetUniquePolarDataTypes: %w", err)
-	}
-	if q.getUniqueSuuntoDataTypesStmt, err = db.PrepareContext(ctx, getUniqueSuuntoDataTypes); err != nil {
-		return nil, fmt.Errorf("error preparing query GetUniqueSuuntoDataTypes: %w", err)
 	}
 	if q.listGroupMembersStmt, err = db.PrepareContext(ctx, listGroupMembers); err != nil {
 		return nil, fmt.Errorf("error preparing query ListGroupMembers: %w", err)
@@ -178,9 +175,19 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing deleteUserStmt: %w", cerr)
 		}
 	}
-	if q.getAllDataForDateStmt != nil {
-		if cerr := q.getAllDataForDateStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing getAllDataForDateStmt: %w", cerr)
+	if q.getAllDataForDateOuraStmt != nil {
+		if cerr := q.getAllDataForDateOuraStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getAllDataForDateOuraStmt: %w", cerr)
+		}
+	}
+	if q.getAllDataForDatePolarStmt != nil {
+		if cerr := q.getAllDataForDatePolarStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getAllDataForDatePolarStmt: %w", cerr)
+		}
+	}
+	if q.getAllDataForDateSuuntoStmt != nil {
+		if cerr := q.getAllDataForDateSuuntoStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getAllDataForDateSuuntoStmt: %w", cerr)
 		}
 	}
 	if q.getAllDataTypesStmt != nil {
@@ -196,16 +203,6 @@ func (q *Queries) Close() error {
 	if q.getDataPointFromCoachtechDataStmt != nil {
 		if cerr := q.getDataPointFromCoachtechDataStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getDataPointFromCoachtechDataStmt: %w", cerr)
-		}
-	}
-	if q.getDataPointFromPolarDataStmt != nil {
-		if cerr := q.getDataPointFromPolarDataStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing getDataPointFromPolarDataStmt: %w", cerr)
-		}
-	}
-	if q.getDataPointFromSuuntoDataStmt != nil {
-		if cerr := q.getDataPointFromSuuntoDataStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing getDataPointFromSuuntoDataStmt: %w", cerr)
 		}
 	}
 	if q.getDatesFromCoachtechDataStmt != nil {
@@ -238,9 +235,14 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getResourceMetadataStmt: %w", cerr)
 		}
 	}
-	if q.getSpecificDataForDateStmt != nil {
-		if cerr := q.getSpecificDataForDateStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing getSpecificDataForDateStmt: %w", cerr)
+	if q.getSpecificDataForDateOuraStmt != nil {
+		if cerr := q.getSpecificDataForDateOuraStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getSpecificDataForDateOuraStmt: %w", cerr)
+		}
+	}
+	if q.getSpecificDataForDateSuuntoStmt != nil {
+		if cerr := q.getSpecificDataForDateSuuntoStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getSpecificDataForDateSuuntoStmt: %w", cerr)
 		}
 	}
 	if q.getTypesFromCoachtechDataStmt != nil {
@@ -266,16 +268,6 @@ func (q *Queries) Close() error {
 	if q.getUniqueCoachtechDataTypesStmt != nil {
 		if cerr := q.getUniqueCoachtechDataTypesStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getUniqueCoachtechDataTypesStmt: %w", cerr)
-		}
-	}
-	if q.getUniquePolarDataTypesStmt != nil {
-		if cerr := q.getUniquePolarDataTypesStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing getUniquePolarDataTypesStmt: %w", cerr)
-		}
-	}
-	if q.getUniqueSuuntoDataTypesStmt != nil {
-		if cerr := q.getUniqueSuuntoDataTypesStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing getUniqueSuuntoDataTypesStmt: %w", cerr)
 		}
 	}
 	if q.listGroupMembersStmt != nil {
@@ -379,26 +371,25 @@ type Queries struct {
 	createGroupStmt                   *sql.Stmt
 	deleteGroupStmt                   *sql.Stmt
 	deleteUserStmt                    *sql.Stmt
-	getAllDataForDateStmt             *sql.Stmt
+	getAllDataForDateOuraStmt         *sql.Stmt
+	getAllDataForDatePolarStmt        *sql.Stmt
+	getAllDataForDateSuuntoStmt       *sql.Stmt
 	getAllDataTypesStmt               *sql.Stmt
 	getAppDataStmt                    *sql.Stmt
 	getDataPointFromCoachtechDataStmt *sql.Stmt
-	getDataPointFromPolarDataStmt     *sql.Stmt
-	getDataPointFromSuuntoDataStmt    *sql.Stmt
 	getDatesFromCoachtechDataStmt     *sql.Stmt
 	getDatesFromOuraDataStmt          *sql.Stmt
 	getDatesFromPolarDataStmt         *sql.Stmt
 	getDatesFromSuuntoDataStmt        *sql.Stmt
 	getNotificationStmt               *sql.Stmt
 	getResourceMetadataStmt           *sql.Stmt
-	getSpecificDataForDateStmt        *sql.Stmt
+	getSpecificDataForDateOuraStmt    *sql.Stmt
+	getSpecificDataForDateSuuntoStmt  *sql.Stmt
 	getTypesFromCoachtechDataStmt     *sql.Stmt
 	getTypesFromOuraDataStmt          *sql.Stmt
 	getTypesFromPolarDataStmt         *sql.Stmt
 	getTypesFromSuuntoDataStmt        *sql.Stmt
 	getUniqueCoachtechDataTypesStmt   *sql.Stmt
-	getUniquePolarDataTypesStmt       *sql.Stmt
-	getUniqueSuuntoDataTypesStmt      *sql.Stmt
 	listGroupMembersStmt              *sql.Stmt
 	listGroupsStmt                    *sql.Stmt
 	listGroupsForUserStmt             *sql.Stmt
@@ -423,26 +414,25 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		createGroupStmt:                   q.createGroupStmt,
 		deleteGroupStmt:                   q.deleteGroupStmt,
 		deleteUserStmt:                    q.deleteUserStmt,
-		getAllDataForDateStmt:             q.getAllDataForDateStmt,
+		getAllDataForDateOuraStmt:         q.getAllDataForDateOuraStmt,
+		getAllDataForDatePolarStmt:        q.getAllDataForDatePolarStmt,
+		getAllDataForDateSuuntoStmt:       q.getAllDataForDateSuuntoStmt,
 		getAllDataTypesStmt:               q.getAllDataTypesStmt,
 		getAppDataStmt:                    q.getAppDataStmt,
 		getDataPointFromCoachtechDataStmt: q.getDataPointFromCoachtechDataStmt,
-		getDataPointFromPolarDataStmt:     q.getDataPointFromPolarDataStmt,
-		getDataPointFromSuuntoDataStmt:    q.getDataPointFromSuuntoDataStmt,
 		getDatesFromCoachtechDataStmt:     q.getDatesFromCoachtechDataStmt,
 		getDatesFromOuraDataStmt:          q.getDatesFromOuraDataStmt,
 		getDatesFromPolarDataStmt:         q.getDatesFromPolarDataStmt,
 		getDatesFromSuuntoDataStmt:        q.getDatesFromSuuntoDataStmt,
 		getNotificationStmt:               q.getNotificationStmt,
 		getResourceMetadataStmt:           q.getResourceMetadataStmt,
-		getSpecificDataForDateStmt:        q.getSpecificDataForDateStmt,
+		getSpecificDataForDateOuraStmt:    q.getSpecificDataForDateOuraStmt,
+		getSpecificDataForDateSuuntoStmt:  q.getSpecificDataForDateSuuntoStmt,
 		getTypesFromCoachtechDataStmt:     q.getTypesFromCoachtechDataStmt,
 		getTypesFromOuraDataStmt:          q.getTypesFromOuraDataStmt,
 		getTypesFromPolarDataStmt:         q.getTypesFromPolarDataStmt,
 		getTypesFromSuuntoDataStmt:        q.getTypesFromSuuntoDataStmt,
 		getUniqueCoachtechDataTypesStmt:   q.getUniqueCoachtechDataTypesStmt,
-		getUniquePolarDataTypesStmt:       q.getUniquePolarDataTypesStmt,
-		getUniqueSuuntoDataTypesStmt:      q.getUniqueSuuntoDataTypesStmt,
 		listGroupMembersStmt:              q.listGroupMembersStmt,
 		listGroupsStmt:                    q.listGroupsStmt,
 		listGroupsForUserStmt:             q.listGroupsForUserStmt,

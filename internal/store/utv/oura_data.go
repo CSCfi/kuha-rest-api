@@ -96,12 +96,12 @@ func (s *OuraDataStore) GetData(ctx context.Context, userID string, Date string,
 
 	// If a key is provided, fetch only that specific type
 	if key != nil {
-		arg := utvsqlc.GetSpecificDataForDateParams{
+		arg := utvsqlc.GetSpecificDataForDateOuraParams{
 			UserID: uid,
 			Date:   date,
 			Key:    key,
 		}
-		data, err := queries.GetSpecificDataForDate(ctx, arg)
+		data, err := queries.GetSpecificDataForDateOura(ctx, arg)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return nil, nil
@@ -123,11 +123,11 @@ func (s *OuraDataStore) GetData(ctx context.Context, userID string, Date string,
 	}
 
 	// If no key is provided, return all data
-	arg := utvsqlc.GetAllDataForDateParams{
+	arg := utvsqlc.GetAllDataForDateOuraParams{
 		UserID: uid,
 		Date:   date,
 	}
-	data, err := queries.GetAllDataForDate(ctx, arg)
+	data, err := queries.GetAllDataForDateOura(ctx, arg)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil

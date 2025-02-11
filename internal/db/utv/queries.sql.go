@@ -140,20 +140,58 @@ func (q *Queries) DeleteUser(ctx context.Context, userID uuid.UUID) error {
 	return err
 }
 
-const getAllDataForDate = `-- name: GetAllDataForDate :one
+const getAllDataForDateOura = `-- name: GetAllDataForDateOura :one
 SELECT data
 FROM oura_data
 WHERE user_id = $1
 AND summary_date = $2
 `
 
-type GetAllDataForDateParams struct {
+type GetAllDataForDateOuraParams struct {
 	UserID      uuid.UUID
 	Date time.Time
 }
 
-func (q *Queries) GetAllDataForDate(ctx context.Context, arg GetAllDataForDateParams) (json.RawMessage, error) {
-	row := q.queryRow(ctx, q.getAllDataForDateStmt, getAllDataForDate, arg.UserID, arg.Date)
+func (q *Queries) GetAllDataForDateOura(ctx context.Context, arg GetAllDataForDateOuraParams) (json.RawMessage, error) {
+	row := q.queryRow(ctx, q.getAllDataForDateOuraStmt, getAllDataForDateOura, arg.UserID, arg.Date)
+	var data json.RawMessage
+	err := row.Scan(&data)
+	return data, err
+}
+
+const getAllDataForDatePolar = `-- name: GetAllDataForDatePolar :one
+SELECT data
+FROM polar_data
+WHERE user_id = $1
+AND summary_date = $2
+`
+
+type GetAllDataForDatePolarParams struct {
+	UserID      uuid.UUID
+	Date time.Time
+}
+
+func (q *Queries) GetAllDataForDatePolar(ctx context.Context, arg GetAllDataForDatePolarParams) (json.RawMessage, error) {
+	row := q.queryRow(ctx, q.getAllDataForDatePolarStmt, getAllDataForDatePolar, arg.UserID, arg.Date)
+	var data json.RawMessage
+	err := row.Scan(&data)
+	return data, err
+}
+
+const getAllDataForDateSuunto = `-- name: GetAllDataForDateSuunto :one
+SELECT data
+FROM suunto_data
+WHERE user_id = $1
+AND summary_date = $2
+`
+
+type GetAllDataForDateSuuntoParams struct {
+	UserID      uuid.UUID
+	Date time.Time
+}
+
+func (q *Queries) GetAllDataForDateSuunto(ctx context.Context, arg GetAllDataForDateSuuntoParams) (json.RawMessage, error) {
+	row := q.queryRow(ctx, q.getAllDataForDateSuuntoStmt, getAllDataForDateSuunto, arg.UserID, arg.Date)
 	var data json.RawMessage
 	err := row.Scan(&data)
 	return data, err
@@ -265,78 +303,6 @@ func (q *Queries) GetDataPointFromCoachtechData(ctx context.Context, arg GetData
 	return items, nil
 }
 
-const getDataPointFromPolarData = `-- name: GetDataPointFromPolarData :many
-SELECT data->$1
-FROM polar_data
-WHERE summary_date = $2
-AND user_id = $3
-`
-
-type GetDataPointFromPolarDataParams struct {
-	Data        json.RawMessage
-	SummaryDate time.Time
-	UserID      uuid.UUID
-}
-
-func (q *Queries) GetDataPointFromPolarData(ctx context.Context, arg GetDataPointFromPolarDataParams) ([]interface{}, error) {
-	rows, err := q.query(ctx, q.getDataPointFromPolarDataStmt, getDataPointFromPolarData, arg.Data, arg.SummaryDate, arg.UserID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []interface{}
-	for rows.Next() {
-		var column_1 interface{}
-		if err := rows.Scan(&column_1); err != nil {
-			return nil, err
-		}
-		items = append(items, column_1)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getDataPointFromSuuntoData = `-- name: GetDataPointFromSuuntoData :many
-SELECT DISTINCT data->$1
-FROM suunto_data
-WHERE summary_date = $2
-AND user_id = $3
-`
-
-type GetDataPointFromSuuntoDataParams struct {
-	Data        json.RawMessage
-	SummaryDate time.Time
-	UserID      uuid.UUID
-}
-
-func (q *Queries) GetDataPointFromSuuntoData(ctx context.Context, arg GetDataPointFromSuuntoDataParams) ([]interface{}, error) {
-	rows, err := q.query(ctx, q.getDataPointFromSuuntoDataStmt, getDataPointFromSuuntoData, arg.Data, arg.SummaryDate, arg.UserID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []interface{}
-	for rows.Next() {
-		var column_1 interface{}
-		if err := rows.Scan(&column_1); err != nil {
-			return nil, err
-		}
-		items = append(items, column_1)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getDatesFromCoachtechData = `-- name: GetDatesFromCoachtechData :many
 
 
@@ -434,30 +400,22 @@ func (q *Queries) GetDatesFromOuraData(ctx context.Context, arg GetDatesFromOura
 }
 
 const getDatesFromPolarData = `-- name: GetDatesFromPolarData :many
-SELECT summary_date
+SELECT DISTINCT summary_date
 FROM polar_data
 WHERE user_id = $1
-AND
-summary_date BETWEEN $2 AND $3
-AND
-$4 IS NOT NULL
+AND ($2::date IS NULL OR summary_date >= $2)
+AND ($3::date IS NULL OR summary_date <= $3)
 ORDER BY summary_date DESC
 `
 
 type GetDatesFromPolarDataParams struct {
-	UserID        uuid.UUID
-	SummaryDate   time.Time
-	SummaryDate_2 time.Time
-	Column4       interface{}
+	UserID     uuid.UUID
+	AfterDate  sql.NullTime
+	BeforeDate sql.NullTime
 }
 
 func (q *Queries) GetDatesFromPolarData(ctx context.Context, arg GetDatesFromPolarDataParams) ([]time.Time, error) {
-	rows, err := q.query(ctx, q.getDatesFromPolarDataStmt, getDatesFromPolarData,
-		arg.UserID,
-		arg.SummaryDate,
-		arg.SummaryDate_2,
-		arg.Column4,
-	)
+	rows, err := q.query(ctx, q.getDatesFromPolarDataStmt, getDatesFromPolarData, arg.UserID, arg.AfterDate, arg.BeforeDate)
 	if err != nil {
 		return nil, err
 	}
@@ -480,27 +438,22 @@ func (q *Queries) GetDatesFromPolarData(ctx context.Context, arg GetDatesFromPol
 }
 
 const getDatesFromSuuntoData = `-- name: GetDatesFromSuuntoData :many
-
 SELECT DISTINCT summary_date
-FROM(
-    SELECT summary_date
-    FROM suunto_data
-    WHERE user_id = $1
-    AND
-    summary_date BETWEEN $2 AND $3
-) as acceptables
+FROM suunto_data
+WHERE user_id = $1
+AND ($2::date IS NULL OR summary_date >= $2)
+AND ($3::date IS NULL OR summary_date <= $3)
 ORDER BY summary_date DESC
 `
 
 type GetDatesFromSuuntoDataParams struct {
-	UserID        uuid.UUID
-	SummaryDate   time.Time
-	SummaryDate_2 time.Time
+	UserID     uuid.UUID
+	AfterDate  sql.NullTime
+	BeforeDate sql.NullTime
 }
 
-// The following one has not been verified: GetDatesFromSuuntoData
 func (q *Queries) GetDatesFromSuuntoData(ctx context.Context, arg GetDatesFromSuuntoDataParams) ([]time.Time, error) {
-	rows, err := q.query(ctx, q.getDatesFromSuuntoDataStmt, getDatesFromSuuntoData, arg.UserID, arg.SummaryDate, arg.SummaryDate_2)
+	rows, err := q.query(ctx, q.getDatesFromSuuntoDataStmt, getDatesFromSuuntoData, arg.UserID, arg.AfterDate, arg.BeforeDate)
 	if err != nil {
 		return nil, err
 	}
@@ -576,21 +529,41 @@ func (q *Queries) GetResourceMetadata(ctx context.Context, resourceID string) ([
 	return items, nil
 }
 
-const getSpecificDataForDate = `-- name: GetSpecificDataForDate :one
+const getSpecificDataForDateOura = `-- name: GetSpecificDataForDateOura :one
 SELECT data->$3::text
 FROM oura_data
 WHERE user_id = $1
 AND summary_date = $2
 `
 
-type GetSpecificDataForDateParams struct {
+type GetSpecificDataForDateOuraParams struct {
 	UserID      uuid.UUID
 	Date 		time.Time
 	Key     	*string
 }
 
-func (q *Queries) GetSpecificDataForDate(ctx context.Context, arg GetSpecificDataForDateParams) (interface{}, error) {
-	row := q.queryRow(ctx, q.getSpecificDataForDateStmt, getSpecificDataForDate, arg.UserID, arg.Date, arg.Key)
+func (q *Queries) GetSpecificDataForDateOura(ctx context.Context, arg GetSpecificDataForDateOuraParams) (interface{}, error) {
+	row := q.queryRow(ctx, q.getSpecificDataForDateOuraStmt, getSpecificDataForDateOura, arg.UserID, arg.Date, arg.Key)
+	var column_1 interface{}
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
+const getSpecificDataForDateSuunto = `-- name: GetSpecificDataForDateSuunto :one
+SELECT data->$3::text
+FROM suunto_data
+WHERE user_id = $1
+AND summary_date = $2
+`
+
+type GetSpecificDataForDateSuuntoParams struct {
+	UserID      uuid.UUID
+	Date 		time.Time
+	Key     	*string
+}
+
+func (q *Queries) GetSpecificDataForDateSuunto(ctx context.Context, arg GetSpecificDataForDateSuuntoParams) (interface{}, error) {
+	row := q.queryRow(ctx, q.getSpecificDataForDateSuuntoStmt, getSpecificDataForDateSuunto, arg.UserID, arg.Date, arg.Key)
 	var column_1 interface{}
 	err := row.Scan(&column_1)
 	return column_1, err
@@ -683,54 +656,30 @@ func (q *Queries) GetTypesFromOuraData(ctx context.Context, arg GetTypesFromOura
 }
 
 const getTypesFromPolarData = `-- name: GetTypesFromPolarData :many
-SELECT physical_info IS NULL AS physical_info,
-activity_summary IS NULL AS activity_summary,
-step_samples IS NULL AS step_samples,
-zone_samples IS NULL AS zone_samples,
-sleep IS NULL AS sleep,
-nightly_recharge IS NULL AS nightly_recharge,
-exercise_summaries IS NULL AS exercise_summaries
+SELECT DISTINCT jsonb_object_keys(data)
 FROM polar_data
-WHERE summary_date = $1
-AND user_id = $2
+WHERE user_id = $1
+AND summary_date = $2
 `
 
 type GetTypesFromPolarDataParams struct {
-	SummaryDate time.Time
-	UserID      uuid.UUID
+	UserID uuid.UUID
+	Date   time.Time
 }
 
-type GetTypesFromPolarDataRow struct {
-	PhysicalInfo      interface{}
-	ActivitySummary   interface{}
-	StepSamples       interface{}
-	ZoneSamples       interface{}
-	Sleep             interface{}
-	NightlyRecharge   interface{}
-	ExerciseSummaries interface{}
-}
-
-func (q *Queries) GetTypesFromPolarData(ctx context.Context, arg GetTypesFromPolarDataParams) ([]GetTypesFromPolarDataRow, error) {
-	rows, err := q.query(ctx, q.getTypesFromPolarDataStmt, getTypesFromPolarData, arg.SummaryDate, arg.UserID)
+func (q *Queries) GetTypesFromPolarData(ctx context.Context, arg GetTypesFromPolarDataParams) ([]string, error) {
+	rows, err := q.query(ctx, q.getTypesFromPolarDataStmt, getTypesFromPolarData, arg.UserID, arg.Date)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetTypesFromPolarDataRow
+	var items []string
 	for rows.Next() {
-		var i GetTypesFromPolarDataRow
-		if err := rows.Scan(
-			&i.PhysicalInfo,
-			&i.ActivitySummary,
-			&i.StepSamples,
-			&i.ZoneSamples,
-			&i.Sleep,
-			&i.NightlyRecharge,
-			&i.ExerciseSummaries,
-		); err != nil {
+		var jsonb_object_keys string
+		if err := rows.Scan(&jsonb_object_keys); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, jsonb_object_keys)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -744,17 +693,17 @@ func (q *Queries) GetTypesFromPolarData(ctx context.Context, arg GetTypesFromPol
 const getTypesFromSuuntoData = `-- name: GetTypesFromSuuntoData :many
 SELECT DISTINCT jsonb_object_keys(data)
 FROM suunto_data
-WHERE summary_date = $1
-AND user_id = $2
+WHERE user_id = $1
+AND summary_date = $2
 `
 
 type GetTypesFromSuuntoDataParams struct {
-	SummaryDate time.Time
-	UserID      uuid.UUID
+	UserID uuid.UUID
+	Date   time.Time
 }
 
 func (q *Queries) GetTypesFromSuuntoData(ctx context.Context, arg GetTypesFromSuuntoDataParams) ([]string, error) {
-	rows, err := q.query(ctx, q.getTypesFromSuuntoDataStmt, getTypesFromSuuntoData, arg.SummaryDate, arg.UserID)
+	rows, err := q.query(ctx, q.getTypesFromSuuntoDataStmt, getTypesFromSuuntoData, arg.UserID, arg.Date)
 	if err != nil {
 		return nil, err
 	}
@@ -807,103 +756,6 @@ func (q *Queries) GetUniqueCoachtechDataTypes(ctx context.Context, arg GetUnique
 			return nil, err
 		}
 		items = append(items, column_1)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getUniquePolarDataTypes = `-- name: GetUniquePolarDataTypes :many
-SELECT physical_info IS NULL AS physical_info,
-activity_summary IS NULL AS activity_summary,
-step_samples IS NULL AS step_samples,
-zone_samples IS NULL AS zone_samples,
-sleep IS NULL AS sleep,
-nightly_recharge IS NULL AS nightly_recharge,
-exercise_summaries IS NULL AS exercise_summaries
-FROM polar_data
-WHERE user_id = $1
-AND summary_date BETWEEN
-to_timestamp($2)::date AND to_timestamp($3)::date
-`
-
-type GetUniquePolarDataTypesParams struct {
-	UserID        uuid.UUID
-	ToTimestamp   float64
-	ToTimestamp_2 float64
-}
-
-type GetUniquePolarDataTypesRow struct {
-	PhysicalInfo      interface{}
-	ActivitySummary   interface{}
-	StepSamples       interface{}
-	ZoneSamples       interface{}
-	Sleep             interface{}
-	NightlyRecharge   interface{}
-	ExerciseSummaries interface{}
-}
-
-func (q *Queries) GetUniquePolarDataTypes(ctx context.Context, arg GetUniquePolarDataTypesParams) ([]GetUniquePolarDataTypesRow, error) {
-	rows, err := q.query(ctx, q.getUniquePolarDataTypesStmt, getUniquePolarDataTypes, arg.UserID, arg.ToTimestamp, arg.ToTimestamp_2)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetUniquePolarDataTypesRow
-	for rows.Next() {
-		var i GetUniquePolarDataTypesRow
-		if err := rows.Scan(
-			&i.PhysicalInfo,
-			&i.ActivitySummary,
-			&i.StepSamples,
-			&i.ZoneSamples,
-			&i.Sleep,
-			&i.NightlyRecharge,
-			&i.ExerciseSummaries,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getUniqueSuuntoDataTypes = `-- name: GetUniqueSuuntoDataTypes :many
-SELECT DISTINCT jsonb_object_keys(data)
-FROM suunto_data
-WHERE user_id = $1
-AND summary_date BETWEEN $2 AND $3
-`
-
-type GetUniqueSuuntoDataTypesParams struct {
-	UserID        uuid.UUID
-	SummaryDate   time.Time
-	SummaryDate_2 time.Time
-}
-
-func (q *Queries) GetUniqueSuuntoDataTypes(ctx context.Context, arg GetUniqueSuuntoDataTypesParams) ([]string, error) {
-	rows, err := q.query(ctx, q.getUniqueSuuntoDataTypesStmt, getUniqueSuuntoDataTypes, arg.UserID, arg.SummaryDate, arg.SummaryDate_2)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []string
-	for rows.Next() {
-		var jsonb_object_keys string
-		if err := rows.Scan(&jsonb_object_keys); err != nil {
-			return nil, err
-		}
-		items = append(items, jsonb_object_keys)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
