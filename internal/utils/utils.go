@@ -43,7 +43,7 @@ func ParseDatePtr(dateStr *string) (*time.Time, error) {
 	return &parsedTime, nil
 }
 
-// NilIfEmpty returns nil if the string is empty, otherwise returns the string pointer
+// Returns nil if the string is empty, otherwise returns the string pointer
 func NilIfEmpty(s *string) *string {
 	if s == nil || *s == "" {
 		return nil
@@ -51,7 +51,7 @@ func NilIfEmpty(s *string) *string {
 	return s
 }
 
-// NullTimeIfEmpty converts an empty string to NULL for SQL compatibility
+// Converts an empty string to NULL for SQL compatibility
 func NullTimeIfEmpty(t *time.Time) sql.NullTime {
 	if t == nil {
 		return sql.NullTime{Valid: false}
@@ -59,7 +59,7 @@ func NullTimeIfEmpty(t *time.Time) sql.NullTime {
 	return sql.NullTime{Time: *t, Valid: true}
 }
 
-// checks if only allowed parameters are used in the request.
+// Checks if only allowed parameters are used in the request.
 func ValidateParams(r *http.Request, allowedParams []string) error {
 	allowed := make(map[string]bool)
 	for _, param := range allowedParams {

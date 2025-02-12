@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// Errors
 var (
 	ErrInvalidUUID      = errors.New("invalid UUID format")
 	ErrInvalidDate      = errors.New("invalid date: ensure the format is YYYY-MM-DD and values are realistic")

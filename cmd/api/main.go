@@ -38,7 +38,7 @@ func main() {
 		store:  *store,
 	}
 
-	mux := app.mount() /*  */
+	mux := app.mount()
 
 	log.Fatal(app.run(mux))
 }

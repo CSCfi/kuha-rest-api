@@ -13,15 +13,16 @@ type FIS interface {
 
 type UTV interface {
 	Oura() utv.OuraData
+	Polar() utv.PolarData
 }
 
-// Define Storage struct for multiple databases
+// Storage struct for multiple databases
 type Storage struct {
 	FIS FIS
 	UTV UTV
 }
 
-// NewStorage initializes storage for multiple databases
+// Initializes storage for multiple databases
 func NewStorage(databases *db.Database) *Storage {
 	return &Storage{
 		FIS: fis.NewFISStorage(databases.FIS),
