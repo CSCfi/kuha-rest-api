@@ -61,6 +61,7 @@ func (app *api) mount() http.Handler {
 			//register handlers
 			ouraHandler := utvapi.NewOuraDataHandler(app.store.UTV.Oura())
 			polarHandler := utvapi.NewPolarDataHandler(app.store.UTV.Polar())
+			suuntoHandler := utvapi.NewSuuntoDataHandler(app.store.UTV.Suunto())
 
 			// Oura routes
 			r.Route("/oura", func(r chi.Router) {
@@ -74,6 +75,13 @@ func (app *api) mount() http.Handler {
 				r.Get("/dates", polarHandler.GetDates)
 				r.Get("/types", polarHandler.GetTypes)
 				r.Get("/data", polarHandler.GetData)
+			})
+
+			// Suunto routes
+			r.Route("/suunto", func(r chi.Router) {
+				r.Get("/dates", suuntoHandler.GetDates)
+				r.Get("/types", suuntoHandler.GetTypes)
+				r.Get("/data", suuntoHandler.GetData)
 			})
 
 		})

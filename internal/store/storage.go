@@ -14,6 +14,7 @@ type FIS interface {
 type UTV interface {
 	Oura() utv.OuraData
 	Polar() utv.PolarData
+	Suunto() utv.SuuntoData
 }
 
 // Storage struct for multiple databases

@@ -20,18 +20,18 @@ type PolarData interface {
 	GetData(ctx context.Context, userID string, summaryDate string, key *string) (json.RawMessage, error)
 }
 
-// type SuuntoData interface {
-// 	GetDates(ctx context.Context, userID string, startDate string, endDate string) ([]string, error)
-// 	GetTypes(ctx context.Context, userID string, summaryDate string) ([]string, error)
-// 	GetDataPoint(ctx context.Context, userID string, summaryDate string, key string) (interface{}, error)
-// 	GetUniqueTypes(ctx context.Context, userID string, startDate string, endDate string) ([]string, error)
-// }
+// SuuntoData interface
+type SuuntoData interface {
+	GetDates(ctx context.Context, userID string, startDate *string, endDate *string) ([]string, error)
+	GetTypes(ctx context.Context, userID string, summaryDate string) ([]string, error)
+	GetData(ctx context.Context, userID string, summaryDate string, key *string) (json.RawMessage, error)
+}
 
 // UTVStorage struct to hold table-specific storage
 type UTVStorage struct {
-	oura  OuraData
-	polar PolarData
-	// suunto SuuntoData
+	oura   OuraData
+	polar  PolarData
+	suunto SuuntoData
 }
 
 // Methods to return each table's storage interface
@@ -43,15 +43,15 @@ func (s *UTVStorage) Polar() PolarData {
 	return s.polar
 }
 
-// func (s *UTVStorage) Suunto() SuuntoData {
-// 	return s.suunto
-// }
+func (s *UTVStorage) Suunto() SuuntoData {
+	return s.suunto
+}
 
 // Storage for UTV database tables
 func NewUTVStorage(db *sql.DB) *UTVStorage {
 	return &UTVStorage{
-		oura:  &OuraDataStore{db: db},
-		polar: &PolarDataStore{db: db},
-		// suunto: &SuuntoDataStore{db: db},
+		oura:   &OuraDataStore{db: db},
+		polar:  &PolarDataStore{db: db},
+		suunto: &SuuntoDataStore{db: db},
 	}
 }
