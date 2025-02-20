@@ -10,14 +10,16 @@ import (
 
 // Errors
 var (
-	ErrInvalidUUID      = errors.New("invalid UUID")
-	ErrInvalidDate      = errors.New("invalid date: ensure the format is YYYY-MM-DD and values are realistic")
-	ErrMissingUserID    = errors.New("user_id is required")
-	ErrMissingDate      = errors.New("date is required")
-	ErrInvalidParameter = errors.New("invalid parameter provided")
-	ErrInvalidDateRange = errors.New("invalid date range")
-	ErrInvalidChoice    = errors.New("invalid choice: must be one of the allowed values")
-	ErrInvalidValue     = errors.New("invalid value provided")
+	ErrInvalidUUID       = errors.New("invalid UUID")
+	ErrInvalidDate       = errors.New("invalid date: ensure the format is YYYY-MM-DD and values are realistic")
+	ErrMissingUserID     = errors.New("user_id is required")
+	ErrMissingSector     = errors.New("sector is required")
+	ErrMissingDate       = errors.New("date is required")
+	ErrInvalidParameter  = errors.New("invalid parameter provided")
+	ErrInvalidDateRange  = errors.New("invalid date range")
+	ErrInvalidChoice     = errors.New("invalid choice: must be one of the allowed values")
+	ErrInvalidValue      = errors.New("invalid value provided")
+	ErrInvalidSectorCode = errors.New("invalid sector code. Allowed values: JP, NK, CC")
 )
 
 func FormatValidationErrors(err error) map[string]string {
@@ -32,6 +34,8 @@ func FormatValidationErrors(err error) map[string]string {
 				errors["user_id"] = ErrMissingUserID.Error()
 			} else if field == "Date" {
 				errors["date"] = ErrMissingDate.Error()
+			} else if field == "Sector" {
+				errors["sector"] = ErrMissingSector.Error()
 			} else {
 				errors[field] = "This field is required"
 			}
@@ -40,7 +44,11 @@ func FormatValidationErrors(err error) map[string]string {
 		case "datetime":
 			errors["date"] = ErrInvalidDate.Error()
 		case "oneof":
-			errors[field] = ErrInvalidChoice.Error()
+			if field == "Sector" {
+				errors["sector"] = ErrInvalidSectorCode.Error()
+			} else {
+				errors[field] = ErrInvalidChoice.Error()
+			}
 		default:
 			errors[field] = ErrInvalidValue.Error()
 		}

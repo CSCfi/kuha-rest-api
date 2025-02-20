@@ -9,6 +9,10 @@ import (
 	"github.com/DeRuina/KUHA-REST-API/internal/utils"
 )
 
+type SectorParams struct {
+	Sector string `form:"sector" validate:"required,oneof=JP NK CC"`
+}
+
 type CompetitorsHandler struct {
 	store fis.Competitors
 }
@@ -20,27 +24,29 @@ func NewCompetitorsHandler(store fis.Competitors) *CompetitorsHandler {
 // GetAthletesBySector
 
 func (h *CompetitorsHandler) GetAthletesBySector(w http.ResponseWriter, r *http.Request) {
-	sectorCode := r.URL.Query().Get("sector")
-
-	if sectorCode == "" {
-		utils.BadRequestResponse(w, r, fmt.Errorf("sector code is required"))
+	err := utils.ValidateParams(r, []string{"sector"})
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
 		return
 	}
 
-	validSectors := map[string]bool{"JP": true, "NK": true, "CC": true}
-	if !validSectors[sectorCode] {
-		utils.BadRequestResponse(w, r, fmt.Errorf("invalid sector code. Allowed values: JP, NK, CC"))
+	params := SectorParams{
+		Sector: r.URL.Query().Get("sector"),
+	}
+
+	if err := utils.GetValidator().Struct(params); err != nil {
+		utils.BadRequestResponse(w, r, err)
 		return
 	}
 
-	competitors, err := h.store.GetAthletesBySector(context.Background(), sectorCode)
+	competitors, err := h.store.GetAthletesBySector(context.Background(), params.Sector)
 	if err != nil {
 		utils.InternalServerError(w, r, err)
 		return
 	}
 
 	if len(competitors) == 0 {
-		utils.NotFoundResponse(w, r, fmt.Errorf("no competitors found for sector %s", sectorCode))
+		utils.NotFoundResponse(w, r, fmt.Errorf("no competitors found for sector %s", params.Sector))
 		return
 	}
 
@@ -50,27 +56,29 @@ func (h *CompetitorsHandler) GetAthletesBySector(w http.ResponseWriter, r *http.
 // GetNationsBySector
 
 func (h *CompetitorsHandler) GetNationsBySector(w http.ResponseWriter, r *http.Request) {
-	sectorCode := r.URL.Query().Get("sector")
-
-	if sectorCode == "" {
-		utils.BadRequestResponse(w, r, fmt.Errorf("sector code is required"))
+	err := utils.ValidateParams(r, []string{"sector"})
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
 		return
 	}
 
-	validSectors := map[string]bool{"JP": true, "NK": true, "CC": true}
-	if !validSectors[sectorCode] {
-		utils.BadRequestResponse(w, r, fmt.Errorf("invalid sector code. Allowed values: JP, NK, CC"))
+	params := SectorParams{
+		Sector: r.URL.Query().Get("sector"),
+	}
+
+	if err := utils.GetValidator().Struct(params); err != nil {
+		utils.BadRequestResponse(w, r, err)
 		return
 	}
 
-	nations, err := h.store.GetNationsBySector(context.Background(), sectorCode)
+	nations, err := h.store.GetNationsBySector(context.Background(), params.Sector)
 	if err != nil {
 		utils.InternalServerError(w, r, err)
 		return
 	}
 
 	if len(nations) == 0 {
-		utils.NotFoundResponse(w, r, fmt.Errorf("no nations found for sector %s", sectorCode))
+		utils.NotFoundResponse(w, r, fmt.Errorf("no nations found for sector %s", params.Sector))
 		return
 	}
 
