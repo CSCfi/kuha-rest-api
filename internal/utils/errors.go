@@ -10,11 +10,16 @@ import (
 
 // Errors
 var (
+
+	//ErrMissing
+	ErrMissingUserID  = errors.New("user_id is required")
+	ErrMissingSector  = errors.New("sector is required")
+	ErrMissingDate    = errors.New("date is required")
+	ErrMissingGeneral = errors.New("this field is required")
+
+	//ErrInvalid
 	ErrInvalidUUID       = errors.New("invalid UUID")
 	ErrInvalidDate       = errors.New("invalid date: ensure the format is YYYY-MM-DD and values are realistic")
-	ErrMissingUserID     = errors.New("user_id is required")
-	ErrMissingSector     = errors.New("sector is required")
-	ErrMissingDate       = errors.New("date is required")
 	ErrInvalidParameter  = errors.New("invalid parameter provided")
 	ErrInvalidDateRange  = errors.New("invalid date range")
 	ErrInvalidChoice     = errors.New("invalid choice: must be one of the allowed values")
@@ -30,25 +35,31 @@ func FormatValidationErrors(err error) map[string]string {
 
 		switch fieldErr.Tag() {
 		case "required":
-			if field == "UserID" {
+			switch field {
+			case "UserID":
 				errors["user_id"] = ErrMissingUserID.Error()
-			} else if field == "Date" {
+			case "Date":
 				errors["date"] = ErrMissingDate.Error()
-			} else if field == "Sector" {
+			case "Sector":
 				errors["sector"] = ErrMissingSector.Error()
-			} else {
-				errors[field] = "This field is required"
+			default:
+				errors[field] = ErrMissingGeneral.Error()
 			}
-		case "uuid4":
-			errors["user_id"] = ErrInvalidUUID.Error()
-		case "datetime":
-			errors["date"] = ErrInvalidDate.Error()
+
 		case "oneof":
-			if field == "Sector" {
+			switch field {
+			case "Sector":
 				errors["sector"] = ErrInvalidSectorCode.Error()
-			} else {
+			default:
 				errors[field] = ErrInvalidChoice.Error()
 			}
+
+		case "uuid4":
+			errors["user_id"] = ErrInvalidUUID.Error()
+
+		case "datetime":
+			errors["date"] = ErrInvalidDate.Error()
+
 		default:
 			errors[field] = ErrInvalidValue.Error()
 		}
