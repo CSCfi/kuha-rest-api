@@ -21,9 +21,16 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
 	return decoder.Decode(data)
 }
 
-func WriteJSONError(w http.ResponseWriter, status int, msg string) error {
-	type envelope struct {
-		Error string `json:"error"`
+func WriteJSONError(w http.ResponseWriter, statusCode int, message interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+
+	switch msg := message.(type) {
+	case string:
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": msg})
+	case map[string]string:
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"errors": msg})
+	default:
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "An unexpected error occurred"})
 	}
-	return WriteJSON(w, status, &envelope{Error: msg})
 }

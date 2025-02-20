@@ -4,10 +4,25 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"strings"
+	"sync"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 )
+
+// Validator to be initialized once
+var validate *validator.Validate
+var once sync.Once
+
+// Validator getter
+func GetValidator() *validator.Validate {
+	once.Do(func() {
+		validate = validator.New(validator.WithRequiredStructEnabled())
+	})
+	return validate
+}
 
 // Parse UUID from string
 func ParseUUID(id string) (uuid.UUID, error) {
@@ -66,10 +81,18 @@ func ValidateParams(r *http.Request, allowedParams []string) error {
 		allowed[param] = true
 	}
 
+	var invalidParams []string
 	for param := range r.URL.Query() {
 		if !allowed[param] {
-			return fmt.Errorf("%w: %s", ErrInvalidParameter, param)
+			invalidParams = append(invalidParams, param)
 		}
 	}
+
+	if len(invalidParams) > 0 {
+		return fmt.Errorf("invalid query parameters: %s. Allowed parameters are: %s",
+			strings.Join(invalidParams, ", "),
+			strings.Join(allowedParams, ", "))
+	}
+
 	return nil
 }
