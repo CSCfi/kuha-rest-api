@@ -304,6 +304,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get athletes by sector
       tags:
       - FIS
@@ -333,6 +335,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get nations by sector
       tags:
       - FIS
@@ -352,7 +356,7 @@ paths:
             $ref: '#/definitions/swagger.InternalServerErrorResponse'
       summary: Healthcheck
       tags:
-      - Ops
+      - Health
   /utv/oura/data:
     get:
       consumes:
@@ -393,9 +397,9 @@ paths:
             $ref: '#/definitions/swagger.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
-      summary: Get available data (Oura)
+      summary: Get available data
       tags:
-      - UTV
+      - UTV - Oura
   /utv/oura/dates:
     get:
       consumes:
@@ -439,9 +443,9 @@ paths:
             $ref: '#/definitions/swagger.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
-      summary: Get available dates (Oura)
+      summary: Get available dates
       tags:
-      - UTV
+      - UTV - Oura
   /utv/oura/types:
     get:
       consumes:
@@ -478,9 +482,9 @@ paths:
             $ref: '#/definitions/swagger.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
-      summary: Get available types (Oura)
+      summary: Get available types
       tags:
-      - UTV
+      - UTV - Oura
   /utv/polar/data:
     get:
       consumes:
@@ -521,9 +525,9 @@ paths:
             $ref: '#/definitions/swagger.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
-      summary: Get available data (Polar)
+      summary: Get available data
       tags:
-      - UTV
+      - UTV - Polar
   /utv/polar/dates:
     get:
       consumes:
@@ -567,9 +571,9 @@ paths:
             $ref: '#/definitions/swagger.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
-      summary: Get available dates (Polar)
+      summary: Get available dates
       tags:
-      - UTV
+      - UTV - Polar
   /utv/polar/types:
     get:
       consumes:
@@ -606,9 +610,9 @@ paths:
             $ref: '#/definitions/swagger.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
-      summary: Get available types (Polar)
+      summary: Get available types
       tags:
-      - UTV
+      - UTV - Polar
   /utv/suunto/data:
     get:
       consumes:
@@ -649,9 +653,9 @@ paths:
             $ref: '#/definitions/swagger.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
-      summary: Get available data (Suunto)
+      summary: Get available data
       tags:
-      - UTV
+      - UTV - Suunto
   /utv/suunto/dates:
     get:
       consumes:
@@ -695,9 +699,9 @@ paths:
             $ref: '#/definitions/swagger.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
-      summary: Get available dates (Suunto)
+      summary: Get available dates
       tags:
-      - UTV
+      - UTV - Suunto
   /utv/suunto/types:
     get:
       consumes:
@@ -734,9 +738,9 @@ paths:
             $ref: '#/definitions/swagger.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
-      summary: Get available types (Suunto)
+      summary: Get available types
       tags:
-      - UTV
+      - UTV - Suunto
 securityDefinitions:
   ApiKeyAuth:
     in: header

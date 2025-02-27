@@ -32,6 +32,7 @@ func NewCompetitorsHandler(store fis.Competitors) *CompetitorsHandler {
 //	@Success		200		{object}	swagger.AthleteListResponse	"List of athletes"
 //	@Failure		400		{object}	swagger.ValidationErrorResponse
 //	@Failure		500		{object}	swagger.InternalServerErrorResponse
+//	@Security		ApiKeyAuth
 //	@Router			/fis/athlete [get]
 func (h *CompetitorsHandler) GetAthletesBySector(w http.ResponseWriter, r *http.Request) {
 	err := utils.ValidateParams(r, []string{"sector"})
@@ -78,6 +79,7 @@ func (h *CompetitorsHandler) GetAthletesBySector(w http.ResponseWriter, r *http.
 //	@Success		200		{object}	swagger.NationsResponse	"List of nations"
 //	@Failure		400		{object}	swagger.ValidationErrorResponse
 //	@Failure		500		{object}	swagger.InternalServerErrorResponse
+//	@Security		ApiKeyAuth
 //	@Router			/fis/nation [get]
 func (h *CompetitorsHandler) GetNationsBySector(w http.ResponseWriter, r *http.Request) {
 	err := utils.ValidateParams(r, []string{"sector"})

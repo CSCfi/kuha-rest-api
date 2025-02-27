@@ -37,9 +37,9 @@ func NewPolarDataHandler(store utv.PolarData) *PolarDataHandler {
 
 // GetDatesPolar godoc
 //
-//	@Summary		Get available dates (Polar)
+//	@Summary		Get available dates
 //	@Description	Returns available dates for the specified user (optionally filtered by date range)
-//	@Tags			UTV
+//	@Tags			UTV - Polar
 //	@Accept			json
 //	@Produce		json
 //	@Param			user_id		query		string						true	"User ID (UUID)"
@@ -97,9 +97,9 @@ func (h *PolarDataHandler) GetDates(w http.ResponseWriter, r *http.Request) {
 
 // GetTypesPolar godoc
 //
-//	@Summary		Get available types (Polar)
+//	@Summary		Get available types
 //	@Description	Returns available types for the specified user on the specified date
-//	@Tags			UTV
+//	@Tags			UTV - Polar
 //	@Accept			json
 //	@Produce		json
 //	@Param			user_id	query		string						true	"User ID (UUID)"
@@ -148,9 +148,9 @@ func (h *PolarDataHandler) GetTypes(w http.ResponseWriter, r *http.Request) {
 
 // GetDataPolar godoc
 //
-//	@Summary		Get available data (Polar)
+//	@Summary		Get available data
 //	@Description	Returns data for the specified user on the specified date (optionally filtered by key)
-//	@Tags			UTV
+//	@Tags			UTV - Polar
 //	@Accept			json
 //	@Produce		json
 //	@Param			user_id	query		string						true	"User ID (UUID)"

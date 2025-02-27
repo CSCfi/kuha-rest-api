@@ -18,6 +18,11 @@ const docTemplate = `{
     "paths": {
         "/fis/athlete": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Returns a list of athletes for a given sector",
                 "consumes": [
                     "application/json"
@@ -62,6 +67,11 @@ const docTemplate = `{
         },
         "/fis/nation": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Returns a list of nations for a given sector",
                 "consumes": [
                     "application/json"
@@ -111,7 +121,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Ops"
+                    "Health"
                 ],
                 "summary": "Healthcheck",
                 "responses": {
@@ -145,9 +155,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "UTV"
+                    "UTV - Oura"
                 ],
-                "summary": "Get available data (Oura)",
+                "summary": "Get available data",
                 "parameters": [
                     {
                         "type": "string",
@@ -210,9 +220,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "UTV"
+                    "UTV - Oura"
                 ],
-                "summary": "Get available dates (Oura)",
+                "summary": "Get available dates",
                 "parameters": [
                     {
                         "type": "string",
@@ -280,9 +290,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "UTV"
+                    "UTV - Oura"
                 ],
-                "summary": "Get available types (Oura)",
+                "summary": "Get available types",
                 "parameters": [
                     {
                         "type": "string",
@@ -339,9 +349,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "UTV"
+                    "UTV - Polar"
                 ],
-                "summary": "Get available data (Polar)",
+                "summary": "Get available data",
                 "parameters": [
                     {
                         "type": "string",
@@ -404,9 +414,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "UTV"
+                    "UTV - Polar"
                 ],
-                "summary": "Get available dates (Polar)",
+                "summary": "Get available dates",
                 "parameters": [
                     {
                         "type": "string",
@@ -474,9 +484,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "UTV"
+                    "UTV - Polar"
                 ],
-                "summary": "Get available types (Polar)",
+                "summary": "Get available types",
                 "parameters": [
                     {
                         "type": "string",
@@ -533,9 +543,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "UTV"
+                    "UTV - Suunto"
                 ],
-                "summary": "Get available data (Suunto)",
+                "summary": "Get available data",
                 "parameters": [
                     {
                         "type": "string",
@@ -598,9 +608,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "UTV"
+                    "UTV - Suunto"
                 ],
-                "summary": "Get available dates (Suunto)",
+                "summary": "Get available dates",
                 "parameters": [
                     {
                         "type": "string",
@@ -668,9 +678,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "UTV"
+                    "UTV - Suunto"
                 ],
-                "summary": "Get available types (Suunto)",
+                "summary": "Get available types",
                 "parameters": [
                     {
                         "type": "string",

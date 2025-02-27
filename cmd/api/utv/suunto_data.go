@@ -37,9 +37,9 @@ func NewSuuntoDataHandler(store utv.SuuntoData) *SuuntoDataHandler {
 
 // GetDatesSuunto godoc
 //
-//	@Summary		Get available dates (Suunto)
+//	@Summary		Get available dates
 //	@Description	Returns available dates for the specified user (optionally filtered by date range)
-//	@Tags			UTV
+//	@Tags			UTV - Suunto
 //	@Accept			json
 //	@Produce		json
 //	@Param			user_id		query		string						true	"User ID (UUID)"
@@ -95,9 +95,9 @@ func (h *SuuntoDataHandler) GetDates(w http.ResponseWriter, r *http.Request) {
 
 // GetTypesSuunto godoc
 //
-//	@Summary		Get available types (Suunto)
+//	@Summary		Get available types
 //	@Description	Returns available types for the specified user on the specified date
-//	@Tags			UTV
+//	@Tags			UTV - Suunto
 //	@Accept			json
 //	@Produce		json
 //	@Param			user_id	query		string						true	"User ID (UUID)"
@@ -146,9 +146,9 @@ func (h *SuuntoDataHandler) GetTypes(w http.ResponseWriter, r *http.Request) {
 
 // GetDataSuunto godoc
 //
-//	@Summary		Get available data (Suunto)
+//	@Summary		Get available data
 //	@Description	Returns data for the specified user on the specified date (optionally filtered by key)
-//	@Tags			UTV
+//	@Tags			UTV - Suunto
 //	@Accept			json
 //	@Produce		json
 //	@Param			user_id	query		string						true	"User ID (UUID)"

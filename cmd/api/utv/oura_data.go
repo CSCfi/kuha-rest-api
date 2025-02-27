@@ -37,9 +37,9 @@ func NewOuraDataHandler(store utv.OuraData) *OuraDataHandler {
 
 // GetDatesOura godoc
 //
-//	@Summary		Get available dates (Oura)
+//	@Summary		Get available dates
 //	@Description	Returns available dates for the specified user (optionally filtered by date range)
-//	@Tags			UTV
+//	@Tags			UTV - Oura
 //	@Accept			json
 //	@Produce		json
 //	@Param			user_id		query		string						true	"User ID (UUID)"
@@ -96,19 +96,19 @@ func (h *OuraDataHandler) GetDates(w http.ResponseWriter, r *http.Request) {
 
 // GetTypesOura godoc
 
-//	@Summary		Get available types (Oura)
-//	@Description	Returns available types for the specified user on the specified date
-//	@Tags			UTV
-//	@Accept			json
-//	@Produce		json
-//	@Param			user_id	query		string						true	"User ID (UUID)"
-//	@Param			date	query		string						true	"Date (YYYY-MM-DD)"
-//	@Success		200		{object}	swagger.OuraTypesResponse	"List of available types"
-//	@Success		204		"No Content: No available types found"
-//	@Failure		400		{object}	swagger.ValidationErrorResponse
-//	@Failure		500		{object}	swagger.InternalServerErrorResponse
-//	@Security		ApiKeyAuth
-//	@Router			/utv/oura/types [get]
+// @Summary		Get available types
+// @Description	Returns available types for the specified user on the specified date
+// @Tags			UTV - Oura
+// @Accept			json
+// @Produce		json
+// @Param			user_id	query		string						true	"User ID (UUID)"
+// @Param			date	query		string						true	"Date (YYYY-MM-DD)"
+// @Success		200		{object}	swagger.OuraTypesResponse	"List of available types"
+// @Success		204		"No Content: No available types found"
+// @Failure		400		{object}	swagger.ValidationErrorResponse
+// @Failure		500		{object}	swagger.InternalServerErrorResponse
+// @Security		ApiKeyAuth
+// @Router			/utv/oura/types [get]
 func (h *OuraDataHandler) GetTypes(w http.ResponseWriter, r *http.Request) {
 	err := utils.ValidateParams(r, []string{"user_id", "date"})
 	if err != nil {
@@ -147,20 +147,20 @@ func (h *OuraDataHandler) GetTypes(w http.ResponseWriter, r *http.Request) {
 
 // GetDataOura godoc
 
-//	@Summary		Get available data (Oura)
-//	@Description	Returns data for the specified user on the specified date (optionally filtered by key)
-//	@Tags			UTV
-//	@Accept			json
-//	@Produce		json
-//	@Param			user_id	query		string						true	"User ID (UUID)"
-//	@Param			date	query		string						true	"Date (YYYY-MM-DD)"
-//	@Param			key		query		string						false	"Type"
-//	@Success		200		{object}	swagger.OuraDataResponse	"Data"
-//	@Success		204		"No Content: No data found"
-//	@Failure		400		{object}	swagger.ValidationErrorResponse
-//	@Failure		500		{object}	swagger.InternalServerErrorResponse
-//	@Security		ApiKeyAuth
-//	@Router			/utv/oura/data [get]
+// @Summary		Get available data
+// @Description	Returns data for the specified user on the specified date (optionally filtered by key)
+// @Tags			UTV - Oura
+// @Accept			json
+// @Produce		json
+// @Param			user_id	query		string						true	"User ID (UUID)"
+// @Param			date	query		string						true	"Date (YYYY-MM-DD)"
+// @Param			key		query		string						false	"Type"
+// @Success		200		{object}	swagger.OuraDataResponse	"Data"
+// @Success		204		"No Content: No data found"
+// @Failure		400		{object}	swagger.ValidationErrorResponse
+// @Failure		500		{object}	swagger.InternalServerErrorResponse
+// @Security		ApiKeyAuth
+// @Router			/utv/oura/data [get]
 func (h *OuraDataHandler) GetData(w http.ResponseWriter, r *http.Request) {
 	err := utils.ValidateParams(r, []string{"user_id", "date", "key"})
 	if err != nil {

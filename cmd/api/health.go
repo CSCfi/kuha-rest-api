@@ -10,7 +10,7 @@ import (
 //
 //	@Summary		Healthcheck
 //	@Description	Healthcheck endpoint
-//	@Tags			Ops
+//	@Tags			Health
 //	@Produce		json
 //	@Success		200	{object}	swagger.HealthStatusResponse	"Health status"
 //	@Failure		500	{object}	swagger.InternalServerErrorResponse
