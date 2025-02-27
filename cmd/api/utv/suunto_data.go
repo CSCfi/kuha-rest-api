@@ -42,14 +42,14 @@ func NewSuuntoDataHandler(store utv.SuuntoData) *SuuntoDataHandler {
 //	@Tags			UTV
 //	@Accept			json
 //	@Produce		json
-//	@Param			user_id		query	string	true	"User ID (UUID)"
-//	@Param			after_date	query	string	false	"Filter dates after this date (YYYY-MM-DD)"
-//	@Param			before_date	query	string	false	"Filter dates before this date (YYYY-MM-DD)"
-//	@Success		200			{array}	string	"List of available dates"
+//	@Param			user_id		query		string						true	"User ID (UUID)"
+//	@Param			after_date	query		string						false	"Filter dates after this date (YYYY-MM-DD)"
+//	@Param			before_date	query		string						false	"Filter dates before this date (YYYY-MM-DD)"
+//	@Success		200			{object}	swagger.OuraDatesResponse	"List of available dates"
 //	@Success		204			"No Content: No available dates found"
-//	@Failure		400			{object}	error
-//	@Failure		422			{object}	error
-//	@Failure		500			{object}	error
+//	@Failure		400			{object}	swagger.ValidationErrorResponse
+//	@Failure		422			{object}	swagger.OuraInvalidDateRange
+//	@Failure		500			{object}	swagger.InternalServerErrorResponse
 //	@Security		ApiKeyAuth
 //	@Router			/utv/suunto/dates [get]
 func (h *SuuntoDataHandler) GetDates(w http.ResponseWriter, r *http.Request) {
@@ -100,13 +100,12 @@ func (h *SuuntoDataHandler) GetDates(w http.ResponseWriter, r *http.Request) {
 //	@Tags			UTV
 //	@Accept			json
 //	@Produce		json
-//	@Param			user_id	query	string	true	"User ID (UUID)"
-//	@Param			date	query	string	true	"Date (YYYY-MM-DD)"
-//	@Success		200		{array}	string	"List of available types"
+//	@Param			user_id	query		string						true	"User ID (UUID)"
+//	@Param			date	query		string						true	"Date (YYYY-MM-DD)"
+//	@Success		200		{object}	swagger.SuuntoTypesResponse	"List of available types"
 //	@Success		204		"No Content: No available types found"
-//	@Failure		400		{object}	error
-//	@Failure		422		{object}	error
-//	@Failure		500		{object}	error
+//	@Failure		400		{object}	swagger.ValidationErrorResponse
+//	@Failure		500		{object}	swagger.InternalServerErrorResponse
 //	@Security		ApiKeyAuth
 //	@Router			/utv/suunto/types [get]
 func (h *SuuntoDataHandler) GetTypes(w http.ResponseWriter, r *http.Request) {
@@ -152,13 +151,13 @@ func (h *SuuntoDataHandler) GetTypes(w http.ResponseWriter, r *http.Request) {
 //	@Tags			UTV
 //	@Accept			json
 //	@Produce		json
-//	@Param			user_id	query		string					true	"User ID (UUID)"
-//	@Param			date	query		string					true	"Date (YYYY-MM-DD)"
-//	@Param			key		query		string					false	"Type"
-//	@Success		200		{object}	map[string]interface{}	"Data"
+//	@Param			user_id	query		string						true	"User ID (UUID)"
+//	@Param			date	query		string						true	"Date (YYYY-MM-DD)"
+//	@Param			key		query		string						false	"Type"
+//	@Success		200		{object}	swagger.SuuntoDataResponse	"Data"
 //	@Success		204		"No Content: No data found"
-//	@Failure		400		{object}	error
-//	@Failure		500		{object}	error
+//	@Failure		400		{object}	swagger.ValidationErrorResponse
+//	@Failure		500		{object}	swagger.InternalServerErrorResponse
 //	@Security		ApiKeyAuth
 //	@Router			/utv/suunto/data [get]
 func (h *SuuntoDataHandler) GetData(w http.ResponseWriter, r *http.Request) {

@@ -278,8 +278,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Data",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/swagger.PolarDataResponse"
                         }
                     },
                     "204": {
@@ -287,11 +286,15 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {}
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {}
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
                     }
                 }
             }
@@ -339,10 +342,7 @@ const docTemplate = `{
                     "200": {
                         "description": "List of available dates",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/swagger.OuraDatesResponse"
                         }
                     },
                     "204": {
@@ -350,15 +350,21 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {}
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
-                        "schema": {}
+                        "schema": {
+                            "$ref": "#/definitions/swagger.OuraInvalidDateRange"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {}
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
                     }
                 }
             }
@@ -401,10 +407,7 @@ const docTemplate = `{
                     "200": {
                         "description": "List of available types",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/swagger.PolarTypesResponse"
                         }
                     },
                     "204": {
@@ -412,15 +415,15 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {}
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {}
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {}
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
                     }
                 }
             }
@@ -469,8 +472,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Data",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/swagger.SuuntoDataResponse"
                         }
                     },
                     "204": {
@@ -478,11 +480,15 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {}
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {}
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
                     }
                 }
             }
@@ -530,10 +536,7 @@ const docTemplate = `{
                     "200": {
                         "description": "List of available dates",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/swagger.OuraDatesResponse"
                         }
                     },
                     "204": {
@@ -541,15 +544,21 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {}
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
-                        "schema": {}
+                        "schema": {
+                            "$ref": "#/definitions/swagger.OuraInvalidDateRange"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {}
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
                     }
                 }
             }
@@ -592,10 +601,7 @@ const docTemplate = `{
                     "200": {
                         "description": "List of available types",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/swagger.SuuntoTypesResponse"
                         }
                     },
                     "204": {
@@ -603,15 +609,15 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {}
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
-                        "schema": {}
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {}
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
                     }
                 }
             }
@@ -750,6 +756,86 @@ const docTemplate = `{
                 }
             }
         },
+        "swagger.PolarAlertnessData": {
+            "type": "object",
+            "properties": {
+                "grade": {
+                    "type": "number",
+                    "example": 8.5
+                },
+                "grade_type": {
+                    "type": "string",
+                    "example": "GRADE_TYPE_PRIMARY"
+                },
+                "validity": {
+                    "type": "string",
+                    "example": "VALIDITY_VALID"
+                }
+            }
+        },
+        "swagger.PolarData": {
+            "type": "object",
+            "properties": {
+                "alertness": {
+                    "$ref": "#/definitions/swagger.PolarAlertnessData"
+                },
+                "heart_rate": {
+                    "$ref": "#/definitions/swagger.PolarHeartRateData"
+                }
+            }
+        },
+        "swagger.PolarDataResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/swagger.PolarData"
+                }
+            }
+        },
+        "swagger.PolarHeartRateData": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string",
+                    "example": "2023-12-01"
+                },
+                "heart_rate_samples": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.PolarHeartRateSample"
+                    }
+                }
+            }
+        },
+        "swagger.PolarHeartRateSample": {
+            "type": "object",
+            "properties": {
+                "heart_rate": {
+                    "type": "integer",
+                    "example": 72
+                },
+                "sample_time": {
+                    "type": "string",
+                    "example": "00:10:00"
+                }
+            }
+        },
+        "swagger.PolarTypesResponse": {
+            "type": "object",
+            "properties": {
+                "types": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "alertness",
+                        "circadian_bedtime",
+                        "heart_rate"
+                    ]
+                }
+            }
+        },
         "swagger.SleepData": {
             "type": "object",
             "properties": {
@@ -787,6 +873,72 @@ const docTemplate = `{
                 }
             }
         },
+        "swagger.SuuntoData": {
+            "type": "object",
+            "properties": {
+                "workout": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/swagger.SuuntoWorkoutData"
+                    }
+                }
+            }
+        },
+        "swagger.SuuntoDataResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/swagger.SuuntoData"
+                }
+            }
+        },
+        "swagger.SuuntoTypesResponse": {
+            "type": "object",
+            "properties": {
+                "types": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "workout"
+                    ]
+                }
+            }
+        },
+        "swagger.SuuntoWorkoutData": {
+            "type": "object",
+            "properties": {
+                "workout_summary": {
+                    "$ref": "#/definitions/swagger.SuuntoWorkoutSummary"
+                }
+            }
+        },
+        "swagger.SuuntoWorkoutSummary": {
+            "type": "object",
+            "properties": {
+                "avgPace": {
+                    "type": "number",
+                    "example": 4.5
+                },
+                "avgSpeed": {
+                    "type": "number",
+                    "example": 3.8
+                },
+                "startTime": {
+                    "type": "integer",
+                    "example": 1710065996000
+                },
+                "stepCount": {
+                    "type": "integer",
+                    "example": 5000
+                },
+                "totalTime": {
+                    "type": "number",
+                    "example": 3600
+                }
+            }
+        },
         "swagger.UnprocessableEntityError": {
             "type": "object",
             "properties": {
@@ -799,7 +951,7 @@ const docTemplate = `{
         "swagger.ValidationError": {
             "type": "object",
             "properties": {
-                "error": {
+                "parameter name": {
                     "type": "string",
                     "example": "full description of the error"
                 }

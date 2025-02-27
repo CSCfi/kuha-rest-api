@@ -89,6 +89,60 @@ definitions:
           type: string
         type: array
     type: object
+  swagger.PolarAlertnessData:
+    properties:
+      grade:
+        example: 8.5
+        type: number
+      grade_type:
+        example: GRADE_TYPE_PRIMARY
+        type: string
+      validity:
+        example: VALIDITY_VALID
+        type: string
+    type: object
+  swagger.PolarData:
+    properties:
+      alertness:
+        $ref: '#/definitions/swagger.PolarAlertnessData'
+      heart_rate:
+        $ref: '#/definitions/swagger.PolarHeartRateData'
+    type: object
+  swagger.PolarDataResponse:
+    properties:
+      data:
+        $ref: '#/definitions/swagger.PolarData'
+    type: object
+  swagger.PolarHeartRateData:
+    properties:
+      date:
+        example: "2023-12-01"
+        type: string
+      heart_rate_samples:
+        items:
+          $ref: '#/definitions/swagger.PolarHeartRateSample'
+        type: array
+    type: object
+  swagger.PolarHeartRateSample:
+    properties:
+      heart_rate:
+        example: 72
+        type: integer
+      sample_time:
+        example: "00:10:00"
+        type: string
+    type: object
+  swagger.PolarTypesResponse:
+    properties:
+      types:
+        example:
+        - alertness
+        - circadian_bedtime
+        - heart_rate
+        items:
+          type: string
+        type: array
+    type: object
   swagger.SleepData:
     properties:
       average_heart_rate:
@@ -116,6 +170,50 @@ definitions:
         example: long_sleep
         type: string
     type: object
+  swagger.SuuntoData:
+    properties:
+      workout:
+        additionalProperties:
+          $ref: '#/definitions/swagger.SuuntoWorkoutData'
+        type: object
+    type: object
+  swagger.SuuntoDataResponse:
+    properties:
+      data:
+        $ref: '#/definitions/swagger.SuuntoData'
+    type: object
+  swagger.SuuntoTypesResponse:
+    properties:
+      types:
+        example:
+        - workout
+        items:
+          type: string
+        type: array
+    type: object
+  swagger.SuuntoWorkoutData:
+    properties:
+      workout_summary:
+        $ref: '#/definitions/swagger.SuuntoWorkoutSummary'
+    type: object
+  swagger.SuuntoWorkoutSummary:
+    properties:
+      avgPace:
+        example: 4.5
+        type: number
+      avgSpeed:
+        example: 3.8
+        type: number
+      startTime:
+        example: 1710065996000
+        type: integer
+      stepCount:
+        example: 5000
+        type: integer
+      totalTime:
+        example: 3600
+        type: number
+    type: object
   swagger.UnprocessableEntityError:
     properties:
       error:
@@ -124,7 +222,7 @@ definitions:
     type: object
   swagger.ValidationError:
     properties:
-      error:
+      parameter name:
         example: full description of the error
         type: string
     type: object
@@ -312,16 +410,17 @@ paths:
         "200":
           description: Data
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/swagger.PolarDataResponse'
         "204":
           description: 'No Content: No data found'
         "400":
           description: Bad Request
-          schema: {}
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
         "500":
           description: Internal Server Error
-          schema: {}
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Get available data (Polar)
@@ -353,20 +452,21 @@ paths:
         "200":
           description: List of available dates
           schema:
-            items:
-              type: string
-            type: array
+            $ref: '#/definitions/swagger.OuraDatesResponse'
         "204":
           description: 'No Content: No available dates found'
         "400":
           description: Bad Request
-          schema: {}
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
         "422":
           description: Unprocessable Entity
-          schema: {}
+          schema:
+            $ref: '#/definitions/swagger.OuraInvalidDateRange'
         "500":
           description: Internal Server Error
-          schema: {}
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Get available dates (Polar)
@@ -395,20 +495,17 @@ paths:
         "200":
           description: List of available types
           schema:
-            items:
-              type: string
-            type: array
+            $ref: '#/definitions/swagger.PolarTypesResponse'
         "204":
           description: 'No Content: No available types found'
         "400":
           description: Bad Request
-          schema: {}
-        "422":
-          description: Unprocessable Entity
-          schema: {}
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
         "500":
           description: Internal Server Error
-          schema: {}
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Get available types (Polar)
@@ -441,16 +538,17 @@ paths:
         "200":
           description: Data
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/swagger.SuuntoDataResponse'
         "204":
           description: 'No Content: No data found'
         "400":
           description: Bad Request
-          schema: {}
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
         "500":
           description: Internal Server Error
-          schema: {}
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Get available data (Suunto)
@@ -482,20 +580,21 @@ paths:
         "200":
           description: List of available dates
           schema:
-            items:
-              type: string
-            type: array
+            $ref: '#/definitions/swagger.OuraDatesResponse'
         "204":
           description: 'No Content: No available dates found'
         "400":
           description: Bad Request
-          schema: {}
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
         "422":
           description: Unprocessable Entity
-          schema: {}
+          schema:
+            $ref: '#/definitions/swagger.OuraInvalidDateRange'
         "500":
           description: Internal Server Error
-          schema: {}
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Get available dates (Suunto)
@@ -524,20 +623,17 @@ paths:
         "200":
           description: List of available types
           schema:
-            items:
-              type: string
-            type: array
+            $ref: '#/definitions/swagger.SuuntoTypesResponse'
         "204":
           description: 'No Content: No available types found'
         "400":
           description: Bad Request
-          schema: {}
-        "422":
-          description: Unprocessable Entity
-          schema: {}
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
         "500":
           description: Internal Server Error
-          schema: {}
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Get available types (Suunto)

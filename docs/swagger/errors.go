@@ -8,7 +8,7 @@ type ValidationErrorResponse struct {
 }
 
 type ValidationError struct {
-	Error1 string `json:"error" example:"full description of the error"`
+	Error1 string `json:"parameter name" example:"full description of the error"`
 }
 
 // 500

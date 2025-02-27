@@ -42,3 +42,60 @@ type OuraData struct {
 type OuraDataResponse struct {
 	Data OuraData `json:"data"`
 }
+
+// Polar
+
+type PolarTypesResponse struct {
+	Types []string `json:"types" example:"alertness,circadian_bedtime,heart_rate"`
+}
+
+type PolarAlertnessData struct {
+	Grade     float64 `json:"grade" example:"8.5"`
+	Validity  string  `json:"validity" example:"VALIDITY_VALID"`
+	GradeType string  `json:"grade_type" example:"GRADE_TYPE_PRIMARY"`
+}
+
+type PolarHeartRateSample struct {
+	HeartRate  int    `json:"heart_rate" example:"72"`
+	SampleTime string `json:"sample_time" example:"00:10:00"`
+}
+
+type PolarHeartRateData struct {
+	Date          string                 `json:"date" example:"2023-12-01"`
+	HeartRateData []PolarHeartRateSample `json:"heart_rate_samples"`
+}
+
+type PolarData struct {
+	Alertness PolarAlertnessData `json:"alertness"`
+	HeartRate PolarHeartRateData `json:"heart_rate"`
+}
+
+type PolarDataResponse struct {
+	Data PolarData `json:"data"`
+}
+
+// Suunto
+
+type SuuntoTypesResponse struct {
+	Types []string `json:"types" example:"workout"`
+}
+
+type SuuntoWorkoutSummary struct {
+	AvgPace   float64 `json:"avgPace" example:"4.50"`
+	AvgSpeed  float64 `json:"avgSpeed" example:"3.80"`
+	StepCount int     `json:"stepCount" example:"5000"`
+	TotalTime float64 `json:"totalTime" example:"3600"`
+	StartTime int64   `json:"startTime" example:"1710065996000"`
+}
+
+type SuuntoWorkoutData struct {
+	WorkoutSummary SuuntoWorkoutSummary `json:"workout_summary"`
+}
+
+type SuuntoData struct {
+	Workout map[string]SuuntoWorkoutData `json:"workout"`
+}
+
+type SuuntoDataResponse struct {
+	Data SuuntoData `json:"data"`
+}
