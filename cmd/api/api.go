@@ -40,12 +40,6 @@ type dbConfig struct {
 func (app *api) mount() http.Handler {
 	r := chi.NewRouter()
 
-	// A good base middleware stack (taken from chi )
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -54,6 +48,12 @@ func (app *api) mount() http.Handler {
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
+
+	// A good base middleware stack (taken from chi )
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 
 	// Set a timeout value on the request context (ctx)
 	r.Use(middleware.Timeout(60 * time.Second))
