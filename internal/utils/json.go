@@ -7,6 +7,7 @@ import (
 
 func WriteJSON(w http.ResponseWriter, status int, data any) error {
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(status)
 	return json.NewEncoder(w).Encode(data)
 
@@ -23,6 +24,7 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
 
 func WriteJSONError(w http.ResponseWriter, statusCode int, message interface{}) {
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(statusCode)
 
 	switch msg := message.(type) {
