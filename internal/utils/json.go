@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -9,6 +10,7 @@ func WriteJSON(w http.ResponseWriter, status int, data any) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(status)
+	log.Printf("WriteJSON - Status: %d, Headers: %+v", status, w.Header())
 	return json.NewEncoder(w).Encode(data)
 
 }
@@ -26,6 +28,7 @@ func WriteJSONError(w http.ResponseWriter, statusCode int, message interface{}) 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(statusCode)
+	log.Printf("WriteJSONError - Status: %d, Headers: %+v", statusCode, w.Header())
 
 	switch msg := message.(type) {
 	case string:

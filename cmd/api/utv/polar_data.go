@@ -2,6 +2,7 @@ package utvapi
 
 import (
 	"context"
+	"log"
 	"net/http"
 
 	"github.com/DeRuina/KUHA-REST-API/internal/store/utv"
@@ -85,6 +86,7 @@ func (h *PolarDataHandler) GetDates(w http.ResponseWriter, r *http.Request) {
 	if len(dates) == 0 {
 		w.Header().Set("Content-Length", "0")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		log.Printf("Direct write - Status: 204, Headers: %+v", w.Header())
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
@@ -137,6 +139,7 @@ func (h *PolarDataHandler) GetTypes(w http.ResponseWriter, r *http.Request) {
 	if len(types) == 0 {
 		w.Header().Set("Content-Length", "0")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		log.Printf("Direct write - Status: 204, Headers: %+v", w.Header())
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
@@ -191,6 +194,7 @@ func (h *PolarDataHandler) GetData(w http.ResponseWriter, r *http.Request) {
 	if len(data) == 0 {
 		w.Header().Set("Content-Length", "0")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		log.Printf("Direct write - Status: 204, Headers: %+v", w.Header())
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
