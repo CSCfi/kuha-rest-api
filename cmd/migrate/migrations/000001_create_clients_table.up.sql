@@ -1,7 +1,7 @@
 CREATE TABLE clients (
     id SERIAL PRIMARY KEY,
-    client_name TEXT NOT NULL,           -- Human-readable name (e.g., UTV, FIS)
-    client_token TEXT UNIQUE NOT NULL,   -- Hashed token 
-    role TEXT NOT NULL,                  -- e.g. 'admin'
+    client_name TEXT NOT NULL,           
+    client_token TEXT UNIQUE NOT NULL,   
+    role TEXT NOT NULL,                 
     created_at TIMESTAMP DEFAULT now()
 );
