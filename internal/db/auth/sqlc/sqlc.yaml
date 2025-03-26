@@ -1,0 +1,14 @@
+version: "2"                          
+sql:
+  - schema: "./schema.sql"            
+    queries: "./queries.sql"           
+    engine: "postgresql"   
+    gen:            
+      go:
+        package: "authsqlc"               
+        out: "../"                
+        emit_prepared_queries: true    # Generate prepared query functions
+        emit_exact_table_names: false  # Use exact table names for structs
+        overrides:
+          - db_type: "text[]"
+            go_type: "github.com/lib/pq.StringArray"
