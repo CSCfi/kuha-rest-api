@@ -23,6 +23,21 @@ func Seed(store store.Auth, db *sql.DB) {
 	ctx := context.Background()
 	queries := store.Queries()
 
+	// Wipe all existing clients before seeding fresh ones
+	_, err := db.ExecContext(ctx, `DELETE FROM clients`)
+	if err != nil {
+		log.Fatalf("Failed to delete existing clients: %v", err)
+	}
+	log.Println("Deleted all existing clients before seeding.")
+
+	// Reset the ID sequence to 1
+	_, err = db.ExecContext(ctx, `ALTER SEQUENCE clients_id_seq RESTART WITH 1`)
+	if err != nil {
+		log.Fatalf("Failed to reset ID sequence: %v", err)
+	}
+	log.Println("Reset client ID sequence to 1.")
+
+	// Create the output file
 	file, err := os.Create("client_tokens.txt")
 	if err != nil {
 		log.Fatalf("Failed to create client_tokens.txt: %v", err)
@@ -30,14 +45,12 @@ func Seed(store store.Auth, db *sql.DB) {
 	defer file.Close()
 
 	for clientName, roles := range clientsToSeed {
-		// Generate a secure token and its SHA-256 hash
 		rawToken, hashedToken, err := generateSecureTokenPair(32)
 		if err != nil {
 			log.Printf("Failed to generate token for %s: %v", clientName, err)
 			continue
 		}
 
-		// Insert client into the database
 		err = queries.CreateClient(ctx, authsqlc.CreateClientParams{
 			ClientName:  clientName,
 			ClientToken: hashedToken,
@@ -49,7 +62,6 @@ func Seed(store store.Auth, db *sql.DB) {
 			continue
 		}
 
-		// Save raw token to file for reference
 		line := fmt.Sprintf("Client: %-15s Token: %s\n", clientName, rawToken)
 		if _, err := file.WriteString(line); err != nil {
 			log.Printf("Failed to write token to file for %s: %v", clientName, err)
