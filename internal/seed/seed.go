@@ -14,34 +14,34 @@ import (
 	"github.com/DeRuina/KUHA-REST-API/internal/store"
 )
 
-// List of clients to seed into the auth database
-var clientsToSeed = []string{}
+// Map of clients to their assigned roles
+// {clientName: {roles}}
+var clientsToSeed = map[string][]string{}
 
-// Seed inserts predefined clients with hashed client_tokens into the database,
+// Seed inserts predefined clients with hashed client_tokens into the database
 func Seed(store store.Auth, db *sql.DB) {
 	ctx := context.Background()
 	queries := store.Queries()
 
-	// Create or overwrite the output file
 	file, err := os.Create("client_tokens.txt")
 	if err != nil {
 		log.Fatalf("Failed to create client_tokens.txt: %v", err)
 	}
 	defer file.Close()
 
-	for _, clientName := range clientsToSeed {
-		// Generate raw and hashed token
+	for clientName, roles := range clientsToSeed {
+		// Generate a secure token and its SHA-256 hash
 		rawToken, hashedToken, err := generateSecureTokenPair(32)
 		if err != nil {
 			log.Printf("Failed to generate token for %s: %v", clientName, err)
 			continue
 		}
 
-		// Insert into DB
+		// Insert client into the database
 		err = queries.CreateClient(ctx, authsqlc.CreateClientParams{
 			ClientName:  clientName,
 			ClientToken: hashedToken,
-			Role:        []string{},
+			Role:        roles,
 		})
 
 		if err != nil {
@@ -49,7 +49,7 @@ func Seed(store store.Auth, db *sql.DB) {
 			continue
 		}
 
-		// Save raw token to file
+		// Save raw token to file for reference
 		line := fmt.Sprintf("Client: %-15s Token: %s\n", clientName, rawToken)
 		if _, err := file.WriteString(line); err != nil {
 			log.Printf("Failed to write token to file for %s: %v", clientName, err)
@@ -69,9 +69,9 @@ func generateSecureTokenPair(length int) (rawToken string, hashedToken string, e
 		return "", "", err
 	}
 
-	raw := hex.EncodeToString(bytes)      // 64 hex chars (32 bytes)
-	hash := sha256.Sum256([]byte(raw))    // Hash the token
-	hashed := hex.EncodeToString(hash[:]) // Convert hash to hex string
+	raw := hex.EncodeToString(bytes)      // Original token
+	hash := sha256.Sum256([]byte(raw))    // SHA-256 hash
+	hashed := hex.EncodeToString(hash[:]) // Convert hash to hex
 
 	return raw, hashed, nil
 }
