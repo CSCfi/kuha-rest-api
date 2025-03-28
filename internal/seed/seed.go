@@ -17,7 +17,16 @@ import (
 
 // Map of clients to their assigned roles
 // {clientName: {roles}}
-var clientsToSeed = map[string][]string{}
+var clientsToSeed = map[string][]string{
+	"admin":      {"admin"},
+	"utv":        {"utv"},
+	"kamk":       {"kamk", "utv_read", "fis_read"},
+	"fis":        {"fis"},
+	"klab":       {"klab"},
+	"tietoevry":  {"m360", "fis_read"},
+	"couchtech":  {"couchtech"},
+	"archinisis": {"archinisis"},
+}
 
 // Seed inserts predefined clients with hashed client_tokens into the database
 func Seed(store store.Auth, db *sql.DB) {
@@ -70,7 +79,7 @@ func Seed(store store.Auth, db *sql.DB) {
 
 		// Log issued client_token
 		metadata := pqtype.NullRawMessage{Valid: true}
-		if err := metadata.Scan([]byte(`"seeding"`)); err != nil {
+		if err := metadata.Scan([]byte(`{"reason":"seeding"}`)); err != nil {
 			log.Printf("Failed to prepare metadata for %s: %v", clientName, err)
 		}
 
