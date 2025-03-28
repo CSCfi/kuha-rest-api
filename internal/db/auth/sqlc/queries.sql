@@ -62,6 +62,14 @@ FROM clients
 ORDER BY created_at DESC;
 
 
+-- name: GetRefreshTokenByClient :one
+SELECT id, client_token, token, expires_at, created_at
+FROM refresh_tokens
+WHERE client_token = $1
+ORDER BY created_at DESC
+LIMIT 1;
+
+
 -- name: CreateRefreshToken :exec
 INSERT INTO refresh_tokens (client_token, token, expires_at)
 VALUES ($1, $2, $3);

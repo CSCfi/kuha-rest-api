@@ -371,6 +371,27 @@ func (q *Queries) GetRefreshToken(ctx context.Context, token string) (RefreshTok
 	return i, err
 }
 
+const getRefreshTokenByClient = `-- name: GetRefreshTokenByClient :one
+SELECT id, client_token, token, expires_at, created_at
+FROM refresh_tokens
+WHERE client_token = $1
+ORDER BY created_at DESC
+LIMIT 1
+`
+
+func (q *Queries) GetRefreshTokenByClient(ctx context.Context, clientToken string) (RefreshToken, error) {
+	row := q.queryRow(ctx, q.getRefreshTokenByClientStmt, getRefreshTokenByClient, clientToken)
+	var i RefreshToken
+	err := row.Scan(
+		&i.ID,
+		&i.ClientToken,
+		&i.Token,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const hasRole = `-- name: HasRole :one
 SELECT EXISTS (
   SELECT 1 FROM clients

@@ -84,6 +84,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getRefreshTokenStmt, err = db.PrepareContext(ctx, getRefreshToken); err != nil {
 		return nil, fmt.Errorf("error preparing query GetRefreshToken: %w", err)
 	}
+	if q.getRefreshTokenByClientStmt, err = db.PrepareContext(ctx, getRefreshTokenByClient); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRefreshTokenByClient: %w", err)
+	}
 	if q.hasRoleStmt, err = db.PrepareContext(ctx, hasRole); err != nil {
 		return nil, fmt.Errorf("error preparing query HasRole: %w", err)
 	}
@@ -222,6 +225,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getRefreshTokenStmt: %w", cerr)
 		}
 	}
+	if q.getRefreshTokenByClientStmt != nil {
+		if cerr := q.getRefreshTokenByClientStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRefreshTokenByClientStmt: %w", cerr)
+		}
+	}
 	if q.hasRoleStmt != nil {
 		if cerr := q.hasRoleStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing hasRoleStmt: %w", cerr)
@@ -336,6 +344,7 @@ type Queries struct {
 	getLogsByClientStmt                 *sql.Stmt
 	getLogsByTokenTypeStmt              *sql.Stmt
 	getRefreshTokenStmt                 *sql.Stmt
+	getRefreshTokenByClientStmt         *sql.Stmt
 	hasRoleStmt                         *sql.Stmt
 	insertNewRefreshTokenStmt           *sql.Stmt
 	insertRevokedRefreshTokenStmt       *sql.Stmt
@@ -373,6 +382,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getLogsByClientStmt:                 q.getLogsByClientStmt,
 		getLogsByTokenTypeStmt:              q.getLogsByTokenTypeStmt,
 		getRefreshTokenStmt:                 q.getRefreshTokenStmt,
+		getRefreshTokenByClientStmt:         q.getRefreshTokenByClientStmt,
 		hasRoleStmt:                         q.hasRoleStmt,
 		insertNewRefreshTokenStmt:           q.insertNewRefreshTokenStmt,
 		insertRevokedRefreshTokenStmt:       q.insertRevokedRefreshTokenStmt,
