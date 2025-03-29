@@ -1,10 +1,10 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/DeRuina/KUHA-REST-API/internal/db"
-	authsqlc "github.com/DeRuina/KUHA-REST-API/internal/db/auth"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/auth"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/fis"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/utv"
@@ -22,7 +22,8 @@ type UTV interface {
 }
 
 type Auth interface {
-	Queries() *authsqlc.Queries
+	IssueToken(ctx context.Context, clientToken string) (*auth.Tokens, error)
+	RefreshToken(ctx context.Context, refreshToken string) (string, error)
 }
 
 // Storage struct for multiple databases

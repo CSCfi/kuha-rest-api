@@ -1,0 +1,38 @@
+package authapi
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/DeRuina/KUHA-REST-API/internal/utils"
+)
+
+type RefreshRequest struct {
+	RefreshToken string `json:"refresh_token" validate:"required"`
+}
+
+type RefreshResponse struct {
+	JWT string `json:"jwt"`
+}
+
+func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
+	var req RefreshRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	if err := utils.GetValidator().Struct(req); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	jwt, err := h.store.RefreshToken(r.Context(), req.RefreshToken)
+	if err != nil {
+		utils.UnauthorizedResponse(w, r, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, RefreshResponse{JWT: jwt})
+}

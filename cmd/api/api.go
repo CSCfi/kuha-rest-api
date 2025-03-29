@@ -13,6 +13,7 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 	"go.uber.org/zap"
 
+	authapi "github.com/DeRuina/KUHA-REST-API/cmd/api/auth"
 	fisapi "github.com/DeRuina/KUHA-REST-API/cmd/api/fis"
 	utvapi "github.com/DeRuina/KUHA-REST-API/cmd/api/utv"
 )
@@ -71,6 +72,14 @@ func (app *api) mount() http.Handler {
 	r.Use(middleware.Timeout(60 * time.Second))
 
 	r.Route("/v1", func(r chi.Router) {
+		// Auth routes
+		r.Route("/auth", func(r chi.Router) {
+			authHandler := authapi.NewAuthHandler(app.store.Auth)
+
+			r.Post("/token", authHandler.IssueToken)
+			r.Post("/refresh", authHandler.RefreshToken)
+		})
+
 		// Healthcheck
 		r.Get("/health", app.healthCheckHandler)
 

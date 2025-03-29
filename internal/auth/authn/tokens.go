@@ -3,6 +3,8 @@ package authn
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/DeRuina/KUHA-REST-API/internal/env"
@@ -40,4 +42,30 @@ func GenerateJWT(clientName string, roles []string, duration time.Duration) (str
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(jwtSecret)
+}
+
+func ValidateJWT(tokenStr string) (*jwt.Token, jwt.MapClaims, error) {
+	token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
+		// Check the signing method
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+		}
+		return jwtSecret, nil
+	},
+		jwt.WithAudience(jwtAudience),
+		jwt.WithIssuer(jwtIssuer),
+		jwt.WithExpirationRequired(),
+		jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}),
+	)
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		return nil, nil, errors.New("invalid token")
+	}
+
+	return token, claims, nil
 }
