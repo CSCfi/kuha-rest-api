@@ -1,5 +1,31 @@
 basePath: /v1
 definitions:
+  authapi.RefreshRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  authapi.RefreshResponse:
+    properties:
+      jwt:
+        type: string
+    type: object
+  authapi.TokenRequest:
+    properties:
+      client_token:
+        type: string
+    required:
+    - client_token
+    type: object
+  authapi.TokenResponse:
+    properties:
+      jwt:
+        type: string
+      refresh_token:
+        type: string
+    type: object
   swagger.Athlete:
     properties:
       first_name:
@@ -253,6 +279,19 @@ definitions:
         example: 3600
         type: number
     type: object
+  swagger.UnauthorizedError:
+    properties:
+      error:
+        example: unauthorized
+        type: string
+    type: object
+  swagger.UnauthorizedResponse:
+    properties:
+      errors:
+        items:
+          $ref: '#/definitions/swagger.UnauthorizedError'
+        type: array
+    type: object
   swagger.UnprocessableEntityError:
     properties:
       error:
@@ -278,6 +317,78 @@ info:
   termsOfService: https://csc.fi/en/security-privacy-data-policy-and-open-source-policy/privacy/
   title: KUHA REST API
 paths:
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates the refresh token and returns a new JWT token
+      parameters:
+      - description: Refresh Token
+        in: body
+        name: refresh_token
+        required: true
+        schema:
+          $ref: '#/definitions/authapi.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: New JWT token
+          schema:
+            $ref: '#/definitions/authapi.RefreshResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Issue a new JWT token
+      tags:
+      - Auth
+  /auth/token:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates the client_token and returns a JWT and refresh token
+      parameters:
+      - description: Client Token Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/authapi.TokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tokens
+          schema:
+            $ref: '#/definitions/authapi.TokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Issue JWT and Refresh token
+      tags:
+      - Auth
   /fis/athlete:
     get:
       consumes:

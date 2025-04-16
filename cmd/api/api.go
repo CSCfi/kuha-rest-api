@@ -76,7 +76,7 @@ func (app *api) mount() http.Handler {
 		r.Route("/auth", func(r chi.Router) {
 			authHandler := authapi.NewAuthHandler(app.store.Auth)
 
-			r.Post("/token", authHandler.IssueToken)
+			r.Post("/token", authHandler.IssueTokens)
 			r.Post("/refresh", authHandler.RefreshToken)
 		})
 

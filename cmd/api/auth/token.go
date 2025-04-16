@@ -16,7 +16,21 @@ type TokenResponse struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-func (h *AuthHandler) IssueToken(w http.ResponseWriter, r *http.Request) {
+// IssueTokens godoc
+//
+//	@Summary		Issue JWT and Refresh token
+//	@Description	Authenticates the client_token and returns a JWT and refresh token
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		TokenRequest	true	"Client Token Request"
+//	@Success		200		{object}	TokenResponse	"Tokens"
+//	@Failure		400		{object}	swagger.ValidationErrorResponse
+//	@Failure		401		{object}	swagger.UnauthorizedResponse
+//	@Failure		500		{object}	swagger.InternalServerErrorResponse
+//	@Security		ApiKeyAuth
+//	@Router			/auth/token [post]
+func (h *AuthHandler) IssueTokens(w http.ResponseWriter, r *http.Request) {
 	var req TokenRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

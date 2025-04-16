@@ -11,6 +11,15 @@ type ValidationError struct {
 	Error1 string `json:"parameter name" example:"full description of the error"`
 }
 
+// 401
+type UnauthorizedResponse struct {
+	Errors []UnauthorizedError `json:"errors"`
+}
+
+type UnauthorizedError struct {
+	Error1 string `json:"error" example:"unauthorized"`
+}
+
 // 500
 type InternalServerErrorResponse struct {
 	Errors []InternalServerError `json:"errors"`

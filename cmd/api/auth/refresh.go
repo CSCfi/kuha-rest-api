@@ -15,6 +15,20 @@ type RefreshResponse struct {
 	JWT string `json:"jwt"`
 }
 
+// RefreshToken godoc
+//
+//	@Summary		Issue a new JWT token
+//	@Description	Authenticates the refresh token and returns a new JWT token
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			refresh_token	body		RefreshRequest	true	"Refresh Token"
+//	@Success		200				{object}	RefreshResponse	"New JWT token"
+//	@Failure		400				{object}	swagger.ValidationErrorResponse
+//	@Failure		401				{object}	swagger.UnauthorizedResponse
+//	@Failure		500				{object}	swagger.InternalServerErrorResponse
+//	@Security		ApiKeyAuth
+//	@Router			/auth/refresh [post]
 func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	var req RefreshRequest
 
