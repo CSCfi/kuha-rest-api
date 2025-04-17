@@ -1303,6 +1303,7 @@ const docTemplate = `{
     },
     "securityDefinitions": {
         "ApiKeyAuth": {
+            "description": "Use auth endpoints to authenticate (Then JWT)",
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"

@@ -18,7 +18,8 @@ const version = "1.0.0"
 // @securityDefinitions.apikey	ApiKeyAuth
 // @in							header
 // @name						Authorization
-// @description
+// @description				Use auth endpoints to authenticate (Then JWT)
+// @Security					ApiKeyAuth
 func main() {
 
 	cfg := config{

@@ -854,6 +854,7 @@ paths:
       - UTV - Suunto
 securityDefinitions:
   ApiKeyAuth:
+    description: Use auth endpoints to authenticate (Then JWT)
     in: header
     name: Authorization
     type: apiKey
