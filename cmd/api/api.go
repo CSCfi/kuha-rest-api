@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/DeRuina/KUHA-REST-API/docs" // This is required to generate swagger docs
+	"github.com/DeRuina/KUHA-REST-API/internal/logger"
 	"github.com/DeRuina/KUHA-REST-API/internal/store"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -69,14 +70,12 @@ func (app *api) mount() http.Handler {
 		MaxAge:           300,
 	}))
 
-	// A good base middleware stack (taken from chi )
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-
-	// Set a timeout value on the request context (ctx)
+	// Middlewares
 	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(middleware.Recoverer)
+	r.Use(logger.LoggerMiddleware)
+	r.Use(middleware.RealIP)
+	r.Use(middleware.RequestID)
 
 	r.Route("/v1", func(r chi.Router) {
 		// Auth routes

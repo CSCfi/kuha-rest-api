@@ -44,9 +44,6 @@ func (h *CompetitorsHandler) GetAthletesBySector(w http.ResponseWriter, r *http.
 		return
 	}
 
-	client := authn.GetClientName(r.Context())
-	fmt.Println("Client:", client)
-
 	err := utils.ValidateParams(r, []string{"sector"})
 	if err != nil {
 		utils.BadRequestResponse(w, r, err)
@@ -99,9 +96,6 @@ func (h *CompetitorsHandler) GetNationsBySector(w http.ResponseWriter, r *http.R
 		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
 		return
 	}
-
-	client := authn.GetClientName(r.Context())
-	fmt.Println("Client:", client)
 
 	err := utils.ValidateParams(r, []string{"sector"})
 	if err != nil {

@@ -1,12 +1,16 @@
 package utils
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
-	"github.com/DeRuina/KUHA-REST-API/internal/logger"
 	"github.com/go-playground/validator/v10"
 )
+
+type contextKey string
+
+const ContextKeyRequestError contextKey = "request_error"
 
 // Errors
 var (
@@ -71,16 +75,23 @@ func FormatValidationErrors(err error) map[string]string {
 	return errors
 }
 
+func attachErrorToContext(r *http.Request, err error) *http.Request {
+	ctx := context.WithValue(r.Context(), ContextKeyRequestError, err.Error())
+	return r.WithContext(ctx)
+}
+
 // 500 Internal Server Error
 func InternalServerError(w http.ResponseWriter, r *http.Request, err error) {
-	logger.Logger.Errorw("Internal server error", "method", r.Method, "path", r.URL.Path, "error", err.Error())
+	r = attachErrorToContext(r, err)
+	_ = r
 
 	WriteJSONError(w, http.StatusInternalServerError, map[string]string{"error": "the server encountered a problem"})
 }
 
 // 400 Bad Request
 func BadRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
-	logger.Logger.Warnw("Bad request error", "method", r.Method, "path", r.URL.Path, "query_params", r.URL.RawQuery, "error", err.Error())
+	r = attachErrorToContext(r, err)
+	_ = r
 
 	if validationErrs, ok := err.(validator.ValidationErrors); ok {
 		formattedErrors := FormatValidationErrors(validationErrs)
@@ -93,47 +104,60 @@ func BadRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
 
 // 404 Not Found
 func NotFoundResponse(w http.ResponseWriter, r *http.Request, err error) {
-	logger.Logger.Warnw("Not found error", "method", r.Method, "path", r.URL.Path, "error", err.Error())
+	r = attachErrorToContext(r, err)
+	_ = r
 
 	WriteJSONError(w, http.StatusNotFound, map[string]string{"error": "Not found"})
 }
 
 // 422 Unprocessable Entity
 func UnprocessableEntityResponse(w http.ResponseWriter, r *http.Request, err error) {
-	logger.Logger.Warnw("Unprocessable Entity", "method", r.Method, "path", r.URL.Path, "error", err.Error())
+	r = attachErrorToContext(r, err)
+	_ = r
 
 	WriteJSONError(w, http.StatusUnprocessableEntity, map[string]string{"error": err.Error()})
 }
 
 // 401 Unauthorized (JWT or client token)
 func UnauthorizedResponse(w http.ResponseWriter, r *http.Request, err error) {
-	logger.Logger.Warnw("Unauthorized", "method", r.Method, "path", r.URL.Path, "error", err.Error())
+	r = attachErrorToContext(r, err)
+	_ = r
+
 	WriteJSONError(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
 }
 
 // 401 Unauthorized (Basic Auth)
 func UnauthorizedBasicErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
-	logger.Logger.Warnw("Unauthorized (Basic Auth)", "method", r.Method, "path", r.URL.Path, "error", err.Error())
+	r = attachErrorToContext(r, err)
+	_ = r
 	w.Header().Set("WWW-Authenticate", `Basic realm="restricted", charset="UTF-8"`)
+
 	WriteJSONError(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
 }
 
 // 403 Forbidden
 func ForbiddenResponse(w http.ResponseWriter, r *http.Request, err error) {
-	logger.Logger.Warnw("Forbidden", "method", r.Method, "path", r.URL.Path, "error", err.Error())
+	r = attachErrorToContext(r, err)
+	_ = r
+
 	WriteJSONError(w, http.StatusForbidden, map[string]string{"error": "forbidden"})
 }
 
 // 409 Conflict
 func ConflictResponse(w http.ResponseWriter, r *http.Request, err error) {
-	logger.Logger.Errorw("Conflict", "method", r.Method, "path", r.URL.Path, "error", err.Error())
+	r = attachErrorToContext(r, err)
+	_ = r
+
 	WriteJSONError(w, http.StatusConflict, map[string]string{"error": err.Error()})
 }
 
 // 429 Too Many Requests
 func RateLimitExceededResponse(w http.ResponseWriter, r *http.Request, retryAfter string) {
-	logger.Logger.Warnw("Rate limit exceeded", "method", r.Method, "path", r.URL.Path)
+	err := errors.New("rate limit exceeded")
+	r = attachErrorToContext(r, err)
+	_ = r
 	w.Header().Set("Retry-After", retryAfter)
+
 	WriteJSONError(w, http.StatusTooManyRequests, map[string]string{
 		"error":       "rate limit exceeded",
 		"retry_after": retryAfter,

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/DeRuina/KUHA-REST-API/internal/auth/authn"
 	"github.com/DeRuina/KUHA-REST-API/internal/auth/authz"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/utv"
 	"github.com/DeRuina/KUHA-REST-API/internal/utils"
@@ -61,9 +60,6 @@ func (h *PolarDataHandler) GetDates(w http.ResponseWriter, r *http.Request) {
 		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
 		return
 	}
-
-	client := authn.GetClientName(r.Context())
-	fmt.Println("Client:", client)
 
 	err := utils.ValidateParams(r, []string{"user_id", "after_date", "before_date"})
 	if err != nil {
@@ -129,9 +125,6 @@ func (h *PolarDataHandler) GetTypes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := authn.GetClientName(r.Context())
-	fmt.Println("Client:", client)
-
 	err := utils.ValidateParams(r, []string{"user_id", "date"})
 	if err != nil {
 		utils.BadRequestResponse(w, r, err)
@@ -189,9 +182,6 @@ func (h *PolarDataHandler) GetData(w http.ResponseWriter, r *http.Request) {
 		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
 		return
 	}
-
-	client := authn.GetClientName(r.Context())
-	fmt.Println("Client:", client)
 
 	err := utils.ValidateParams(r, []string{"user_id", "date", "key"})
 	if err != nil {
