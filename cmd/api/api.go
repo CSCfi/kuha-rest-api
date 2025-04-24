@@ -73,9 +73,9 @@ func (app *api) mount() http.Handler {
 	// Middlewares
 	r.Use(middleware.Timeout(60 * time.Second))
 	r.Use(middleware.Recoverer)
-	r.Use(logger.LoggerMiddleware)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.RequestID)
+	r.Use(logger.LoggerMiddleware)
 
 	r.Route("/v1", func(r chi.Router) {
 		// Auth routes
