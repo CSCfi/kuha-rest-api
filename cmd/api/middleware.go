@@ -80,3 +80,27 @@ func JWTMiddleware() func(http.Handler) http.Handler {
 		})
 	}
 }
+
+func ExtractClientIDMiddleware() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHeader := r.Header.Get("Authorization")
+			if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+			_, claims, err := authn.ValidateJWT(tokenStr)
+			if err != nil {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			clientName, _ := claims["sub"].(string)
+			ctx := authn.WithClientMetadata(r.Context(), clientName, nil)
+
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}

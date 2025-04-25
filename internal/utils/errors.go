@@ -72,9 +72,10 @@ func FormatValidationErrors(err error) map[string]string {
 	return errors
 }
 
-func logError(r *http.Request, msg string, err error) {
+func logError(r *http.Request, msg string, err error, status int) {
 	requestID := middleware.GetReqID(r.Context())
 	logger.Logger.Warnw(msg,
+		"status", status,
 		"error", err.Error(),
 		"request_id", requestID,
 	)
@@ -82,13 +83,13 @@ func logError(r *http.Request, msg string, err error) {
 
 // 500 Internal Server Error
 func InternalServerError(w http.ResponseWriter, r *http.Request, err error) {
-	logError(r, "Internal server error", err)
+	logError(r, "Internal server error", err, http.StatusInternalServerError)
 	WriteJSONError(w, http.StatusInternalServerError, map[string]string{"error": "the server encountered a problem"})
 }
 
 // 400 Bad Request
 func BadRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
-	logError(r, "Bad request error", err)
+	logError(r, "Bad request error", err, http.StatusBadRequest)
 
 	if validationErrs, ok := err.(validator.ValidationErrors); ok {
 		formattedErrors := FormatValidationErrors(validationErrs)
@@ -101,44 +102,44 @@ func BadRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
 
 // 404 Not Found
 func NotFoundResponse(w http.ResponseWriter, r *http.Request, err error) {
-	logError(r, "Not found error", err)
+	logError(r, "Not found error", err, http.StatusNotFound)
 	WriteJSONError(w, http.StatusNotFound, map[string]string{"error": "Not found"})
 }
 
 // 422 Unprocessable Entity
 func UnprocessableEntityResponse(w http.ResponseWriter, r *http.Request, err error) {
-	logError(r, "Unprocessable Entity", err)
+	logError(r, "Unprocessable Entity", err, http.StatusUnprocessableEntity)
 	WriteJSONError(w, http.StatusUnprocessableEntity, map[string]string{"error": err.Error()})
 }
 
 // 401 Unauthorized (JWT or client token)
 func UnauthorizedResponse(w http.ResponseWriter, r *http.Request, err error) {
-	logError(r, "Unauthorized", err)
+	logError(r, "Unauthorized", err, http.StatusUnauthorized)
 	WriteJSONError(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
 }
 
 // 401 Unauthorized (Basic Auth)
 func UnauthorizedBasicErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
-	logError(r, "Unauthorized (Basic Auth)", err)
+	logError(r, "Unauthorized (Basic Auth)", err, http.StatusUnauthorized)
 	w.Header().Set("WWW-Authenticate", `Basic realm="restricted", charset="UTF-8"`)
 	WriteJSONError(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
 }
 
 // 403 Forbidden
 func ForbiddenResponse(w http.ResponseWriter, r *http.Request, err error) {
-	logError(r, "Forbidden", err)
+	logError(r, "Forbidden", err, http.StatusForbidden)
 	WriteJSONError(w, http.StatusForbidden, map[string]string{"error": "forbidden"})
 }
 
 // 409 Conflict
 func ConflictResponse(w http.ResponseWriter, r *http.Request, err error) {
-	logError(r, "Conflict", err)
+	logError(r, "Conflict", err, http.StatusConflict)
 	WriteJSONError(w, http.StatusConflict, map[string]string{"error": err.Error()})
 }
 
 // 429 Too Many Requests
 func RateLimitExceededResponse(w http.ResponseWriter, r *http.Request, retryAfter string) {
-	logError(r, "Rate limit", errors.New("rate limit exceeded"))
+	logError(r, "Rate limit", errors.New("rate limit exceeded"), http.StatusTooManyRequests)
 	w.Header().Set("Retry-After", retryAfter)
 
 	WriteJSONError(w, http.StatusTooManyRequests, map[string]string{

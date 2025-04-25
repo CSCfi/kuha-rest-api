@@ -73,6 +73,7 @@ func (app *api) mount() http.Handler {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.RequestID)
+	r.Use(ExtractClientIDMiddleware())
 	r.Use(logger.LoggerMiddleware)
 
 	r.Route("/v1", func(r chi.Router) {
