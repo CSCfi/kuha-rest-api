@@ -26,7 +26,7 @@ func Init(logDir string) {
 		MaxAge:           30,
 		Compress:         false,
 		LocalTime:        true,           // for naming
-		RotationInterval: 24 * time.Hour, // daily rotation
+		RotationInterval: 3 * time.Minute 
 	}
 
 	encoderCfg := zap.NewProductionEncoderConfig()
