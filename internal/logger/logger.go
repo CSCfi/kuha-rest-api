@@ -25,8 +25,8 @@ func Init(logDir string) {
 		MaxBackups:       7,
 		MaxAge:           30,
 		Compress:         false,
-		LocalTime:        true,          // for naming
-		RotationInterval: 3 * time.Hour, // for rotation
+		LocalTime:        true,            // for naming
+		RotationInterval: 3 * time.Minute, // for rotation
 	}
 
 	encoderCfg := zap.NewProductionEncoderConfig()
