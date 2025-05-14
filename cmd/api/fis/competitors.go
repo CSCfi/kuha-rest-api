@@ -67,9 +67,7 @@ func (h *CompetitorsHandler) GetAthletesBySector(w http.ResponseWriter, r *http.
 
 	if h.cache != nil {
 		if cached, err := h.cache.Get(r.Context(), cacheKey); err == nil && cached != "" {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(cached))
+			utils.WriteJSON(w, http.StatusOK, json.RawMessage(cached))
 			return
 		}
 	}
@@ -89,11 +87,7 @@ func (h *CompetitorsHandler) GetAthletesBySector(w http.ResponseWriter, r *http.
 		"athletes": competitors,
 	}
 
-	if h.cache != nil {
-		if jsonData, err := json.Marshal(response); err == nil {
-			_ = h.cache.Set(r.Context(), cacheKey, string(jsonData), 10*time.Minute)
-		}
-	}
+	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, response, 10*time.Minute)
 
 	utils.WriteJSON(w, http.StatusOK, response)
 }
