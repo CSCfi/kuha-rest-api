@@ -2,11 +2,14 @@ package fisapi
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/DeRuina/KUHA-REST-API/internal/auth/authn"
 	"github.com/DeRuina/KUHA-REST-API/internal/auth/authz"
+	"github.com/DeRuina/KUHA-REST-API/internal/store/cache"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/fis"
 	"github.com/DeRuina/KUHA-REST-API/internal/utils"
 )
@@ -17,10 +20,11 @@ type SectorParams struct {
 
 type CompetitorsHandler struct {
 	store fis.Competitors
+	cache *cache.Storage
 }
 
-func NewCompetitorsHandler(store fis.Competitors) *CompetitorsHandler {
-	return &CompetitorsHandler{store: store}
+func NewCompetitorsHandler(store fis.Competitors, cache *cache.Storage) *CompetitorsHandler {
+	return &CompetitorsHandler{store: store, cache: cache}
 }
 
 // GetAthletesBySector godoc
@@ -59,6 +63,17 @@ func (h *CompetitorsHandler) GetAthletesBySector(w http.ResponseWriter, r *http.
 		return
 	}
 
+	cacheKey := fmt.Sprintf("fis:athletes:%s", params.Sector)
+
+	if h.cache != nil {
+		if cached, err := h.cache.Get(r.Context(), cacheKey); err == nil && cached != "" {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(cached))
+			return
+		}
+	}
+
 	competitors, err := h.store.GetAthletesBySector(context.Background(), params.Sector)
 	if err != nil {
 		utils.InternalServerError(w, r, err)
@@ -72,6 +87,12 @@ func (h *CompetitorsHandler) GetAthletesBySector(w http.ResponseWriter, r *http.
 
 	response := map[string]interface{}{
 		"athletes": competitors,
+	}
+
+	if h.cache != nil {
+		if jsonData, err := json.Marshal(response); err == nil {
+			_ = h.cache.Set(r.Context(), cacheKey, string(jsonData), 10*time.Minute)
+		}
 	}
 
 	utils.WriteJSON(w, http.StatusOK, response)

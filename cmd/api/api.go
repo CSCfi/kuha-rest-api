@@ -111,7 +111,7 @@ func (app *api) mount() http.Handler {
 			// FIS routes
 			r.Route("/fis", func(r chi.Router) {
 				//register handlers
-				competitorsHandler := fisapi.NewCompetitorsHandler(app.store.FIS.Competitors())
+				competitorsHandler := fisapi.NewCompetitorsHandler(app.store.FIS.Competitors(), app.cacheStorage)
 
 				r.Get("/athlete", competitorsHandler.GetAthletesBySector)
 				r.Get("/nation", competitorsHandler.GetNationsBySector)
