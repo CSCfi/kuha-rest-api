@@ -12,6 +12,7 @@ import (
 
 	"github.com/DeRuina/KUHA-REST-API/docs" // This is required to generate swagger docs
 	"github.com/DeRuina/KUHA-REST-API/internal/logger"
+	"github.com/DeRuina/KUHA-REST-API/internal/ratelimiter"
 	"github.com/DeRuina/KUHA-REST-API/internal/store"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/cache"
 	"github.com/go-chi/chi/v5"
@@ -28,15 +29,17 @@ type api struct {
 	config       config
 	store        store.Storage
 	cacheStorage *cache.Storage
+	rateLimiter  ratelimiter.Limiter
 }
 
 type config struct {
-	addr     string
-	db       dbConfig
-	env      string
-	apiURL   string
-	auth     authConfig
-	redisCfg redisConfig
+	addr        string
+	db          dbConfig
+	env         string
+	apiURL      string
+	auth        authConfig
+	redisCfg    redisConfig
+	rateLimiter ratelimiter.Config
 }
 
 type redisConfig struct {
@@ -87,6 +90,9 @@ func (app *api) mount() http.Handler {
 	r.Use(middleware.Timeout(60 * time.Second))
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RealIP)
+	if app.config.rateLimiter.Enabled {
+		r.Use(app.RateLimiterMiddleware)
+	}
 	r.Use(middleware.RequestID)
 	r.Use(ExtractClientIDMiddleware())
 	r.Use(logger.LoggerMiddleware)

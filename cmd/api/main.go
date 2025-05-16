@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"time"
 
 	"github.com/DeRuina/KUHA-REST-API/internal/auth/authn"
 	"github.com/DeRuina/KUHA-REST-API/internal/db"
 	"github.com/DeRuina/KUHA-REST-API/internal/env"
 	"github.com/DeRuina/KUHA-REST-API/internal/logger"
+	"github.com/DeRuina/KUHA-REST-API/internal/ratelimiter"
 	"github.com/DeRuina/KUHA-REST-API/internal/store"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/cache"
 )
@@ -54,6 +56,11 @@ func main() {
 				audience: env.GetString("JWT_AUDIENCE", ""),
 			},
 		},
+		rateLimiter: ratelimiter.Config{
+			RequestsPerTimeFrame: env.GetInt("RATELIMITER_REQUESTS_COUNT", 20),
+			TimeFrame:            time.Second * 5,
+			Enabled:              env.GetBool("RATE_LIMITER_ENABLED", true),
+		},
 	}
 
 	// Logger
@@ -76,6 +83,12 @@ func main() {
 	} else {
 		logger.Logger.Info("Redis cache disabled by configuration")
 	}
+
+	// Rate limiter
+	rateLimiter := ratelimiter.NewFixedWindowLimiter(
+		cfg.rateLimiter.RequestsPerTimeFrame,
+		cfg.rateLimiter.TimeFrame,
+	)
 
 	// Database
 	databases, err := db.New(cfg.db.fisAddr, cfg.db.utvAddr, cfg.db.authAddr, cfg.db.maxOpenConns, cfg.db.maxIdleConns, cfg.db.maxIdleTime)
@@ -102,6 +115,7 @@ func main() {
 		config:       cfg,
 		store:        *store,
 		cacheStorage: cacheStorage,
+		rateLimiter:  rateLimiter,
 	}
 
 	mux := app.mount()
