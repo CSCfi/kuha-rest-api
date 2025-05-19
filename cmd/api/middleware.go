@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/DeRuina/KUHA-REST-API/internal/auth/authn"
+	"github.com/DeRuina/KUHA-REST-API/internal/ratelimiter"
 	"github.com/DeRuina/KUHA-REST-API/internal/utils"
 )
 
@@ -107,8 +108,31 @@ func ExtractClientIDMiddleware() func(http.Handler) http.Handler {
 
 func (app *api) RateLimiterMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if app.config.rateLimiter.Enabled {
-			if allow, retryAfter := app.rateLimiter.Allow(r.RemoteAddr); !allow {
+		if !app.config.rateLimiter.Enabled {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		clientID := authn.GetClientName(r.Context())
+		if clientID == "" {
+			clientID = r.RemoteAddr
+		}
+
+		limit, window := ratelimiter.GetLimitForRole(clientID)
+
+		if app.redisRateLimiter != nil {
+			allowed, retryAfter, err := app.redisRateLimiter.Allow(r.Context(), clientID, limit, window)
+			if err != nil {
+				utils.InternalServerError(w, r, err)
+				return
+			}
+			if !allowed {
+				utils.RateLimitExceededResponse(w, r, retryAfter.String())
+				return
+			}
+		} else if app.localRateLimiter != nil {
+			allowed, retryAfter := app.localRateLimiter.Allow(clientID)
+			if !allowed {
 				utils.RateLimitExceededResponse(w, r, retryAfter.String())
 				return
 			}

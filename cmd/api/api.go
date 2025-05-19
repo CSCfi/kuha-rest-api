@@ -26,10 +26,11 @@ import (
 )
 
 type api struct {
-	config       config
-	store        store.Storage
-	cacheStorage *cache.Storage
-	rateLimiter  ratelimiter.Limiter
+	config           config
+	store            store.Storage
+	cacheStorage     *cache.Storage
+	redisRateLimiter *ratelimiter.RedisSlidingLimiter
+	localRateLimiter *ratelimiter.FixedWindowRateLimiter
 }
 
 type config struct {
@@ -90,11 +91,9 @@ func (app *api) mount() http.Handler {
 	r.Use(middleware.Timeout(60 * time.Second))
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RealIP)
-	if app.config.rateLimiter.Enabled {
-		r.Use(app.RateLimiterMiddleware)
-	}
-	r.Use(middleware.RequestID)
 	r.Use(ExtractClientIDMiddleware())
+	r.Use(app.RateLimiterMiddleware)
+	r.Use(middleware.RequestID)
 	r.Use(logger.LoggerMiddleware)
 
 	r.Route("/v1", func(r chi.Router) {

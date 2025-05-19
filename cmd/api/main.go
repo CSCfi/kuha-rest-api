@@ -63,6 +63,10 @@ func main() {
 		},
 	}
 
+	// Rate limiter
+	var redisLimiter *ratelimiter.RedisSlidingLimiter
+	var localLimiter *ratelimiter.FixedWindowRateLimiter
+
 	// Logger
 	logDir := env.GetString("LOG_DIR", "./logs")
 	logger.Init(logDir)
@@ -76,19 +80,18 @@ func main() {
 			logger.Logger.Warnw("failed to connect to Redis", "error", err)
 		} else {
 			cacheStorage = cache.NewRedisStorage(rdb)
+			redisLimiter = ratelimiter.NewRedisSlidingLimiter(rdb)
 			logger.Logger.Info("Redis cache connection established")
 			defer rdb.Close()
 		}
 		defer rdb.Close()
 	} else {
 		logger.Logger.Info("Redis cache disabled by configuration")
+		localLimiter = ratelimiter.NewFixedWindowLimiter(
+			cfg.rateLimiter.RequestsPerTimeFrame,
+			cfg.rateLimiter.TimeFrame,
+		)
 	}
-
-	// Rate limiter
-	rateLimiter := ratelimiter.NewFixedWindowLimiter(
-		cfg.rateLimiter.RequestsPerTimeFrame,
-		cfg.rateLimiter.TimeFrame,
-	)
 
 	// Database
 	databases, err := db.New(cfg.db.fisAddr, cfg.db.utvAddr, cfg.db.authAddr, cfg.db.maxOpenConns, cfg.db.maxIdleConns, cfg.db.maxIdleTime)
@@ -112,10 +115,11 @@ func main() {
 	store := store.NewStorage(databases)
 
 	app := &api{
-		config:       cfg,
-		store:        *store,
-		cacheStorage: cacheStorage,
-		rateLimiter:  rateLimiter,
+		config:           cfg,
+		store:            *store,
+		cacheStorage:     cacheStorage,
+		redisRateLimiter: redisLimiter,
+		localRateLimiter: localLimiter,
 	}
 
 	mux := app.mount()
