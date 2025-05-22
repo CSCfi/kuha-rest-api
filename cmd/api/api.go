@@ -97,6 +97,8 @@ func (app *api) mount() http.Handler {
 		MaxAge:           300,
 	}))
 
+	fmt.Printf("CORS AllowedOrigins: %v\n", env.GetString("CORS_ALLOWED_ORIGIN", "not-set"))
+
 	r.Route("/v1", func(r chi.Router) {
 		// Auth routes
 		r.Route("/auth", func(r chi.Router) {
