@@ -78,6 +78,15 @@ type dbConfig struct {
 func (app *api) mount() http.Handler {
 	r := chi.NewRouter()
 
+	// Middlewares
+	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.RealIP)
+	r.Use(ExtractClientIDMiddleware())
+	r.Use(app.RateLimiterMiddleware)
+	r.Use(middleware.RequestID)
+	r.Use(logger.LoggerMiddleware)
+
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			fmt.Printf("🟡 Incoming request Origin: %s\n", r.Header.Get("Origin"))
@@ -101,15 +110,6 @@ func (app *api) mount() http.Handler {
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
-
-	// Middlewares
-	r.Use(middleware.Timeout(60 * time.Second))
-	r.Use(middleware.Recoverer)
-	r.Use(middleware.RealIP)
-	r.Use(ExtractClientIDMiddleware())
-	r.Use(app.RateLimiterMiddleware)
-	r.Use(middleware.RequestID)
-	r.Use(logger.LoggerMiddleware)
 
 	r.Route("/v1", func(r chi.Router) {
 		// Auth routes
