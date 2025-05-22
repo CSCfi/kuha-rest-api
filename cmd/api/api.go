@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/DeRuina/KUHA-REST-API/docs" // This is required to generate swagger docs
+	"github.com/DeRuina/KUHA-REST-API/internal/env"
 	"github.com/DeRuina/KUHA-REST-API/internal/logger"
 	"github.com/DeRuina/KUHA-REST-API/internal/ratelimiter"
 	"github.com/DeRuina/KUHA-REST-API/internal/store"
@@ -78,15 +79,6 @@ type dbConfig struct {
 func (app *api) mount() http.Handler {
 	r := chi.NewRouter()
 
-	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://urheilun-data-alusta.fi"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: true,
-		MaxAge:           300,
-	}))
-
 	// Middlewares
 	r.Use(middleware.Timeout(60 * time.Second))
 	r.Use(middleware.Recoverer)
@@ -95,6 +87,15 @@ func (app *api) mount() http.Handler {
 	r.Use(app.RateLimiterMiddleware)
 	r.Use(middleware.RequestID)
 	r.Use(logger.LoggerMiddleware)
+
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{env.GetString("CORS_ALLOWED_ORIGIN", "")},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300,
+	}))
 
 	r.Route("/v1", func(r chi.Router) {
 		// Auth routes
