@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -88,16 +89,20 @@ func (app *api) mount() http.Handler {
 	r.Use(middleware.RequestID)
 	r.Use(logger.LoggerMiddleware)
 
+	origins := strings.Split(env.GetString("CORS_ALLOWED_ORIGIN", ""), ",")
+	for i := range origins {
+		origins[i] = strings.TrimSpace(origins[i]) // clean whitespace
+	}
+	fmt.Printf("Parsed CORS AllowedOrigins: %+v\n", origins)
+
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{env.GetString("CORS_ALLOWED_ORIGIN", "https://urheilun-data-alusta.fi")},
+		AllowedOrigins:   origins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
-
-	fmt.Printf("CORS AllowedOrigins: %v\n", env.GetString("CORS_ALLOWED_ORIGIN", "not-set"))
 
 	r.Route("/v1", func(r chi.Router) {
 		// Auth routes
