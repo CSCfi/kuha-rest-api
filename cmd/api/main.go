@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"expvar"
+	"runtime"
 	"time"
 
 	"github.com/DeRuina/KUHA-REST-API/internal/auth/authn"
@@ -121,6 +123,29 @@ func main() {
 		redisRateLimiter: redisLimiter,
 		localRateLimiter: localLimiter,
 	}
+
+	// metrics
+	expvar.Publish("database_fis", expvar.Func(func() any {
+		if databases.FIS != nil {
+			return databases.FIS.Stats()
+		}
+		return nil
+	}))
+	expvar.Publish("database_utv", expvar.Func(func() any {
+		if databases.UTV != nil {
+			return databases.UTV.Stats()
+		}
+		return nil
+	}))
+	expvar.Publish("database_auth", expvar.Func(func() any {
+		if databases.Auth != nil {
+			return databases.Auth.Stats()
+		}
+		return nil
+	}))
+	expvar.Publish("goroutines", expvar.Func(func() any {
+		return runtime.NumGoroutine()
+	}))
 
 	mux := app.mount()
 
