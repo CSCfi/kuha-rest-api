@@ -117,6 +117,18 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getUniqueCoachtechDataTypesStmt, err = db.PrepareContext(ctx, getUniqueCoachtechDataTypes); err != nil {
 		return nil, fmt.Errorf("error preparing query GetUniqueCoachtechDataTypes: %w", err)
 	}
+	if q.insertGarminDataStmt, err = db.PrepareContext(ctx, insertGarminData); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertGarminData: %w", err)
+	}
+	if q.insertOuraDataStmt, err = db.PrepareContext(ctx, insertOuraData); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertOuraData: %w", err)
+	}
+	if q.insertPolarDataStmt, err = db.PrepareContext(ctx, insertPolarData); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertPolarData: %w", err)
+	}
+	if q.insertSuuntoDataStmt, err = db.PrepareContext(ctx, insertSuuntoData); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertSuuntoData: %w", err)
+	}
 	if q.listGroupMembersStmt, err = db.PrepareContext(ctx, listGroupMembers); err != nil {
 		return nil, fmt.Errorf("error preparing query ListGroupMembers: %w", err)
 	}
@@ -310,6 +322,26 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getUniqueCoachtechDataTypesStmt: %w", cerr)
 		}
 	}
+	if q.insertGarminDataStmt != nil {
+		if cerr := q.insertGarminDataStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertGarminDataStmt: %w", cerr)
+		}
+	}
+	if q.insertOuraDataStmt != nil {
+		if cerr := q.insertOuraDataStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertOuraDataStmt: %w", cerr)
+		}
+	}
+	if q.insertPolarDataStmt != nil {
+		if cerr := q.insertPolarDataStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertPolarDataStmt: %w", cerr)
+		}
+	}
+	if q.insertSuuntoDataStmt != nil {
+		if cerr := q.insertSuuntoDataStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertSuuntoDataStmt: %w", cerr)
+		}
+	}
 	if q.listGroupMembersStmt != nil {
 		if cerr := q.listGroupMembersStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing listGroupMembersStmt: %w", cerr)
@@ -435,6 +467,10 @@ type Queries struct {
 	getTypesFromPolarDataStmt         *sql.Stmt
 	getTypesFromSuuntoDataStmt        *sql.Stmt
 	getUniqueCoachtechDataTypesStmt   *sql.Stmt
+	insertGarminDataStmt              *sql.Stmt
+	insertOuraDataStmt                *sql.Stmt
+	insertPolarDataStmt               *sql.Stmt
+	insertSuuntoDataStmt              *sql.Stmt
 	listGroupMembersStmt              *sql.Stmt
 	listGroupsStmt                    *sql.Stmt
 	listGroupsForUserStmt             *sql.Stmt
@@ -483,6 +519,10 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getTypesFromPolarDataStmt:         q.getTypesFromPolarDataStmt,
 		getTypesFromSuuntoDataStmt:        q.getTypesFromSuuntoDataStmt,
 		getUniqueCoachtechDataTypesStmt:   q.getUniqueCoachtechDataTypesStmt,
+		insertGarminDataStmt:              q.insertGarminDataStmt,
+		insertOuraDataStmt:                q.insertOuraDataStmt,
+		insertPolarDataStmt:               q.insertPolarDataStmt,
+		insertSuuntoDataStmt:              q.insertSuuntoDataStmt,
 		listGroupMembersStmt:              q.listGroupMembersStmt,
 		listGroupsStmt:                    q.listGroupsStmt,
 		listGroupsForUserStmt:             q.listGroupsForUserStmt,

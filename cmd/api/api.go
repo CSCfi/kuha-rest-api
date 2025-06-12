@@ -172,6 +172,7 @@ func (app *api) mount() http.Handler {
 					r.Get("/dates", garminHandler.GetDates)
 					r.Get("/types", garminHandler.GetTypes)
 					r.Get("/data", garminHandler.GetData)
+					r.Post("/data", garminHandler.InsertData)
 				})
 
 			})

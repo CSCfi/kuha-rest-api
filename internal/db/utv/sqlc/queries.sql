@@ -286,3 +286,27 @@ SELECT DISTINCT jsonb_object_keys(data)
 FROM garmin_data
 WHERE user_id = @user_id
 AND summary_date = @date;
+
+-- name: InsertOuraData :exec
+INSERT INTO oura_data (user_id, summary_date, data)
+VALUES ($1, $2, $3)
+ON CONFLICT (user_id, summary_date)
+DO UPDATE SET data = EXCLUDED.data;
+
+-- name: InsertPolarData :exec
+INSERT INTO polar_data (user_id, summary_date, data)
+VALUES ($1, $2, $3)
+ON CONFLICT (user_id, summary_date)
+DO UPDATE SET data = EXCLUDED.data;
+
+-- name: InsertSuuntoData :exec
+INSERT INTO suunto_data (user_id, summary_date, data)
+VALUES ($1, $2, $3)
+ON CONFLICT (user_id, summary_date)
+DO UPDATE SET data = EXCLUDED.data;
+
+-- name: InsertGarminData :exec
+INSERT INTO garmin_data (user_id, summary_date, data)
+VALUES ($1, $2, $3)
+ON CONFLICT (user_id, summary_date)
+DO UPDATE SET data = EXCLUDED.data;

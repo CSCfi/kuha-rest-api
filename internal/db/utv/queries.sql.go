@@ -898,6 +898,78 @@ func (q *Queries) GetUniqueCoachtechDataTypes(ctx context.Context, arg GetUnique
 	return items, nil
 }
 
+const insertGarminData = `-- name: InsertGarminData :exec
+INSERT INTO garmin_data (user_id, summary_date, data)
+VALUES ($1, $2, $3)
+ON CONFLICT (user_id, summary_date)
+DO UPDATE SET data = EXCLUDED.data
+`
+
+type InsertGarminDataParams struct {
+	UserID      uuid.UUID
+	Date 		time.Time
+	Data        json.RawMessage
+}
+
+func (q *Queries) InsertGarminData(ctx context.Context, arg InsertGarminDataParams) error {
+	_, err := q.exec(ctx, q.insertGarminDataStmt, insertGarminData, arg.UserID, arg.Date, arg.Data)
+	return err
+}
+
+const insertOuraData = `-- name: InsertOuraData :exec
+INSERT INTO oura_data (user_id, summary_date, data)
+VALUES ($1, $2, $3)
+ON CONFLICT (user_id, summary_date)
+DO UPDATE SET data = EXCLUDED.data
+`
+
+type InsertOuraDataParams struct {
+	UserID      uuid.UUID
+	Date 		time.Time
+	Data        json.RawMessage
+}
+
+func (q *Queries) InsertOuraData(ctx context.Context, arg InsertOuraDataParams) error {
+	_, err := q.exec(ctx, q.insertOuraDataStmt, insertOuraData, arg.UserID, arg.Date, arg.Data)
+	return err
+}
+
+const insertPolarData = `-- name: InsertPolarData :exec
+INSERT INTO polar_data (user_id, summary_date, data)
+VALUES ($1, $2, $3)
+ON CONFLICT (user_id, summary_date)
+DO UPDATE SET data = EXCLUDED.data
+`
+
+type InsertPolarDataParams struct {
+	UserID      uuid.UUID
+	Date 		time.Time
+	Data        json.RawMessage
+}
+
+func (q *Queries) InsertPolarData(ctx context.Context, arg InsertPolarDataParams) error {
+	_, err := q.exec(ctx, q.insertPolarDataStmt, insertPolarData, arg.UserID, arg.Date, arg.Data)
+	return err
+}
+
+const insertSuuntoData = `-- name: InsertSuuntoData :exec
+INSERT INTO suunto_data (user_id, summary_date, data)
+VALUES ($1, $2, $3)
+ON CONFLICT (user_id, summary_date)
+DO UPDATE SET data = EXCLUDED.data
+`
+
+type InsertSuuntoDataParams struct {
+	UserID      uuid.UUID
+	Date 		time.Time
+	Data        json.RawMessage
+}
+
+func (q *Queries) InsertSuuntoData(ctx context.Context, arg InsertSuuntoDataParams) error {
+	_, err := q.exec(ctx, q.insertSuuntoDataStmt, insertSuuntoData, arg.UserID, arg.Date, arg.Data)
+	return err
+}
+
 const listGroupMembers = `-- name: ListGroupMembers :many
 SELECT user_id, added
 FROM utv_group_members

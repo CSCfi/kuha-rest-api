@@ -30,6 +30,13 @@ type GarminGetDataParams struct {
 	Key    string `form:"key" validate:"omitempty,key"`
 }
 
+type GarminPostDataInput struct {
+	UserID string          `json:"user_id" validate:"required,uuid4"`
+	Date   string          `json:"date" validate:"required,datetime=2006-01-02"`
+	Data   json.RawMessage `json:"data" validate:"required"`
+}
+
+// store and cache interfaces
 type GarminDataHandler struct {
 	store utv.GarminData
 	cache *cache.Storage
@@ -256,4 +263,56 @@ func (h *GarminDataHandler) GetData(w http.ResponseWriter, r *http.Request) {
 	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, response, 10*time.Minute)
 
 	utils.WriteJSON(w, http.StatusOK, response)
+}
+
+// PostDataGarmin godoc
+//
+//	@Summary		Post Garmin data
+//	@Description	Posts Garmin data for the specified user on the specified date
+//	@Tags			UTV - Garmin
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body	swagger.GarminPostDataInput	true	"Garmin data input"
+//	@Success		201		"Created: Data successfully stored (no content in response body)"
+//	@Failure		400		{object}	swagger.ValidationErrorResponse
+//	@Failure		403		{object}	swagger.ForbiddenResponse
+//	@Failure		500		{object}	swagger.InternalServerErrorResponse
+//	@Security		BearerAuth
+//	@Router			/utv/garmin/data [post]
+func (h *GarminDataHandler) InsertData(w http.ResponseWriter, r *http.Request) {
+	if !authz.Authorize(r) {
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
+		return
+	}
+
+	var input GarminPostDataInput
+	if err := utils.ReadJSON(w, r, &input); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	if err := utils.GetValidator().Struct(input); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	userID, err := utils.ParseUUID(input.UserID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	date, err := utils.ParseDate(input.Date)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	err = h.store.InsertData(r.Context(), userID, date, input.Data)
+	if err != nil {
+		utils.InternalServerError(w, r, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }
