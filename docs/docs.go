@@ -325,6 +325,58 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Posts Garmin data for the specified user on the specified date",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UTV - Garmin"
+                ],
+                "summary": "Post Garmin data",
+                "parameters": [
+                    {
+                        "description": "Garmin data input",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.GarminPostDataInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created: Data successfully stored (no content in response body)"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/utv/garmin/dates": {
@@ -1301,6 +1353,19 @@ const docTemplate = `{
                 }
             }
         },
+        "swagger.GarminDailyExample": {
+            "type": "object",
+            "properties": {
+                "calendarDate": {
+                    "type": "string",
+                    "example": "2025-06-12"
+                },
+                "steps": {
+                    "type": "integer",
+                    "example": 5000
+                }
+            }
+        },
         "swagger.GarminData": {
             "type": "object",
             "properties": {
@@ -1374,6 +1439,33 @@ const docTemplate = `{
                 "summaryId": {
                     "type": "string",
                     "example": "x32c7d85-67b67080-9"
+                }
+            }
+        },
+        "swagger.GarminPayloadExample": {
+            "type": "object",
+            "properties": {
+                "dailies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.GarminDailyExample"
+                    }
+                }
+            }
+        },
+        "swagger.GarminPostDataInput": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/swagger.GarminPayloadExample"
+                },
+                "date": {
+                    "type": "string",
+                    "example": "2025-06-12"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
                 }
             }
         },

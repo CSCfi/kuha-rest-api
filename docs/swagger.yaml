@@ -135,6 +135,15 @@ definitions:
         example: 0
         type: integer
     type: object
+  swagger.GarminDailyExample:
+    properties:
+      calendarDate:
+        example: "2025-06-12"
+        type: string
+      steps:
+        example: 5000
+        type: integer
+    type: object
   swagger.GarminData:
     properties:
       dailies:
@@ -187,6 +196,24 @@ definitions:
         type: integer
       summaryId:
         example: x32c7d85-67b67080-9
+        type: string
+    type: object
+  swagger.GarminPayloadExample:
+    properties:
+      dailies:
+        items:
+          $ref: '#/definitions/swagger.GarminDailyExample'
+        type: array
+    type: object
+  swagger.GarminPostDataInput:
+    properties:
+      data:
+        $ref: '#/definitions/swagger.GarminPayloadExample'
+      date:
+        example: "2025-06-12"
+        type: string
+      user_id:
+        example: f47ac10b-58cc-4372-a567-0e02b2c3d479
         type: string
     type: object
   swagger.GarminTypesResponse:
@@ -646,6 +673,40 @@ paths:
       security:
       - BearerAuth: []
       summary: Get available data
+      tags:
+      - UTV - Garmin
+    post:
+      consumes:
+      - application/json
+      description: Posts Garmin data for the specified user on the specified date
+      parameters:
+      - description: Garmin data input
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.GarminPostDataInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'Created: Data successfully stored (no content in response
+            body)'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Post Garmin data
       tags:
       - UTV - Garmin
   /utv/garmin/dates:

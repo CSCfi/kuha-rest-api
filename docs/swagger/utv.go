@@ -148,3 +148,18 @@ type GarminData struct {
 type GarminDataResponse struct {
 	Data GarminData `json:"data"`
 }
+
+type GarminPostDataInput struct {
+	UserID string               `json:"user_id" example:"f47ac10b-58cc-4372-a567-0e02b2c3d479"`
+	Date   string               `json:"date" example:"2025-06-12"`
+	Data   GarminPayloadExample `json:"data"`
+}
+
+type GarminPayloadExample struct {
+	Dailies []GarminDailyExample `json:"dailies"`
+}
+
+type GarminDailyExample struct {
+	Steps        int    `json:"steps" example:"5000"`
+	CalendarDate string `json:"calendarDate" example:"2025-06-12"`
+}
