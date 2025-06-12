@@ -279,6 +279,21 @@ definitions:
           type: string
         type: array
     type: object
+  swagger.OuraDailyExample:
+    properties:
+      day:
+        example: "2021-12-10"
+        type: string
+      id:
+        example: 232b8559-9175-43f5-88c2-7f727b1f3ced
+        type: string
+      score:
+        example: 93
+        type: integer
+      steps:
+        example: 1074
+        type: integer
+    type: object
   swagger.OuraData:
     properties:
       daily_activity:
@@ -299,6 +314,24 @@ definitions:
       data:
         $ref: '#/definitions/swagger.OuraData'
     type: object
+  swagger.OuraPayloadExample:
+    properties:
+      daily_activity:
+        items:
+          $ref: '#/definitions/swagger.OuraDailyExample'
+        type: array
+    type: object
+  swagger.OuraPostDataInput:
+    properties:
+      data:
+        $ref: '#/definitions/swagger.OuraPayloadExample'
+      date:
+        example: "2025-06-12"
+        type: string
+      user_id:
+        example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+        type: string
+    type: object
   swagger.OuraTypesResponse:
     properties:
       types:
@@ -309,6 +342,21 @@ definitions:
         items:
           type: string
         type: array
+    type: object
+  swagger.PolarAlertness:
+    properties:
+      grade:
+        example: 5.1
+        type: number
+      grade_type:
+        example: GRADE_TYPE_PRIMARY
+        type: string
+      result_type:
+        example: ALERTNESS_TYPE_HISTORY
+        type: string
+      sleep_type:
+        example: SLEEP_TYPE_PRIMARY
+        type: string
     type: object
   swagger.PolarAlertnessData:
     properties:
@@ -351,6 +399,22 @@ definitions:
         type: integer
       sample_time:
         example: "00:10:00"
+        type: string
+    type: object
+  swagger.PolarPayloadExample:
+    properties:
+      alertness:
+        $ref: '#/definitions/swagger.PolarAlertness'
+    type: object
+  swagger.PolarPostDataInput:
+    properties:
+      data:
+        $ref: '#/definitions/swagger.PolarPayloadExample'
+      date:
+        example: "2025-06-12"
+        type: string
+      user_id:
+        example: f47ac10b-58cc-4372-a567-0e02b2c3d479
         type: string
     type: object
   swagger.PolarTypesResponse:
@@ -403,6 +467,24 @@ definitions:
       data:
         $ref: '#/definitions/swagger.SuuntoData'
     type: object
+  swagger.SuuntoPayloadExample:
+    properties:
+      workout:
+        additionalProperties:
+          $ref: '#/definitions/swagger.SuuntoWorkout'
+        type: object
+    type: object
+  swagger.SuuntoPostDataInput:
+    properties:
+      data:
+        $ref: '#/definitions/swagger.SuuntoPayloadExample'
+      date:
+        example: "2025-06-12"
+        type: string
+      user_id:
+        example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+        type: string
+    type: object
   swagger.SuuntoTypesResponse:
     properties:
       types:
@@ -411,6 +493,14 @@ definitions:
         items:
           type: string
         type: array
+    type: object
+  swagger.SuuntoWorkout:
+    properties:
+      workout_content:
+        example: 65ed97d4dddc530a5389f8f9
+        type: string
+      workout_summary:
+        $ref: '#/definitions/swagger.SuuntoWorkoutSummary1'
     type: object
   swagger.SuuntoWorkoutData:
     properties:
@@ -433,6 +523,18 @@ definitions:
         type: integer
       totalTime:
         example: 3600
+        type: number
+    type: object
+  swagger.SuuntoWorkoutSummary1:
+    properties:
+      stepCount:
+        example: 4469
+        type: integer
+      totalDistance:
+        example: 14927.06
+        type: number
+      totalTime:
+        example: 3707.57
         type: number
     type: object
   swagger.UnauthorizedError:
@@ -849,6 +951,40 @@ paths:
       summary: Get available data
       tags:
       - UTV - Oura
+    post:
+      consumes:
+      - application/json
+      description: Posts Oura data for the specified user on the specified date
+      parameters:
+      - description: Oura data input
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.OuraPostDataInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'Created: Data successfully stored (no content in response
+            body)'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Post Oura data
+      tags:
+      - UTV - Oura
   /utv/oura/dates:
     get:
       consumes:
@@ -989,6 +1125,40 @@ paths:
       summary: Get available data
       tags:
       - UTV - Polar
+    post:
+      consumes:
+      - application/json
+      description: Posts Polar data for the specified user on the specified date
+      parameters:
+      - description: Polar data input
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.PolarPostDataInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'Created: Data successfully stored (no content in response
+            body)'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Post Polar data
+      tags:
+      - UTV - Polar
   /utv/polar/dates:
     get:
       consumes:
@@ -1127,6 +1297,40 @@ paths:
       security:
       - BearerAuth: []
       summary: Get available data
+      tags:
+      - UTV - Suunto
+    post:
+      consumes:
+      - application/json
+      description: Posts Suunto data for the specified user on the specified date
+      parameters:
+      - description: suunto data input
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.SuuntoPostDataInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'Created: Data successfully stored (no content in response
+            body)'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Post Suunto data
       tags:
       - UTV - Suunto
   /utv/suunto/dates:

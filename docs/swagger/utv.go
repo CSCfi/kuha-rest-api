@@ -163,3 +163,58 @@ type GarminDailyExample struct {
 	Steps        int    `json:"steps" example:"5000"`
 	CalendarDate string `json:"calendarDate" example:"2025-06-12"`
 }
+
+type OuraPostDataInput struct {
+	UserID string             `json:"user_id" example:"f47ac10b-58cc-4372-a567-0e02b2c3d479"`
+	Date   string             `json:"date" example:"2025-06-12"`
+	Data   OuraPayloadExample `json:"data"`
+}
+
+type OuraPayloadExample struct {
+	DailyActivity []OuraDailyExample `json:"daily_activity"`
+}
+
+type OuraDailyExample struct {
+	ID    string `json:"id" example:"232b8559-9175-43f5-88c2-7f727b1f3ced"`
+	Day   string `json:"day" example:"2021-12-10"`
+	Steps int    `json:"steps" example:"1074"`
+	Score int    `json:"score" example:"93"`
+}
+
+type SuuntoPostDataInput struct {
+	UserID string               `json:"user_id" example:"f47ac10b-58cc-4372-a567-0e02b2c3d479"`
+	Date   string               `json:"date" example:"2025-06-12"`
+	Data   SuuntoPayloadExample `json:"data"`
+}
+
+type SuuntoPayloadExample struct {
+	Workout map[string]SuuntoWorkout `json:"workout"`
+}
+
+type SuuntoWorkout struct {
+	WorkoutContent string                `json:"workout_content" example:"65ed97d4dddc530a5389f8f9"`
+	WorkoutSummary SuuntoWorkoutSummary1 `json:"workout_summary"`
+}
+
+type SuuntoWorkoutSummary1 struct {
+	Steps         int     `json:"stepCount" example:"4469"`
+	TotalTime     float64 `json:"totalTime" example:"3707.57"`
+	TotalDistance float64 `json:"totalDistance" example:"14927.06"`
+}
+
+type PolarPostDataInput struct {
+	UserID string              `json:"user_id" example:"f47ac10b-58cc-4372-a567-0e02b2c3d479"`
+	Date   string              `json:"date" example:"2025-06-12"`
+	Data   PolarPayloadExample `json:"data"`
+}
+
+type PolarPayloadExample struct {
+	Alertness PolarAlertness `json:"alertness"`
+}
+
+type PolarAlertness struct {
+	Grade      float64 `json:"grade" example:"5.1"`
+	GradeType  string  `json:"grade_type" example:"GRADE_TYPE_PRIMARY"`
+	SleepType  string  `json:"sleep_type" example:"SLEEP_TYPE_PRIMARY"`
+	ResultType string  `json:"result_type" example:"ALERTNESS_TYPE_HISTORY"`
+}
