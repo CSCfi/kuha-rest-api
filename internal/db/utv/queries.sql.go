@@ -1454,3 +1454,204 @@ func (q *Queries) GetLatestSuuntoDataByType(ctx context.Context, arg GetLatestSu
 	}
 	return items, nil
 }
+
+
+const getDataByTypeGarmin = `-- name: GetDataByTypeGarmin :many
+SELECT summary_date, (data -> $2::text)::jsonb AS data
+FROM garmin_data
+WHERE user_id = $1
+  AND data ? $2
+  AND ($3::date IS NULL OR summary_date >= $3)
+  AND ($4::date IS NULL OR summary_date <= $4)
+ORDER BY summary_date DESC
+`
+
+type GetDataByTypeGarminParams struct {
+	UserID  	uuid.UUID
+	Type        string
+	AfterDate   sql.NullTime
+	BeforeDate  sql.NullTime
+}
+
+type GetDataByTypeGarminRow struct {
+	SummaryDate time.Time
+	Data        json.RawMessage
+}
+
+func (q *Queries) GetDataByTypeGarmin(ctx context.Context, arg GetDataByTypeGarminParams) ([]GetDataByTypeGarminRow, error) {
+	rows, err := q.query(ctx, q.getDataByTypeGarminStmt, getDataByTypeGarmin,
+		arg.UserID,
+		arg.Type,
+		arg.AfterDate,
+		arg.BeforeDate,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetDataByTypeGarminRow
+	for rows.Next() {
+		var i GetDataByTypeGarminRow
+		if err := rows.Scan(&i.SummaryDate, &i.Data); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getDataByTypeOura = `-- name: GetDataByTypeOura :many
+SELECT summary_date, (data -> $2::text)::jsonb AS data
+FROM oura_data
+WHERE user_id = $1
+  AND data ? $2
+  AND ($3::date IS NULL OR summary_date >= $3)
+  AND ($4::date IS NULL OR summary_date <= $4)
+ORDER BY summary_date DESC
+`
+
+type GetDataByTypeOuraParams struct {
+	UserID  	uuid.UUID
+	Type        string
+	AfterDate   sql.NullTime
+	BeforeDate  sql.NullTime
+}
+
+type GetDataByTypeOuraRow struct {
+	SummaryDate time.Time
+	Data        json.RawMessage
+}
+
+func (q *Queries) GetDataByTypeOura(ctx context.Context, arg GetDataByTypeOuraParams) ([]GetDataByTypeOuraRow, error) {
+	rows, err := q.query(ctx, q.getDataByTypeOuraStmt, getDataByTypeOura,
+		arg.UserID,
+		arg.Type,
+		arg.AfterDate,
+		arg.BeforeDate,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetDataByTypeOuraRow
+	for rows.Next() {
+		var i GetDataByTypeOuraRow
+		if err := rows.Scan(&i.SummaryDate, &i.Data); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getDataByTypePolar = `-- name: GetDataByTypePolar :many
+SELECT summary_date, (data -> $2::text)::jsonb AS data
+FROM polar_data
+WHERE user_id = $1
+  AND data ? $2
+  AND ($3::date IS NULL OR summary_date >= $3)
+  AND ($4::date IS NULL OR summary_date <= $4)
+ORDER BY summary_date DESC
+`
+
+type GetDataByTypePolarParams struct {
+	UserID  	uuid.UUID
+	Type        string
+	AfterDate   sql.NullTime
+	BeforeDate  sql.NullTime
+}
+
+type GetDataByTypePolarRow struct {
+	SummaryDate time.Time
+	Data        json.RawMessage
+}
+
+func (q *Queries) GetDataByTypePolar(ctx context.Context, arg GetDataByTypePolarParams) ([]GetDataByTypePolarRow, error) {
+	rows, err := q.query(ctx, q.getDataByTypePolarStmt, getDataByTypePolar,
+		arg.UserID,
+		arg.Type,
+		arg.AfterDate,
+		arg.BeforeDate,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetDataByTypePolarRow
+	for rows.Next() {
+		var i GetDataByTypePolarRow
+		if err := rows.Scan(&i.SummaryDate, &i.Data); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getDataByTypeSuunto = `-- name: GetDataByTypeSuunto :many
+SELECT summary_date, (data -> $2::text)::jsonb AS data
+FROM suunto_data
+WHERE user_id = $1
+  AND data ? $2
+  AND ($3::date IS NULL OR summary_date >= $3)
+  AND ($4::date IS NULL OR summary_date <= $4)
+ORDER BY summary_date DESC
+`
+
+type GetDataByTypeSuuntoParams struct {
+	UserID  	uuid.UUID
+	Type        string
+	AfterDate   sql.NullTime
+	BeforeDate  sql.NullTime
+}
+
+type GetDataByTypeSuuntoRow struct {
+	SummaryDate time.Time
+	Data        json.RawMessage
+}
+
+func (q *Queries) GetDataByTypeSuunto(ctx context.Context, arg GetDataByTypeSuuntoParams) ([]GetDataByTypeSuuntoRow, error) {
+	rows, err := q.query(ctx, q.getDataByTypeSuuntoStmt, getDataByTypeSuunto,
+		arg.UserID,
+		arg.Type,
+		arg.AfterDate,
+		arg.BeforeDate,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetDataByTypeSuuntoRow
+	for rows.Next() {
+		var i GetDataByTypeSuuntoRow
+		if err := rows.Scan(&i.SummaryDate, &i.Data); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

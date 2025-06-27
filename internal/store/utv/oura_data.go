@@ -215,3 +215,34 @@ func (s *OuraDataStore) GetLatestByType(ctx context.Context, userID uuid.UUID, t
 
 	return entries, nil
 }
+
+// GetAllByType
+func (s *OuraDataStore) GetAllByType(ctx context.Context, userID uuid.UUID, typ string, after, before *time.Time) ([]LatestDataEntry, error) {
+	queries := utvsqlc.New(s.db)
+
+	arg := utvsqlc.GetDataByTypeOuraParams{
+		UserID:     userID,
+		Type:       typ,
+		AfterDate:  utils.NullTimeIfEmpty(after),
+		BeforeDate: utils.NullTimeIfEmpty(before),
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	rows, err := queries.GetDataByTypeOura(ctx, arg)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []LatestDataEntry
+	for _, row := range rows {
+		result = append(result, LatestDataEntry{
+			Device: "oura",
+			Date:   row.SummaryDate,
+			Data:   row.Data,
+		})
+	}
+
+	return result, nil
+}

@@ -155,6 +155,7 @@ func (app *api) mount() http.Handler {
 
 				// General routes
 				r.Get("/latest", generalHandler.GetLatestData)
+				r.Get("/all", generalHandler.GetAllByType)
 
 				// Oura routes
 				r.Route("/oura", func(r chi.Router) {

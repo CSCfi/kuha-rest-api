@@ -23,6 +23,13 @@ type LatestDataInput struct {
 	Limit  int32  `form:"limit" validate:"omitempty,min=1,max=100"`
 }
 
+type AllByTypeInput struct {
+	UserID     string `form:"user_id" validate:"required,uuid4"`
+	Type       string `form:"type" validate:"required,key"`
+	AfterDate  string `form:"after_date" validate:"omitempty,datetime=2006-01-02"`
+	BeforeDate string `form:"before_date" validate:"omitempty,datetime=2006-01-02"`
+}
+
 // store and cache interfaces
 type GeneralDataHandler struct {
 	oura   utv.OuraData
@@ -156,5 +163,105 @@ func (h *GeneralDataHandler) GetLatestData(w http.ResponseWriter, r *http.Reques
 	}
 
 	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, results, 10*time.Minute)
+	utils.WriteJSON(w, http.StatusOK, results)
+}
+
+// GetAllByType godoc
+//
+//	@Summary		Get all data by type
+//	@Description	Returns all entries of a specific data type for a user, across all wearable devices, optionally filtered by date range.
+//	@Tags			UTV - General
+//	@Accept			json
+//	@Produce		json
+//	@Param			user_id		query	string						true	"User ID (UUID)"
+//	@Param			type		query	string						true	"Data type (e.g., 'sleep', 'activity')"
+//	@Param			after_date	query	string						false	"Filter data after this date (YYYY-MM-DD)"
+//	@Param			before_date	query	string						false	"Filter data before this date (YYYY-MM-DD)"
+//	@Success		200			{array}	swagger.LatestDataResponse	"List of data entries across devices"
+//	@Success		204			"No Content: No data available"
+//	@Failure		400			{object}	swagger.ValidationErrorResponse
+//	@Failure		403			{object}	swagger.ForbiddenResponse
+//	@Failure		422			{object}	swagger.InvalidDateRange
+//	@Failure		500			{object}	swagger.InternalServerErrorResponse
+//	@Security		BearerAuth
+//	@Router			/utv/all [get]
+func (h *GeneralDataHandler) GetAllByType(w http.ResponseWriter, r *http.Request) {
+	if !authz.Authorize(r) {
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
+		return
+	}
+
+	err := utils.ValidateParams(r, []string{"user_id", "type", "after_date", "before_date"})
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	params := AllByTypeInput{
+		UserID:     r.URL.Query().Get("user_id"),
+		Type:       r.URL.Query().Get("type"),
+		AfterDate:  r.URL.Query().Get("after_date"),
+		BeforeDate: r.URL.Query().Get("before_date"),
+	}
+
+	if err := utils.GetValidator().Struct(params); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	// Parse values
+	userID, err := utils.ParseUUID(params.UserID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	after, err := utils.ParseDatePtr(utils.NilIfEmpty(&params.AfterDate))
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	before, err := utils.ParseDatePtr(utils.NilIfEmpty(&params.BeforeDate))
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	if after != nil && before != nil && after.After(*before) {
+		utils.UnprocessableEntityResponse(w, r, utils.ErrInvalidDateRange)
+		return
+	}
+
+	var results []LatestDataResponse
+
+	// Helper to query one device
+	fetch := func(name string, store interface {
+		GetAllByType(ctx context.Context, userID uuid.UUID, typ string, after, before *time.Time) ([]utv.LatestDataEntry, error)
+	}) {
+		data, err := store.GetAllByType(r.Context(), userID, params.Type, after, before)
+		if err != nil {
+			return
+		}
+		for _, row := range data {
+			results = append(results, LatestDataResponse{
+				Device: name,
+				Date:   row.Date.Format("2006-01-02"),
+				Data:   row.Data,
+			})
+		}
+	}
+
+	// Query all 4 devices
+	fetch("garmin", h.garmin)
+	fetch("oura", h.oura)
+	fetch("polar", h.polar)
+	fetch("suunto", h.suunto)
+
+	if len(results) == 0 {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
 	utils.WriteJSON(w, http.StatusOK, results)
 }

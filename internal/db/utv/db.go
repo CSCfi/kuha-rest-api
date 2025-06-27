@@ -75,6 +75,18 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getAppDataStmt, err = db.PrepareContext(ctx, getAppData); err != nil {
 		return nil, fmt.Errorf("error preparing query GetAppData: %w", err)
 	}
+	if q.getDataByTypeGarminStmt, err = db.PrepareContext(ctx, getDataByTypeGarmin); err != nil {
+		return nil, fmt.Errorf("error preparing query GetDataByTypeGarmin: %w", err)
+	}
+	if q.getDataByTypeOuraStmt, err = db.PrepareContext(ctx, getDataByTypeOura); err != nil {
+		return nil, fmt.Errorf("error preparing query GetDataByTypeOura: %w", err)
+	}
+	if q.getDataByTypePolarStmt, err = db.PrepareContext(ctx, getDataByTypePolar); err != nil {
+		return nil, fmt.Errorf("error preparing query GetDataByTypePolar: %w", err)
+	}
+	if q.getDataByTypeSuuntoStmt, err = db.PrepareContext(ctx, getDataByTypeSuunto); err != nil {
+		return nil, fmt.Errorf("error preparing query GetDataByTypeSuunto: %w", err)
+	}
 	if q.getDataPointFromCoachtechDataStmt, err = db.PrepareContext(ctx, getDataPointFromCoachtechData); err != nil {
 		return nil, fmt.Errorf("error preparing query GetDataPointFromCoachtechData: %w", err)
 	}
@@ -274,6 +286,26 @@ func (q *Queries) Close() error {
 	if q.getAppDataStmt != nil {
 		if cerr := q.getAppDataStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getAppDataStmt: %w", cerr)
+		}
+	}
+	if q.getDataByTypeGarminStmt != nil {
+		if cerr := q.getDataByTypeGarminStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getDataByTypeGarminStmt: %w", cerr)
+		}
+	}
+	if q.getDataByTypeOuraStmt != nil {
+		if cerr := q.getDataByTypeOuraStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getDataByTypeOuraStmt: %w", cerr)
+		}
+	}
+	if q.getDataByTypePolarStmt != nil {
+		if cerr := q.getDataByTypePolarStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getDataByTypePolarStmt: %w", cerr)
+		}
+	}
+	if q.getDataByTypeSuuntoStmt != nil {
+		if cerr := q.getDataByTypeSuuntoStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getDataByTypeSuuntoStmt: %w", cerr)
 		}
 	}
 	if q.getDataPointFromCoachtechDataStmt != nil {
@@ -517,6 +549,10 @@ type Queries struct {
 	getAllDataForDateSuuntoStmt       *sql.Stmt
 	getAllDataTypesStmt               *sql.Stmt
 	getAppDataStmt                    *sql.Stmt
+	getDataByTypeGarminStmt           *sql.Stmt
+	getDataByTypeOuraStmt             *sql.Stmt
+	getDataByTypePolarStmt            *sql.Stmt
+	getDataByTypeSuuntoStmt           *sql.Stmt
 	getDataPointFromCoachtechDataStmt *sql.Stmt
 	getDatesFromCoachtechDataStmt     *sql.Stmt
 	getDatesFromGarminDataStmt        *sql.Stmt
@@ -577,6 +613,10 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getAllDataForDateSuuntoStmt:       q.getAllDataForDateSuuntoStmt,
 		getAllDataTypesStmt:               q.getAllDataTypesStmt,
 		getAppDataStmt:                    q.getAppDataStmt,
+		getDataByTypeGarminStmt:           q.getDataByTypeGarminStmt,
+		getDataByTypeOuraStmt:             q.getDataByTypeOuraStmt,
+		getDataByTypePolarStmt:            q.getDataByTypePolarStmt,
+		getDataByTypeSuuntoStmt:           q.getDataByTypeSuuntoStmt,
 		getDataPointFromCoachtechDataStmt: q.getDataPointFromCoachtechDataStmt,
 		getDatesFromCoachtechDataStmt:     q.getDatesFromCoachtechDataStmt,
 		getDatesFromGarminDataStmt:        q.getDatesFromGarminDataStmt,

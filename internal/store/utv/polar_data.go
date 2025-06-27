@@ -214,3 +214,34 @@ func (s *PolarDataStore) GetLatestByType(ctx context.Context, userID uuid.UUID, 
 
 	return entries, nil
 }
+
+// GetAllByType
+func (s *PolarDataStore) GetAllByType(ctx context.Context, userID uuid.UUID, typ string, after, before *time.Time) ([]LatestDataEntry, error) {
+	queries := utvsqlc.New(s.db)
+
+	arg := utvsqlc.GetDataByTypePolarParams{
+		UserID:     userID,
+		Type:       typ,
+		AfterDate:  utils.NullTimeIfEmpty(after),
+		BeforeDate: utils.NullTimeIfEmpty(before),
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	rows, err := queries.GetDataByTypePolar(ctx, arg)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []LatestDataEntry
+	for _, row := range rows {
+		result = append(result, LatestDataEntry{
+			Device: "polar",
+			Date:   row.SummaryDate,
+			Data:   row.Data,
+		})
+	}
+
+	return result, nil
+}

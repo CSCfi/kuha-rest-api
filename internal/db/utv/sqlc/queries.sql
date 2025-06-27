@@ -351,4 +351,40 @@ WHERE user_id = $1 AND data ? $2
 ORDER BY summary_date DESC
 LIMIT $3;
 
+-- name: GetDataByTypeOura :many
+SELECT summary_date, (data -> $2::text)::jsonb AS data
+FROM oura_data
+WHERE user_id = $1
+  AND data ? $2
+  AND ($3::date IS NULL OR summary_date >= $3)
+  AND ($4::date IS NULL OR summary_date <= $4)
+ORDER BY summary_date DESC;
+
+-- name: GetDataByTypePolar :many
+SELECT summary_date, (data -> $2::text)::jsonb AS data
+FROM polar_data
+WHERE user_id = $1
+  AND data ? $2
+  AND ($3::date IS NULL OR summary_date >= $3)
+  AND ($4::date IS NULL OR summary_date <= $4)
+ORDER BY summary_date DESC;
+
+-- name: GetDataByTypeSuunto :many
+SELECT summary_date, (data -> $2::text)::jsonb AS data
+FROM suunto_data
+WHERE user_id = $1
+  AND data ? $2
+  AND ($3::date IS NULL OR summary_date >= $3)
+  AND ($4::date IS NULL OR summary_date <= $4)
+ORDER BY summary_date DESC;
+
+-- name: GetDataByTypeGarmin :many
+SELECT summary_date, (data -> $2::text)::jsonb AS data
+FROM garmin_data
+WHERE user_id = $1
+  AND data ? $2
+  AND ($3::date IS NULL OR summary_date >= $3)
+  AND ($4::date IS NULL OR summary_date <= $4)
+ORDER BY summary_date DESC;
+
 
