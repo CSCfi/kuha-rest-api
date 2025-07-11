@@ -11,34 +11,34 @@ import (
 	"github.com/DeRuina/KUHA-REST-API/internal/utils"
 )
 
-type PolarTokenHandler struct {
-	store utv.PolarToken
+type OuraTokenHandler struct {
+	store utv.OuraToken
 	cache *cache.Storage
 }
 
-func NewPolarTokenHandler(store utv.PolarToken, cache *cache.Storage) *PolarTokenHandler {
-	return &PolarTokenHandler{store: store, cache: cache}
+func NewOuraTokenHandler(store utv.OuraToken, cache *cache.Storage) *OuraTokenHandler {
+	return &OuraTokenHandler{store: store, cache: cache}
 }
 
-type GetStatusParams struct {
+type OuraStatusParams struct {
 	UserID string `form:"user_id" validate:"required,uuid4"`
 }
 
 // GetStatus godoc
 //
-//	@Summary		Check Polar connection & data status
-//	@Description	Returns whether a user has connected their Polar account and whether any Polar data exists
-//	@Tags			UTV - Polar
+//	@Summary		Check Oura connection & data status
+//	@Description	Returns whether a user has connected their Oura account and whether any Oura data exists
+//	@Tags			UTV - Oura
 //	@Accept			json
 //	@Produce		json
 //	@Param			user_id	query		string	true	"User ID (UUID)"
-//	@Success		200		{object}	swagger.PolarStatusResponse
+//	@Success		200		{object}	swagger.OuraStatusResponse
 //	@Failure		400		{object}	swagger.ValidationErrorResponse
 //	@Failure		403		{object}	swagger.ForbiddenResponse
 //	@Failure		500		{object}	swagger.InternalServerErrorResponse
 //	@Security		BearerAuth
-//	@Router			/utv/polar/status [get]
-func (h *PolarTokenHandler) GetStatus(w http.ResponseWriter, r *http.Request) {
+//	@Router			/utv/oura/status [get]
+func (h *OuraTokenHandler) GetStatus(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
 		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
 		return
@@ -50,7 +50,7 @@ func (h *PolarTokenHandler) GetStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params := GetStatusParams{
+	params := OuraStatusParams{
 		UserID: r.URL.Query().Get("user_id"),
 	}
 	if err := utils.GetValidator().Struct(params); err != nil {
@@ -76,32 +76,32 @@ func (h *PolarTokenHandler) GetStatus(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-type PolarTokenInput struct {
+type OuraTokenInput struct {
 	UserID  string          `json:"user_id" validate:"required,uuid4"`
 	Details json.RawMessage `json:"details" validate:"required"`
 }
 
 // UpsertToken godoc
 //
-//	@Summary		Save or update Polar token
-//	@Description	Upserts the Polar token details for a specific user
-//	@Tags			UTV - Polar
+//	@Summary		Save or update Oura token
+//	@Description	Saves or updates the Oura token for a user
+//	@Tags			UTV - Oura
 //	@Accept			json
 //	@Produce		json
-//	@Param			body	body	swagger.PolarTokenInput	true	"Polar token input"
+//	@Param			body	body	swagger.OuraTokenInput	true	"Oura token input"
 //	@Success		201		"Created"
 //	@Failure		400		{object}	swagger.ValidationErrorResponse
 //	@Failure		403		{object}	swagger.ForbiddenResponse
 //	@Failure		500		{object}	swagger.InternalServerErrorResponse
 //	@Security		BearerAuth
-//	@Router			/utv/polar/token [post]
-func (h *PolarTokenHandler) UpsertToken(w http.ResponseWriter, r *http.Request) {
+//	@Router			/utv/oura/token [post]
+func (h *OuraTokenHandler) UpsertToken(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
 		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
 		return
 	}
 
-	var input PolarTokenInput
+	var input OuraTokenInput
 	if err := utils.ReadJSON(w, r, &input); err != nil {
 		utils.BadRequestResponse(w, r, err)
 		return
@@ -126,45 +126,45 @@ func (h *PolarTokenHandler) UpsertToken(w http.ResponseWriter, r *http.Request) 
 	w.WriteHeader(http.StatusCreated)
 }
 
-type GetTokenByPolarIDParams struct {
-	PolarID string `form:"polar-id" validate:"required"`
+type GetTokenByOuraIDParams struct {
+	OuraID string `form:"oura-id" validate:"required"`
 }
 
-// GetTokenByPolarID godoc
+// GetTokenByOuraID godoc
 //
-//	@Summary		Get user token by Polar ID
-//	@Description	Returns user_id and token data associated with a given Polar x_user_id
-//	@Tags			UTV - Polar
+//	@Summary		Get Oura token by Oura ID
+//	@Description	Retrieves the user ID and token data associated with a specific Oura ID
+//	@Tags			UTV - Oura
 //	@Accept			json
 //	@Produce		json
-//	@Param			polar-id	query		string	true	"Polar x_user_id"
-//	@Success		200			{object}	swagger.PolarTokenByIDResponse
-//	@Failure		400			{object}	swagger.ValidationErrorResponse
-//	@Failure		403			{object}	swagger.ForbiddenResponse
-//	@Failure		500			{object}	swagger.InternalServerErrorResponse
+//	@Param			oura-id	query		string	true	"Oura ID"
+//	@Success		200		{object}	swagger.OuraTokenByIDResponse
+//	@Failure		400		{object}	swagger.ValidationErrorResponse
+//	@Failure		403		{object}	swagger.ForbiddenResponse
+//	@Failure		500		{object}	swagger.InternalServerErrorResponse
 //	@Security		BearerAuth
-//	@Router			/utv/polar/token-by-id [get]
-func (h *PolarTokenHandler) GetTokenByPolarID(w http.ResponseWriter, r *http.Request) {
+//	@Router			/utv/oura/token-by-id [get]
+func (h *OuraTokenHandler) GetTokenByOuraID(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
 		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
 		return
 	}
 
-	err := utils.ValidateParams(r, []string{"polar-id"})
+	err := utils.ValidateParams(r, []string{"oura-id"})
 	if err != nil {
 		utils.BadRequestResponse(w, r, err)
 		return
 	}
 
-	params := GetTokenByPolarIDParams{
-		PolarID: r.URL.Query().Get("polar-id"),
+	params := GetTokenByOuraIDParams{
+		OuraID: r.URL.Query().Get("oura-id"),
 	}
 	if err := utils.GetValidator().Struct(params); err != nil {
 		utils.BadRequestResponse(w, r, err)
 		return
 	}
 
-	userID, data, err := h.store.GetTokenByPolarID(r.Context(), params.PolarID)
+	userID, data, err := h.store.GetTokenByOuraID(r.Context(), params.OuraID)
 	if err != nil {
 		utils.WriteJSON(w, http.StatusOK, map[string]any{})
 		return

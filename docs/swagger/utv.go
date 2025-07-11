@@ -258,3 +258,88 @@ type PolarTokenByIDResponse struct {
 	UserID string            `json:"user_id" example:"208e2ffb-ac68-4980-a8a6-b7e0136e0798"`
 	Data   PolarTokenDetails `json:"data"`
 }
+
+type OuraStatusResponse struct {
+	Connected bool `json:"connected" example:"true"`
+	Data      bool `json:"data" example:"true"`
+}
+
+type OuraPersonalInfo struct {
+	ID            string  `json:"id" example:"a3f4d23bc10e4911b2878d23f09aa320"`
+	Age           int     `json:"age" example:"38"`
+	Email         *string `json:"email" example:"user42@example.com"`
+	Height        float64 `json:"height" example:"1.75"`
+	Weight        float64 `json:"weight" example:"76.5"`
+	BiologicalSex string  `json:"biological_sex" example:"female"`
+}
+
+type OuraTokenDetails struct {
+	AccessToken     string           `json:"access_token" example:"XYZ123ABC789TOKEN456"`
+	RefreshToken    string           `json:"refresh_token" example:"REFRESH987XYZ654TOKEN"`
+	PersonalInfo    OuraPersonalInfo `json:"personal_info"`
+	TokenRefreshed  string           `json:"token_last_refreshed" example:"2025-07-10 12:30"`
+	DataLastFetched string           `json:"data_last_fetched" example:"2025-07-11 08:45"`
+}
+
+type OuraTokenInput struct {
+	UserID  string           `json:"user_id" example:"d5e1c624-2f39-4410-b9d6-842fc3226b7e"`
+	Details OuraTokenDetails `json:"details"`
+}
+
+type OuraTokenByIDResponse struct {
+	UserID string           `json:"user_id" example:"d5e1c624-2f39-4410-b9d6-842fc3226b7e"`
+	Data   OuraTokenDetails `json:"data"`
+}
+
+type SuuntoStatusResponse struct {
+	Connected bool `json:"connected" example:"true"`
+	Data      bool `json:"data" example:"true"`
+}
+
+type SuuntoTokenInput struct {
+	UserID  string             `json:"user_id" example:"7cffe6e0-3f28-43b6-b511-d836d3a9f7b5"`
+	Details SuuntoTokenDetails `json:"details"`
+}
+
+type SuuntoTokenDetails struct {
+	AccessToken     string `json:"access_token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.random123tokenxyz"`
+	RefreshToken    string `json:"refresh_token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh456tokenabc"`
+	UK              string `json:"uk" example:"2x9+gFLEyAxpb6WyYqNMcqzwZKjVcqrnt/RT3gg9LPhh18ZxKpy7f5MDELzUR6FBMz4XZ1TAp7vDYx8vdwZaBw=="`
+	JTI             string `json:"jti" example:"vghrTs9QdFrMB8EVTNNVoRTLkxu"`
+	UKV             string `json:"ukv" example:"2"`
+	User            string `json:"user" example:"randomuser88"`
+	Scope           string `json:"scope" example:"activity"`
+	ExpiresIn       int    `json:"expires_in" example:"86400"`
+	TokenType       string `json:"token_type" example:"bearer"`
+	TokenRefreshed  string `json:"token_last_refreshed" example:"2025-07-10 05:23"`
+	DataLastFetched string `json:"data_last_fetched" example:"2025-07-11 09:45"`
+}
+
+type SuuntoTokenByUsernameResponse struct {
+	UserID string             `json:"user_id" example:"7cffe6e0-3f28-43b6-b511-d836d3a9f7b5"`
+	Data   SuuntoTokenDetails `json:"data"`
+}
+
+type GarminStatusResponse struct {
+	Connected bool `json:"connected" example:"true"`
+	Data      bool `json:"data" example:"true"`
+}
+
+type GarminTokenDetails struct {
+	AccessToken       string `json:"access_token" example:"a1f2b3c4-d5e6-7890-1234-56789abcdef0"`
+	AccessTokenSecret string `json:"access_token_secret" example:"s3cr3tT0kenValu3XyZ123"`
+	GarminUserID      string `json:"garmin_user_id" example:"d3a1c9e8-7b2f-4c99-b77e-8e67cd1a2b10"`
+}
+
+type GarminTokenInput struct {
+	UserID  string             `json:"user_id" example:"e19c1832-d7f3-4d65-90ea-33a3d7f6d6df"`
+	Details GarminTokenDetails `json:"details"`
+}
+
+type GarminUserIDResponse struct {
+	UserID string `json:"user_id" example:"e19c1832-d7f3-4d65-90ea-33a3d7f6d6df"`
+}
+
+type GarminTokenExistsResponse struct {
+	Exists bool `json:"exists" example:"true"`
+}

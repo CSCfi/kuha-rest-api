@@ -27,6 +27,13 @@ type OuraData interface {
 	GetAllByType(ctx context.Context, userID uuid.UUID, typ string, after, before *time.Time) ([]LatestDataEntry, error)
 }
 
+// OuraToken interface
+type OuraToken interface {
+	GetStatus(ctx context.Context, userID uuid.UUID) (bool, bool, error)
+	UpsertToken(ctx context.Context, userID uuid.UUID, data json.RawMessage) error
+	GetTokenByOuraID(ctx context.Context, ouraID string) (uuid.UUID, json.RawMessage, error)
+}
+
 // PolarData interface
 type PolarData interface {
 	GetDates(ctx context.Context, userID string, startDate *string, endDate *string) ([]string, error)
@@ -56,6 +63,13 @@ type SuuntoData interface {
 	GetAllByType(ctx context.Context, userID uuid.UUID, typ string, after, before *time.Time) ([]LatestDataEntry, error)
 }
 
+// SuuntoToken interface
+type SuuntoToken interface {
+	GetStatus(ctx context.Context, userID uuid.UUID) (bool, bool, error)
+	UpsertToken(ctx context.Context, userID uuid.UUID, data json.RawMessage) error
+	GetTokenByUsername(ctx context.Context, username string) (uuid.UUID, json.RawMessage, error)
+}
+
 // GarminData interface
 type GarminData interface {
 	GetDates(ctx context.Context, userID string, startDate *string, endDate *string) ([]string, error)
@@ -67,14 +81,25 @@ type GarminData interface {
 	GetAllByType(ctx context.Context, userID uuid.UUID, typ string, after, before *time.Time) ([]LatestDataEntry, error)
 }
 
+// GarminToken interface
+type GarminToken interface {
+	GetStatus(ctx context.Context, userID uuid.UUID) (bool, bool, error)
+	UpsertToken(ctx context.Context, userID uuid.UUID, data json.RawMessage) error
+	TokenExists(ctx context.Context, token string) (bool, error)
+	GetUserIDByToken(ctx context.Context, token string) (uuid.UUID, error)
+}
+
 // UTVStorage struct to hold table-specific storage
 type UTVStorage struct {
-	db         *sql.DB
-	oura       OuraData
-	polar      PolarData
-	suunto     SuuntoData
-	garmin     GarminData
-	polarToken PolarToken
+	db          *sql.DB
+	oura        OuraData
+	polar       PolarData
+	suunto      SuuntoData
+	garmin      GarminData
+	polarToken  PolarToken
+	garminToken GarminToken
+	suuntoToken SuuntoToken
+	ouraToken   OuraToken
 }
 
 // Ping method
@@ -103,14 +128,29 @@ func (s *UTVStorage) PolarToken() PolarToken {
 	return s.polarToken
 }
 
+func (s *UTVStorage) GarminToken() GarminToken {
+	return s.garminToken
+}
+
+func (s *UTVStorage) OuraToken() OuraToken {
+	return s.ouraToken
+}
+
+func (s *UTVStorage) SuuntoToken() SuuntoToken {
+	return s.suuntoToken
+}
+
 // Storage for UTV database tables
 func NewUTVStorage(db *sql.DB) *UTVStorage {
 	return &UTVStorage{
-		db:         db,
-		oura:       &OuraDataStore{db: db},
-		polar:      &PolarDataStore{db: db},
-		suunto:     &SuuntoDataStore{db: db},
-		garmin:     &GarminDataStore{db: db},
-		polarToken: &PolarTokenStore{db: db},
+		db:          db,
+		oura:        &OuraDataStore{db: db},
+		polar:       &PolarDataStore{db: db},
+		suunto:      &SuuntoDataStore{db: db},
+		garmin:      &GarminDataStore{db: db},
+		polarToken:  &PolarTokenStore{db: db},
+		garminToken: &GarminTokenStore{db: db},
+		suuntoToken: &SuuntoTokenStore{db: db},
+		ouraToken:   &OuraTokenStore{db: db},
 	}
 }

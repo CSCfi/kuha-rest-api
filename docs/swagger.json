@@ -586,6 +586,170 @@
                 }
             }
         },
+        "/utv/garmin/status": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns whether a user has connected their Garmin account and whether any Garmin data exists",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UTV - Garmin"
+                ],
+                "summary": "Check Garmin connection \u0026 data status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID (UUID)",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.GarminStatusResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/utv/garmin/token": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Saves or updates the Garmin token for a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UTV - Garmin"
+                ],
+                "summary": "Save or update Garmin token",
+                "parameters": [
+                    {
+                        "description": "Garmin token input",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.GarminTokenInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/utv/garmin/token-exists": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Checks whether a given Garmin access token is stored in the system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UTV - Garmin"
+                ],
+                "summary": "Check if Garmin token exists",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Garmin access token",
+                        "name": "token",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.GarminTokenExistsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/utv/garmin/types": {
             "get": {
                 "security": [
@@ -629,6 +793,61 @@
                     },
                     "204": {
                         "description": "No Content: No available types found"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/utv/garmin/user-id-by-token": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the user ID associated with a given Garmin access token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UTV - Garmin"
+                ],
+                "summary": "Get user_id by Garmin access token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Garmin access token",
+                        "name": "token",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.GarminUserIDResponse"
+                        }
                     },
                     "400": {
                         "description": "Bad Request",
@@ -972,6 +1191,170 @@
                         "description": "Unprocessable Entity",
                         "schema": {
                             "$ref": "#/definitions/swagger.InvalidDateRange"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/utv/oura/status": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns whether a user has connected their Oura account and whether any Oura data exists",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UTV - Oura"
+                ],
+                "summary": "Check Oura connection \u0026 data status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID (UUID)",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.OuraStatusResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/utv/oura/token": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Saves or updates the Oura token for a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UTV - Oura"
+                ],
+                "summary": "Save or update Oura token",
+                "parameters": [
+                    {
+                        "description": "Oura token input",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.OuraTokenInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/utv/oura/token-by-id": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieves the user ID and token data associated with a specific Oura ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UTV - Oura"
+                ],
+                "summary": "Get Oura token by Oura ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Oura ID",
+                        "name": "oura-id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.OuraTokenByIDResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
                         }
                     },
                     "500": {
@@ -1454,6 +1837,12 @@
                         "schema": {
                             "$ref": "#/definitions/swagger.ForbiddenResponse"
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
                     }
                 }
             }
@@ -1764,6 +2153,170 @@
                         "description": "Unprocessable Entity",
                         "schema": {
                             "$ref": "#/definitions/swagger.InvalidDateRange"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/utv/suunto/status": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns whether a user has connected their Suunto account and whether any Suunto data exists",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UTV - Suunto"
+                ],
+                "summary": "Check Suunto connection \u0026 data status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID (UUID)",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.SuuntoStatusResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/utv/suunto/token": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upserts the Suunto token details for a specific user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UTV - Suunto"
+                ],
+                "summary": "Save or update Suunto token",
+                "parameters": [
+                    {
+                        "description": "Suunto token input",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.SuuntoTokenInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/utv/suunto/token-by-username": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns user_id and token data associated with a given Suunto username",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UTV - Suunto"
+                ],
+                "summary": "Get Suunto token by username",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Suunto username",
+                        "name": "username",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.SuuntoTokenByUsernameResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
                         }
                     },
                     "500": {
@@ -2164,6 +2717,57 @@
                 }
             }
         },
+        "swagger.GarminStatusResponse": {
+            "type": "object",
+            "properties": {
+                "connected": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "data": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "swagger.GarminTokenDetails": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string",
+                    "example": "a1f2b3c4-d5e6-7890-1234-56789abcdef0"
+                },
+                "access_token_secret": {
+                    "type": "string",
+                    "example": "s3cr3tT0kenValu3XyZ123"
+                },
+                "garmin_user_id": {
+                    "type": "string",
+                    "example": "d3a1c9e8-7b2f-4c99-b77e-8e67cd1a2b10"
+                }
+            }
+        },
+        "swagger.GarminTokenExistsResponse": {
+            "type": "object",
+            "properties": {
+                "exists": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "swagger.GarminTokenInput": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "$ref": "#/definitions/swagger.GarminTokenDetails"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "e19c1832-d7f3-4d65-90ea-33a3d7f6d6df"
+                }
+            }
+        },
         "swagger.GarminTypesResponse": {
             "type": "object",
             "properties": {
@@ -2177,6 +2781,15 @@
                         " dailies",
                         " hrv"
                     ]
+                }
+            }
+        },
+        "swagger.GarminUserIDResponse": {
+            "type": "object",
+            "properties": {
+                "user_id": {
+                    "type": "string",
+                    "example": "e19c1832-d7f3-4d65-90ea-33a3d7f6d6df"
                 }
             }
         },
@@ -2336,6 +2949,35 @@
                 }
             }
         },
+        "swagger.OuraPersonalInfo": {
+            "type": "object",
+            "properties": {
+                "age": {
+                    "type": "integer",
+                    "example": 38
+                },
+                "biological_sex": {
+                    "type": "string",
+                    "example": "female"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "user42@example.com"
+                },
+                "height": {
+                    "type": "number",
+                    "example": 1.75
+                },
+                "id": {
+                    "type": "string",
+                    "example": "a3f4d23bc10e4911b2878d23f09aa320"
+                },
+                "weight": {
+                    "type": "number",
+                    "example": 76.5
+                }
+            }
+        },
         "swagger.OuraPostDataInput": {
             "type": "object",
             "properties": {
@@ -2349,6 +2991,67 @@
                 "user_id": {
                     "type": "string",
                     "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                }
+            }
+        },
+        "swagger.OuraStatusResponse": {
+            "type": "object",
+            "properties": {
+                "connected": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "data": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "swagger.OuraTokenByIDResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/swagger.OuraTokenDetails"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "d5e1c624-2f39-4410-b9d6-842fc3226b7e"
+                }
+            }
+        },
+        "swagger.OuraTokenDetails": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string",
+                    "example": "XYZ123ABC789TOKEN456"
+                },
+                "data_last_fetched": {
+                    "type": "string",
+                    "example": "2025-07-11 08:45"
+                },
+                "personal_info": {
+                    "$ref": "#/definitions/swagger.OuraPersonalInfo"
+                },
+                "refresh_token": {
+                    "type": "string",
+                    "example": "REFRESH987XYZ654TOKEN"
+                },
+                "token_last_refreshed": {
+                    "type": "string",
+                    "example": "2025-07-10 12:30"
+                }
+            }
+        },
+        "swagger.OuraTokenInput": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "$ref": "#/definitions/swagger.OuraTokenDetails"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "d5e1c624-2f39-4410-b9d6-842fc3226b7e"
                 }
             }
         },
@@ -2656,6 +3359,92 @@
                 "user_id": {
                     "type": "string",
                     "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+                }
+            }
+        },
+        "swagger.SuuntoStatusResponse": {
+            "type": "object",
+            "properties": {
+                "connected": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "data": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "swagger.SuuntoTokenByUsernameResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/swagger.SuuntoTokenDetails"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "7cffe6e0-3f28-43b6-b511-d836d3a9f7b5"
+                }
+            }
+        },
+        "swagger.SuuntoTokenDetails": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.random123tokenxyz"
+                },
+                "data_last_fetched": {
+                    "type": "string",
+                    "example": "2025-07-11 09:45"
+                },
+                "expires_in": {
+                    "type": "integer",
+                    "example": 86400
+                },
+                "jti": {
+                    "type": "string",
+                    "example": "vghrTs9QdFrMB8EVTNNVoRTLkxu"
+                },
+                "refresh_token": {
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh456tokenabc"
+                },
+                "scope": {
+                    "type": "string",
+                    "example": "activity"
+                },
+                "token_last_refreshed": {
+                    "type": "string",
+                    "example": "2025-07-10 05:23"
+                },
+                "token_type": {
+                    "type": "string",
+                    "example": "bearer"
+                },
+                "uk": {
+                    "type": "string",
+                    "example": "2x9+gFLEyAxpb6WyYqNMcqzwZKjVcqrnt/RT3gg9LPhh18ZxKpy7f5MDELzUR6FBMz4XZ1TAp7vDYx8vdwZaBw=="
+                },
+                "ukv": {
+                    "type": "string",
+                    "example": "2"
+                },
+                "user": {
+                    "type": "string",
+                    "example": "randomuser88"
+                }
+            }
+        },
+        "swagger.SuuntoTokenInput": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "$ref": "#/definitions/swagger.SuuntoTokenDetails"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "7cffe6e0-3f28-43b6-b511-d836d3a9f7b5"
                 }
             }
         },

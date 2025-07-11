@@ -223,6 +223,41 @@ definitions:
         example: f47ac10b-58cc-4372-a567-0e02b2c3d479
         type: string
     type: object
+  swagger.GarminStatusResponse:
+    properties:
+      connected:
+        example: true
+        type: boolean
+      data:
+        example: true
+        type: boolean
+    type: object
+  swagger.GarminTokenDetails:
+    properties:
+      access_token:
+        example: a1f2b3c4-d5e6-7890-1234-56789abcdef0
+        type: string
+      access_token_secret:
+        example: s3cr3tT0kenValu3XyZ123
+        type: string
+      garmin_user_id:
+        example: d3a1c9e8-7b2f-4c99-b77e-8e67cd1a2b10
+        type: string
+    type: object
+  swagger.GarminTokenExistsResponse:
+    properties:
+      exists:
+        example: true
+        type: boolean
+    type: object
+  swagger.GarminTokenInput:
+    properties:
+      details:
+        $ref: '#/definitions/swagger.GarminTokenDetails'
+      user_id:
+        example: e19c1832-d7f3-4d65-90ea-33a3d7f6d6df
+        type: string
+    type: object
   swagger.GarminTypesResponse:
     properties:
       types:
@@ -233,6 +268,12 @@ definitions:
         items:
           type: string
         type: array
+    type: object
+  swagger.GarminUserIDResponse:
+    properties:
+      user_id:
+        example: e19c1832-d7f3-4d65-90ea-33a3d7f6d6df
+        type: string
     type: object
   swagger.HealthStatusResponse:
     properties:
@@ -339,6 +380,27 @@ definitions:
           $ref: '#/definitions/swagger.OuraDailyExample'
         type: array
     type: object
+  swagger.OuraPersonalInfo:
+    properties:
+      age:
+        example: 38
+        type: integer
+      biological_sex:
+        example: female
+        type: string
+      email:
+        example: user42@example.com
+        type: string
+      height:
+        example: 1.75
+        type: number
+      id:
+        example: a3f4d23bc10e4911b2878d23f09aa320
+        type: string
+      weight:
+        example: 76.5
+        type: number
+    type: object
   swagger.OuraPostDataInput:
     properties:
       data:
@@ -348,6 +410,48 @@ definitions:
         type: string
       user_id:
         example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+        type: string
+    type: object
+  swagger.OuraStatusResponse:
+    properties:
+      connected:
+        example: true
+        type: boolean
+      data:
+        example: true
+        type: boolean
+    type: object
+  swagger.OuraTokenByIDResponse:
+    properties:
+      data:
+        $ref: '#/definitions/swagger.OuraTokenDetails'
+      user_id:
+        example: d5e1c624-2f39-4410-b9d6-842fc3226b7e
+        type: string
+    type: object
+  swagger.OuraTokenDetails:
+    properties:
+      access_token:
+        example: XYZ123ABC789TOKEN456
+        type: string
+      data_last_fetched:
+        example: 2025-07-11 08:45
+        type: string
+      personal_info:
+        $ref: '#/definitions/swagger.OuraPersonalInfo'
+      refresh_token:
+        example: REFRESH987XYZ654TOKEN
+        type: string
+      token_last_refreshed:
+        example: 2025-07-10 12:30
+        type: string
+    type: object
+  swagger.OuraTokenInput:
+    properties:
+      details:
+        $ref: '#/definitions/swagger.OuraTokenDetails'
+      user_id:
+        example: d5e1c624-2f39-4410-b9d6-842fc3226b7e
         type: string
     type: object
   swagger.OuraTypesResponse:
@@ -559,6 +663,67 @@ definitions:
         type: string
       user_id:
         example: f47ac10b-58cc-4372-a567-0e02b2c3d479
+        type: string
+    type: object
+  swagger.SuuntoStatusResponse:
+    properties:
+      connected:
+        example: true
+        type: boolean
+      data:
+        example: true
+        type: boolean
+    type: object
+  swagger.SuuntoTokenByUsernameResponse:
+    properties:
+      data:
+        $ref: '#/definitions/swagger.SuuntoTokenDetails'
+      user_id:
+        example: 7cffe6e0-3f28-43b6-b511-d836d3a9f7b5
+        type: string
+    type: object
+  swagger.SuuntoTokenDetails:
+    properties:
+      access_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.random123tokenxyz
+        type: string
+      data_last_fetched:
+        example: 2025-07-11 09:45
+        type: string
+      expires_in:
+        example: 86400
+        type: integer
+      jti:
+        example: vghrTs9QdFrMB8EVTNNVoRTLkxu
+        type: string
+      refresh_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh456tokenabc
+        type: string
+      scope:
+        example: activity
+        type: string
+      token_last_refreshed:
+        example: 2025-07-10 05:23
+        type: string
+      token_type:
+        example: bearer
+        type: string
+      uk:
+        example: 2x9+gFLEyAxpb6WyYqNMcqzwZKjVcqrnt/RT3gg9LPhh18ZxKpy7f5MDELzUR6FBMz4XZ1TAp7vDYx8vdwZaBw==
+        type: string
+      ukv:
+        example: "2"
+        type: string
+      user:
+        example: randomuser88
+        type: string
+    type: object
+  swagger.SuuntoTokenInput:
+    properties:
+      details:
+        $ref: '#/definitions/swagger.SuuntoTokenDetails'
+      user_id:
+        example: 7cffe6e0-3f28-43b6-b511-d836d3a9f7b5
         type: string
     type: object
   swagger.SuuntoTypesResponse:
@@ -1028,6 +1193,111 @@ paths:
       summary: Get available dates
       tags:
       - UTV - Garmin
+  /utv/garmin/status:
+    get:
+      consumes:
+      - application/json
+      description: Returns whether a user has connected their Garmin account and whether
+        any Garmin data exists
+      parameters:
+      - description: User ID (UUID)
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.GarminStatusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Check Garmin connection & data status
+      tags:
+      - UTV - Garmin
+  /utv/garmin/token:
+    post:
+      consumes:
+      - application/json
+      description: Saves or updates the Garmin token for a user
+      parameters:
+      - description: Garmin token input
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.GarminTokenInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Save or update Garmin token
+      tags:
+      - UTV - Garmin
+  /utv/garmin/token-exists:
+    get:
+      consumes:
+      - application/json
+      description: Checks whether a given Garmin access token is stored in the system
+      parameters:
+      - description: Garmin access token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.GarminTokenExistsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Check if Garmin token exists
+      tags:
+      - UTV - Garmin
   /utv/garmin/types:
     get:
       consumes:
@@ -1069,6 +1339,41 @@ paths:
       security:
       - BearerAuth: []
       summary: Get available types
+      tags:
+      - UTV - Garmin
+  /utv/garmin/user-id-by-token:
+    get:
+      consumes:
+      - application/json
+      description: Returns the user ID associated with a given Garmin access token
+      parameters:
+      - description: Garmin access token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.GarminUserIDResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user_id by Garmin access token
       tags:
       - UTV - Garmin
   /utv/latest:
@@ -1287,6 +1592,112 @@ paths:
       security:
       - BearerAuth: []
       summary: Get available dates
+      tags:
+      - UTV - Oura
+  /utv/oura/status:
+    get:
+      consumes:
+      - application/json
+      description: Returns whether a user has connected their Oura account and whether
+        any Oura data exists
+      parameters:
+      - description: User ID (UUID)
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.OuraStatusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Check Oura connection & data status
+      tags:
+      - UTV - Oura
+  /utv/oura/token:
+    post:
+      consumes:
+      - application/json
+      description: Saves or updates the Oura token for a user
+      parameters:
+      - description: Oura token input
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.OuraTokenInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Save or update Oura token
+      tags:
+      - UTV - Oura
+  /utv/oura/token-by-id:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves the user ID and token data associated with a specific
+        Oura ID
+      parameters:
+      - description: Oura ID
+        in: query
+        name: oura-id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.OuraTokenByIDResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Oura token by Oura ID
       tags:
       - UTV - Oura
   /utv/oura/types:
@@ -1593,6 +2004,10 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
       security:
       - BearerAuth: []
       summary: Get user token by Polar ID
@@ -1804,6 +2219,111 @@ paths:
       security:
       - BearerAuth: []
       summary: Get available dates
+      tags:
+      - UTV - Suunto
+  /utv/suunto/status:
+    get:
+      consumes:
+      - application/json
+      description: Returns whether a user has connected their Suunto account and whether
+        any Suunto data exists
+      parameters:
+      - description: User ID (UUID)
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.SuuntoStatusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Check Suunto connection & data status
+      tags:
+      - UTV - Suunto
+  /utv/suunto/token:
+    post:
+      consumes:
+      - application/json
+      description: Upserts the Suunto token details for a specific user
+      parameters:
+      - description: Suunto token input
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.SuuntoTokenInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Save or update Suunto token
+      tags:
+      - UTV - Suunto
+  /utv/suunto/token-by-username:
+    get:
+      consumes:
+      - application/json
+      description: Returns user_id and token data associated with a given Suunto username
+      parameters:
+      - description: Suunto username
+        in: query
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.SuuntoTokenByUsernameResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Suunto token by username
       tags:
       - UTV - Suunto
   /utv/suunto/types:

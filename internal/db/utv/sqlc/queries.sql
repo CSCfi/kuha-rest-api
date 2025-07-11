@@ -399,7 +399,6 @@ pd AS (
 )
 SELECT pt.connected, pd.data_exists FROM pt, pd;
 
-
 -- name: UpsertPolarToken :exec
 INSERT INTO polar_tokens (user_id, data)
 VALUES ($1, $2)
@@ -409,5 +408,74 @@ ON CONFLICT (user_id) DO UPDATE SET data = $2;
 SELECT user_id, data
 FROM polar_tokens
 WHERE data->>'x_user_id' = $1::text;
+
+-- name: GetOuraStatus :one
+WITH input AS (
+  SELECT $1::uuid AS uid
+),
+pt AS (
+  SELECT EXISTS(SELECT 1 FROM oura_tokens WHERE user_id = input.uid) AS connected FROM input
+),
+pd AS (
+  SELECT EXISTS(SELECT 1 FROM oura_data WHERE user_id = input.uid) AS data_exists FROM input
+)
+SELECT pt.connected, pd.data_exists FROM pt, pd;
+
+-- name: UpsertOuraToken :exec
+INSERT INTO oura_tokens (user_id, data)
+VALUES ($1, $2)
+ON CONFLICT (user_id) DO UPDATE SET data = $2;
+
+-- name: GetOuraTokenByOuraID :one
+SELECT user_id, data
+FROM oura_tokens
+WHERE data->'personal_info'->>'id' = $1::text;
+
+-- name: GetSuuntoStatus :one
+WITH input AS (
+  SELECT $1::uuid AS uid
+),
+pt AS (
+  SELECT EXISTS(SELECT 1 FROM suunto_tokens WHERE user_id = input.uid) AS connected FROM input
+),
+pd AS (
+  SELECT EXISTS(SELECT 1 FROM suunto_data WHERE user_id = input.uid) AS data_exists FROM input
+)
+SELECT pt.connected, pd.data_exists FROM pt, pd;
+
+-- name: UpsertSuuntoToken :exec
+INSERT INTO suunto_tokens (user_id, data)
+VALUES ($1, $2)
+ON CONFLICT (user_id) DO UPDATE SET data = $2;
+
+-- name: GetSuuntoTokenByUsername :one
+SELECT user_id, data
+FROM suunto_tokens
+WHERE data->>'user' = $1::text;
+
+-- name: GetGarminStatus :one
+WITH input AS (
+  SELECT $1::uuid AS uid
+),
+pt AS (
+  SELECT EXISTS(SELECT 1 FROM garmin_tokens WHERE user_id = input.uid) AS connected FROM input
+),
+pd AS (
+  SELECT EXISTS(SELECT 1 FROM garmin_data WHERE user_id = input.uid) AS data_exists FROM input
+)
+SELECT pt.connected, pd.data_exists FROM pt, pd;
+
+-- name: UpsertGarminToken :exec
+INSERT INTO garmin_tokens (user_id, data)
+VALUES ($1, $2)
+ON CONFLICT (user_id) DO UPDATE SET data = $2;
+
+-- name: GarminTokenExists :one
+SELECT EXISTS(SELECT 1 FROM garmin_tokens WHERE data->>'access_token' = $1::text) AS exists;
+
+-- name: GetGarminUserIDByToken :one
+SELECT user_id
+FROM garmin_tokens
+WHERE data->>'access_token' = $1::text;
 
 

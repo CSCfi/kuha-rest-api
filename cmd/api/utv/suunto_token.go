@@ -11,34 +11,34 @@ import (
 	"github.com/DeRuina/KUHA-REST-API/internal/utils"
 )
 
-type PolarTokenHandler struct {
-	store utv.PolarToken
+type SuuntoTokenHandler struct {
+	store utv.SuuntoToken
 	cache *cache.Storage
 }
 
-func NewPolarTokenHandler(store utv.PolarToken, cache *cache.Storage) *PolarTokenHandler {
-	return &PolarTokenHandler{store: store, cache: cache}
+func NewSuuntoTokenHandler(store utv.SuuntoToken, cache *cache.Storage) *SuuntoTokenHandler {
+	return &SuuntoTokenHandler{store: store, cache: cache}
 }
 
-type GetStatusParams struct {
+type SuuntoStatusParams struct {
 	UserID string `form:"user_id" validate:"required,uuid4"`
 }
 
 // GetStatus godoc
 //
-//	@Summary		Check Polar connection & data status
-//	@Description	Returns whether a user has connected their Polar account and whether any Polar data exists
-//	@Tags			UTV - Polar
+//	@Summary		Check Suunto connection & data status
+//	@Description	Returns whether a user has connected their Suunto account and whether any Suunto data exists
+//	@Tags			UTV - Suunto
 //	@Accept			json
 //	@Produce		json
 //	@Param			user_id	query		string	true	"User ID (UUID)"
-//	@Success		200		{object}	swagger.PolarStatusResponse
+//	@Success		200		{object}	swagger.SuuntoStatusResponse
 //	@Failure		400		{object}	swagger.ValidationErrorResponse
 //	@Failure		403		{object}	swagger.ForbiddenResponse
 //	@Failure		500		{object}	swagger.InternalServerErrorResponse
 //	@Security		BearerAuth
-//	@Router			/utv/polar/status [get]
-func (h *PolarTokenHandler) GetStatus(w http.ResponseWriter, r *http.Request) {
+//	@Router			/utv/suunto/status [get]
+func (h *SuuntoTokenHandler) GetStatus(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
 		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
 		return
@@ -50,7 +50,7 @@ func (h *PolarTokenHandler) GetStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params := GetStatusParams{
+	params := SuuntoStatusParams{
 		UserID: r.URL.Query().Get("user_id"),
 	}
 	if err := utils.GetValidator().Struct(params); err != nil {
@@ -76,32 +76,32 @@ func (h *PolarTokenHandler) GetStatus(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-type PolarTokenInput struct {
+type SuuntoTokenInput struct {
 	UserID  string          `json:"user_id" validate:"required,uuid4"`
 	Details json.RawMessage `json:"details" validate:"required"`
 }
 
 // UpsertToken godoc
 //
-//	@Summary		Save or update Polar token
-//	@Description	Upserts the Polar token details for a specific user
-//	@Tags			UTV - Polar
+//	@Summary		Save or update Suunto token
+//	@Description	Upserts the Suunto token details for a specific user
+//	@Tags			UTV - Suunto
 //	@Accept			json
 //	@Produce		json
-//	@Param			body	body	swagger.PolarTokenInput	true	"Polar token input"
+//	@Param			body	body	swagger.SuuntoTokenInput	true	"Suunto token input"
 //	@Success		201		"Created"
 //	@Failure		400		{object}	swagger.ValidationErrorResponse
 //	@Failure		403		{object}	swagger.ForbiddenResponse
 //	@Failure		500		{object}	swagger.InternalServerErrorResponse
 //	@Security		BearerAuth
-//	@Router			/utv/polar/token [post]
-func (h *PolarTokenHandler) UpsertToken(w http.ResponseWriter, r *http.Request) {
+//	@Router			/utv/suunto/token [post]
+func (h *SuuntoTokenHandler) UpsertToken(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
 		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
 		return
 	}
 
-	var input PolarTokenInput
+	var input SuuntoTokenInput
 	if err := utils.ReadJSON(w, r, &input); err != nil {
 		utils.BadRequestResponse(w, r, err)
 		return
@@ -126,45 +126,45 @@ func (h *PolarTokenHandler) UpsertToken(w http.ResponseWriter, r *http.Request) 
 	w.WriteHeader(http.StatusCreated)
 }
 
-type GetTokenByPolarIDParams struct {
-	PolarID string `form:"polar-id" validate:"required"`
+type GetTokenByUsernameParams struct {
+	Username string `form:"username" validate:"required"`
 }
 
-// GetTokenByPolarID godoc
+// GetTokenByUsername godoc
 //
-//	@Summary		Get user token by Polar ID
-//	@Description	Returns user_id and token data associated with a given Polar x_user_id
-//	@Tags			UTV - Polar
+//	@Summary		Get Suunto token by username
+//	@Description	Returns user_id and token data associated with a given Suunto username
+//	@Tags			UTV - Suunto
 //	@Accept			json
 //	@Produce		json
-//	@Param			polar-id	query		string	true	"Polar x_user_id"
-//	@Success		200			{object}	swagger.PolarTokenByIDResponse
+//	@Param			username	query		string	true	"Suunto username"
+//	@Success		200			{object}	swagger.SuuntoTokenByUsernameResponse
 //	@Failure		400			{object}	swagger.ValidationErrorResponse
 //	@Failure		403			{object}	swagger.ForbiddenResponse
 //	@Failure		500			{object}	swagger.InternalServerErrorResponse
 //	@Security		BearerAuth
-//	@Router			/utv/polar/token-by-id [get]
-func (h *PolarTokenHandler) GetTokenByPolarID(w http.ResponseWriter, r *http.Request) {
+//	@Router			/utv/suunto/token-by-username [get]
+func (h *SuuntoTokenHandler) GetTokenByUsername(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
 		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
 		return
 	}
 
-	err := utils.ValidateParams(r, []string{"polar-id"})
+	err := utils.ValidateParams(r, []string{"username"})
 	if err != nil {
 		utils.BadRequestResponse(w, r, err)
 		return
 	}
 
-	params := GetTokenByPolarIDParams{
-		PolarID: r.URL.Query().Get("polar-id"),
+	params := GetTokenByUsernameParams{
+		Username: r.URL.Query().Get("username"),
 	}
 	if err := utils.GetValidator().Struct(params); err != nil {
 		utils.BadRequestResponse(w, r, err)
 		return
 	}
 
-	userID, data, err := h.store.GetTokenByPolarID(r.Context(), params.PolarID)
+	userID, data, err := h.store.GetTokenByUsername(r.Context(), params.Username)
 	if err != nil {
 		utils.WriteJSON(w, http.StatusOK, map[string]any{})
 		return

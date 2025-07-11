@@ -152,7 +152,10 @@ func (app *api) mount() http.Handler {
 				polarHandler := utvapi.NewPolarDataHandler(app.store.UTV.Polar(), app.cacheStorage)
 				suuntoHandler := utvapi.NewSuuntoDataHandler(app.store.UTV.Suunto(), app.cacheStorage)
 				garminHandler := utvapi.NewGarminDataHandler(app.store.UTV.Garmin(), app.cacheStorage)
-				polarTokenHandler := utvapi.NewPolarTokenHandler(app.store.UTV.PolarToken())
+				polarTokenHandler := utvapi.NewPolarTokenHandler(app.store.UTV.PolarToken(), app.cacheStorage)
+				ouraTokenHandler := utvapi.NewOuraTokenHandler(app.store.UTV.OuraToken(), app.cacheStorage)
+				suuntoTokenHandler := utvapi.NewSuuntoTokenHandler(app.store.UTV.SuuntoToken(), app.cacheStorage)
+				garminTokenHandler := utvapi.NewGarminTokenHandler(app.store.UTV.GarminToken(), app.cacheStorage)
 
 				// General routes
 				r.Get("/latest", generalHandler.GetLatestData)
@@ -165,6 +168,9 @@ func (app *api) mount() http.Handler {
 					r.Get("/data", ouraHandler.GetData)
 					r.Post("/data", ouraHandler.InsertData)
 					r.Delete("/data", ouraHandler.DeleteAllData)
+					r.Get("/status", ouraTokenHandler.GetStatus)
+					r.Post("/token", ouraTokenHandler.UpsertToken)
+					r.Get("/token-by-id", ouraTokenHandler.GetTokenByOuraID)
 				})
 
 				// Polar routes
@@ -186,6 +192,9 @@ func (app *api) mount() http.Handler {
 					r.Get("/data", suuntoHandler.GetData)
 					r.Post("/data", suuntoHandler.InsertData)
 					r.Delete("/data", suuntoHandler.DeleteAllData)
+					r.Get("/status", suuntoTokenHandler.GetStatus)
+					r.Post("/token", suuntoTokenHandler.UpsertToken)
+					r.Get("/token-by-username", suuntoTokenHandler.GetTokenByUsername)
 				})
 
 				// Garmin routes
@@ -195,6 +204,10 @@ func (app *api) mount() http.Handler {
 					r.Get("/data", garminHandler.GetData)
 					r.Post("/data", garminHandler.InsertData)
 					r.Delete("/data", garminHandler.DeleteAllData)
+					r.Get("/status", garminTokenHandler.GetStatus)
+					r.Post("/token", garminTokenHandler.UpsertToken)
+					r.Get("/token-exists", garminTokenHandler.TokenExists)
+					r.Get("/user-id-by-token", garminTokenHandler.GetUserIDByToken)
 				})
 
 			})

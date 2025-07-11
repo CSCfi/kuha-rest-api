@@ -1,0 +1,41 @@
+package utv
+
+import (
+	"context"
+	"database/sql"
+	"encoding/json"
+
+	utvsqlc "github.com/DeRuina/KUHA-REST-API/internal/db/utv"
+	"github.com/google/uuid"
+)
+
+type GarminTokenStore struct {
+	db *sql.DB
+}
+
+func (s *GarminTokenStore) GetStatus(ctx context.Context, userID uuid.UUID) (bool, bool, error) {
+	queries := utvsqlc.New(s.db)
+	row, err := queries.GetGarminStatus(ctx, userID)
+	if err != nil {
+		return false, false, err
+	}
+	return row.Connected, row.DataExists, nil
+}
+
+func (s *GarminTokenStore) UpsertToken(ctx context.Context, userID uuid.UUID, data json.RawMessage) error {
+	queries := utvsqlc.New(s.db)
+	return queries.UpsertGarminToken(ctx, utvsqlc.UpsertGarminTokenParams{
+		UserID: userID,
+		Data:   data,
+	})
+}
+
+func (s *GarminTokenStore) TokenExists(ctx context.Context, token string) (bool, error) {
+	queries := utvsqlc.New(s.db)
+	return queries.GarminTokenExists(ctx, token)
+}
+
+func (s *GarminTokenStore) GetUserIDByToken(ctx context.Context, token string) (uuid.UUID, error) {
+	queries := utvsqlc.New(s.db)
+	return queries.GetGarminUserIDByToken(ctx, token)
+}

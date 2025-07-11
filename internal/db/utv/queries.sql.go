@@ -10,8 +10,9 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/google/uuid"
 	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 const addNotification = `-- name: AddNotification :one
@@ -129,7 +130,6 @@ func (q *Queries) DeleteGroup(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
-
 const deleteAllGarminData = `-- name: DeleteAllGarminData :execrows
 DELETE FROM garmin_data WHERE user_id = $1
 `
@@ -197,8 +197,8 @@ AND summary_date = $2
 `
 
 type GetAllDataForDateGarminParams struct {
-	UserID      uuid.UUID
-	Date 		time.Time
+	UserID uuid.UUID
+	Date   time.Time
 }
 
 func (q *Queries) GetAllDataForDateGarmin(ctx context.Context, arg GetAllDataForDateGarminParams) (json.RawMessage, error) {
@@ -216,8 +216,8 @@ AND summary_date = $2
 `
 
 type GetAllDataForDateOuraParams struct {
-	UserID      uuid.UUID
-	Date 		time.Time
+	UserID uuid.UUID
+	Date   time.Time
 }
 
 func (q *Queries) GetAllDataForDateOura(ctx context.Context, arg GetAllDataForDateOuraParams) (json.RawMessage, error) {
@@ -235,8 +235,8 @@ AND summary_date = $2
 `
 
 type GetAllDataForDatePolarParams struct {
-	UserID      uuid.UUID
-	Date 		time.Time
+	UserID uuid.UUID
+	Date   time.Time
 }
 
 func (q *Queries) GetAllDataForDatePolar(ctx context.Context, arg GetAllDataForDatePolarParams) (json.RawMessage, error) {
@@ -254,8 +254,8 @@ AND summary_date = $2
 `
 
 type GetAllDataForDateSuuntoParams struct {
-	UserID      uuid.UUID
-	Date 		time.Time
+	UserID uuid.UUID
+	Date   time.Time
 }
 
 func (q *Queries) GetAllDataForDateSuunto(ctx context.Context, arg GetAllDataForDateSuuntoParams) (json.RawMessage, error) {
@@ -643,9 +643,9 @@ AND summary_date = $2
 `
 
 type GetSpecificDataForDateGarminParams struct {
-	UserID      uuid.UUID
-	Date 		time.Time
-	Key     	*string
+	UserID uuid.UUID
+	Date   time.Time
+	Key    *string
 }
 
 func (q *Queries) GetSpecificDataForDateGarmin(ctx context.Context, arg GetSpecificDataForDateGarminParams) (interface{}, error) {
@@ -663,9 +663,9 @@ AND summary_date = $2
 `
 
 type GetSpecificDataForDateOuraParams struct {
-	UserID      uuid.UUID
-	Date 		time.Time
-	Key     	*string
+	UserID uuid.UUID
+	Date   time.Time
+	Key    *string
 }
 
 func (q *Queries) GetSpecificDataForDateOura(ctx context.Context, arg GetSpecificDataForDateOuraParams) (interface{}, error) {
@@ -683,9 +683,9 @@ AND summary_date = $2
 `
 
 type GetSpecificDataForDatePolarParams struct {
-	UserID      uuid.UUID
-	Date 		time.Time
-	Key     	*string
+	UserID uuid.UUID
+	Date   time.Time
+	Key    *string
 }
 
 func (q *Queries) GetSpecificDataForDatePolar(ctx context.Context, arg GetSpecificDataForDatePolarParams) (interface{}, error) {
@@ -703,9 +703,9 @@ AND summary_date = $2
 `
 
 type GetSpecificDataForDateSuuntoParams struct {
-	UserID      uuid.UUID
-	Date 		time.Time
-	Key     	*string
+	UserID uuid.UUID
+	Date   time.Time
+	Key    *string
 }
 
 func (q *Queries) GetSpecificDataForDateSuunto(ctx context.Context, arg GetSpecificDataForDateSuuntoParams) (interface{}, error) {
@@ -955,9 +955,9 @@ DO UPDATE SET data = EXCLUDED.data
 `
 
 type InsertGarminDataParams struct {
-	UserID      uuid.UUID
-	Date 		time.Time
-	Data        json.RawMessage
+	UserID uuid.UUID
+	Date   time.Time
+	Data   json.RawMessage
 }
 
 func (q *Queries) InsertGarminData(ctx context.Context, arg InsertGarminDataParams) error {
@@ -973,9 +973,9 @@ DO UPDATE SET data = EXCLUDED.data
 `
 
 type InsertOuraDataParams struct {
-	UserID      uuid.UUID
-	Date 		time.Time
-	Data        json.RawMessage
+	UserID uuid.UUID
+	Date   time.Time
+	Data   json.RawMessage
 }
 
 func (q *Queries) InsertOuraData(ctx context.Context, arg InsertOuraDataParams) error {
@@ -991,9 +991,9 @@ DO UPDATE SET data = EXCLUDED.data
 `
 
 type InsertPolarDataParams struct {
-	UserID      uuid.UUID
-	Date 		time.Time
-	Data        json.RawMessage
+	UserID uuid.UUID
+	Date   time.Time
+	Data   json.RawMessage
 }
 
 func (q *Queries) InsertPolarData(ctx context.Context, arg InsertPolarDataParams) error {
@@ -1009,9 +1009,9 @@ DO UPDATE SET data = EXCLUDED.data
 `
 
 type InsertSuuntoDataParams struct {
-	UserID      uuid.UUID
-	Date 		time.Time
-	Data        json.RawMessage
+	UserID uuid.UUID
+	Date   time.Time
+	Data   json.RawMessage
 }
 
 func (q *Queries) InsertSuuntoData(ctx context.Context, arg InsertSuuntoDataParams) error {
@@ -1296,9 +1296,9 @@ LIMIT $3
 `
 
 type GetLatestGarminDataByTypeParams struct {
-	UserID  uuid.UUID
-	Type 	string
-	Limit   int32
+	UserID uuid.UUID
+	Type   string
+	Limit  int32
 }
 
 type GetLatestGarminDataByTypeRow struct {
@@ -1338,9 +1338,9 @@ LIMIT $3
 `
 
 type GetLatestOuraDataByTypeParams struct {
-	UserID  uuid.UUID
-	Type 	string
-	Limit   int32
+	UserID uuid.UUID
+	Type   string
+	Limit  int32
 }
 
 type GetLatestOuraDataByTypeRow struct {
@@ -1380,9 +1380,9 @@ LIMIT $3
 `
 
 type GetLatestPolarDataByTypeParams struct {
-	UserID  uuid.UUID
-	Type 	string
-	Limit   int32
+	UserID uuid.UUID
+	Type   string
+	Limit  int32
 }
 
 type GetLatestPolarDataByTypeRow struct {
@@ -1422,9 +1422,9 @@ LIMIT $3
 `
 
 type GetLatestSuuntoDataByTypeParams struct {
-	UserID  uuid.UUID
-	Type 	string
-	Limit   int32
+	UserID uuid.UUID
+	Type   string
+	Limit  int32
 }
 
 type GetLatestSuuntoDataByTypeRow struct {
@@ -1455,7 +1455,6 @@ func (q *Queries) GetLatestSuuntoDataByType(ctx context.Context, arg GetLatestSu
 	return items, nil
 }
 
-
 const getDataByTypeGarmin = `-- name: GetDataByTypeGarmin :many
 SELECT summary_date, (data -> $2::text)::jsonb AS data
 FROM garmin_data
@@ -1467,10 +1466,10 @@ ORDER BY summary_date DESC
 `
 
 type GetDataByTypeGarminParams struct {
-	UserID  	uuid.UUID
-	Type        string
-	AfterDate   sql.NullTime
-	BeforeDate  sql.NullTime
+	UserID     uuid.UUID
+	Type       string
+	AfterDate  sql.NullTime
+	BeforeDate sql.NullTime
 }
 
 type GetDataByTypeGarminRow struct {
@@ -1517,10 +1516,10 @@ ORDER BY summary_date DESC
 `
 
 type GetDataByTypeOuraParams struct {
-	UserID  	uuid.UUID
-	Type        string
-	AfterDate   sql.NullTime
-	BeforeDate  sql.NullTime
+	UserID     uuid.UUID
+	Type       string
+	AfterDate  sql.NullTime
+	BeforeDate sql.NullTime
 }
 
 type GetDataByTypeOuraRow struct {
@@ -1567,10 +1566,10 @@ ORDER BY summary_date DESC
 `
 
 type GetDataByTypePolarParams struct {
-	UserID  	uuid.UUID
-	Type        string
-	AfterDate   sql.NullTime
-	BeforeDate  sql.NullTime
+	UserID     uuid.UUID
+	Type       string
+	AfterDate  sql.NullTime
+	BeforeDate sql.NullTime
 }
 
 type GetDataByTypePolarRow struct {
@@ -1617,10 +1616,10 @@ ORDER BY summary_date DESC
 `
 
 type GetDataByTypeSuuntoParams struct {
-	UserID  	uuid.UUID
-	Type        string
-	AfterDate   sql.NullTime
-	BeforeDate  sql.NullTime
+	UserID     uuid.UUID
+	Type       string
+	AfterDate  sql.NullTime
+	BeforeDate sql.NullTime
 }
 
 type GetDataByTypeSuuntoRow struct {
@@ -1656,6 +1655,38 @@ func (q *Queries) GetDataByTypeSuunto(ctx context.Context, arg GetDataByTypeSuun
 	return items, nil
 }
 
+const upsertGarminToken = `-- name: UpsertGarminToken :exec
+INSERT INTO garmin_tokens (user_id, data)
+VALUES ($1, $2)
+ON CONFLICT (user_id) DO UPDATE SET data = $2
+`
+
+type UpsertGarminTokenParams struct {
+	UserID uuid.UUID
+	Data   json.RawMessage
+}
+
+func (q *Queries) UpsertGarminToken(ctx context.Context, arg UpsertGarminTokenParams) error {
+	_, err := q.exec(ctx, q.upsertGarminTokenStmt, upsertGarminToken, arg.UserID, arg.Data)
+	return err
+}
+
+const upsertOuraToken = `-- name: UpsertOuraToken :exec
+INSERT INTO oura_tokens (user_id, data)
+VALUES ($1, $2)
+ON CONFLICT (user_id) DO UPDATE SET data = $2
+`
+
+type UpsertOuraTokenParams struct {
+	UserID uuid.UUID
+	Data   json.RawMessage
+}
+
+func (q *Queries) UpsertOuraToken(ctx context.Context, arg UpsertOuraTokenParams) error {
+	_, err := q.exec(ctx, q.upsertOuraTokenStmt, upsertOuraToken, arg.UserID, arg.Data)
+	return err
+}
+
 const upsertPolarToken = `-- name: UpsertPolarToken :exec
 INSERT INTO polar_tokens (user_id, data)
 VALUES ($1, $2)
@@ -1670,6 +1701,109 @@ type UpsertPolarTokenParams struct {
 func (q *Queries) UpsertPolarToken(ctx context.Context, arg UpsertPolarTokenParams) error {
 	_, err := q.exec(ctx, q.upsertPolarTokenStmt, upsertPolarToken, arg.UserID, arg.Data)
 	return err
+}
+
+const upsertSuuntoToken = `-- name: UpsertSuuntoToken :exec
+INSERT INTO suunto_tokens (user_id, data)
+VALUES ($1, $2)
+ON CONFLICT (user_id) DO UPDATE SET data = $2
+`
+
+type UpsertSuuntoTokenParams struct {
+	UserID uuid.UUID
+	Data   json.RawMessage
+}
+
+func (q *Queries) UpsertSuuntoToken(ctx context.Context, arg UpsertSuuntoTokenParams) error {
+	_, err := q.exec(ctx, q.upsertSuuntoTokenStmt, upsertSuuntoToken, arg.UserID, arg.Data)
+	return err
+}
+
+const garminTokenExists = `-- name: GarminTokenExists :one
+SELECT EXISTS(SELECT 1 FROM garmin_tokens WHERE data->>'access_token' = $1::text) AS exists
+`
+
+func (q *Queries) GarminTokenExists(ctx context.Context, dollar_1 string) (bool, error) {
+	row := q.queryRow(ctx, q.garminTokenExistsStmt, garminTokenExists, dollar_1)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const getGarminStatus = `-- name: GetGarminStatus :one
+WITH input AS (
+  SELECT $1::uuid AS uid
+),
+pt AS (
+  SELECT EXISTS(SELECT 1 FROM garmin_tokens WHERE user_id = input.uid) AS connected FROM input
+),
+pd AS (
+  SELECT EXISTS(SELECT 1 FROM garmin_data WHERE user_id = input.uid) AS data_exists FROM input
+)
+SELECT pt.connected, pd.data_exists FROM pt, pd
+`
+
+type GetGarminStatusRow struct {
+	Connected  bool
+	DataExists bool
+}
+
+func (q *Queries) GetGarminStatus(ctx context.Context, dollar_1 uuid.UUID) (GetGarminStatusRow, error) {
+	row := q.queryRow(ctx, q.getGarminStatusStmt, getGarminStatus, dollar_1)
+	var i GetGarminStatusRow
+	err := row.Scan(&i.Connected, &i.DataExists)
+	return i, err
+}
+
+const getGarminUserIDByToken = `-- name: GetGarminUserIDByToken :one
+SELECT user_id
+FROM garmin_tokens
+WHERE data->>'access_token' = $1::text
+`
+
+func (q *Queries) GetGarminUserIDByToken(ctx context.Context, dollar_1 string) (uuid.UUID, error) {
+	row := q.queryRow(ctx, q.getGarminUserIDByTokenStmt, getGarminUserIDByToken, dollar_1)
+	var user_id uuid.UUID
+	err := row.Scan(&user_id)
+	return user_id, err
+}
+
+const getOuraStatus = `-- name: GetOuraStatus :one
+WITH input AS (
+  SELECT $1::uuid AS uid
+),
+pt AS (
+  SELECT EXISTS(SELECT 1 FROM oura_tokens WHERE user_id = input.uid) AS connected FROM input
+),
+pd AS (
+  SELECT EXISTS(SELECT 1 FROM oura_data WHERE user_id = input.uid) AS data_exists FROM input
+)
+SELECT pt.connected, pd.data_exists FROM pt, pd
+`
+
+type GetOuraStatusRow struct {
+	Connected  bool
+	DataExists bool
+}
+
+func (q *Queries) GetOuraStatus(ctx context.Context, dollar_1 uuid.UUID) (GetOuraStatusRow, error) {
+	row := q.queryRow(ctx, q.getOuraStatusStmt, getOuraStatus, dollar_1)
+	var i GetOuraStatusRow
+	err := row.Scan(&i.Connected, &i.DataExists)
+	return i, err
+}
+
+const getOuraTokenByOuraID = `-- name: GetOuraTokenByOuraID :one
+SELECT user_id, data
+FROM oura_tokens
+WHERE data->'personal_info'->>'id' = $1::text
+`
+
+func (q *Queries) GetOuraTokenByOuraID(ctx context.Context, dollar_1 string) (OuraToken, error) {
+	row := q.queryRow(ctx, q.getOuraTokenByOuraIDStmt, getOuraTokenByOuraID, dollar_1)
+	var i OuraToken
+	err := row.Scan(&i.UserID, &i.Data)
+	return i, err
 }
 
 const getPolarStatus = `-- name: GetPolarStatus :one
@@ -1706,6 +1840,44 @@ WHERE data->>'x_user_id' = $1::text
 func (q *Queries) GetPolarTokenByPolarID(ctx context.Context, dollar_1 string) (PolarToken, error) {
 	row := q.queryRow(ctx, q.getPolarTokenByPolarIDStmt, getPolarTokenByPolarID, dollar_1)
 	var i PolarToken
+	err := row.Scan(&i.UserID, &i.Data)
+	return i, err
+}
+
+const getSuuntoStatus = `-- name: GetSuuntoStatus :one
+WITH input AS (
+  SELECT $1::uuid AS uid
+),
+pt AS (
+  SELECT EXISTS(SELECT 1 FROM suunto_tokens WHERE user_id = input.uid) AS connected FROM input
+),
+pd AS (
+  SELECT EXISTS(SELECT 1 FROM suunto_data WHERE user_id = input.uid) AS data_exists FROM input
+)
+SELECT pt.connected, pd.data_exists FROM pt, pd
+`
+
+type GetSuuntoStatusRow struct {
+	Connected  bool
+	DataExists bool
+}
+
+func (q *Queries) GetSuuntoStatus(ctx context.Context, dollar_1 uuid.UUID) (GetSuuntoStatusRow, error) {
+	row := q.queryRow(ctx, q.getSuuntoStatusStmt, getSuuntoStatus, dollar_1)
+	var i GetSuuntoStatusRow
+	err := row.Scan(&i.Connected, &i.DataExists)
+	return i, err
+}
+
+const getSuuntoTokenByUsername = `-- name: GetSuuntoTokenByUsername :one
+SELECT user_id, data
+FROM suunto_tokens
+WHERE data->>'user' = $1::text
+`
+
+func (q *Queries) GetSuuntoTokenByUsername(ctx context.Context, dollar_1 string) (SuuntoToken, error) {
+	row := q.queryRow(ctx, q.getSuuntoTokenByUsernameStmt, getSuuntoTokenByUsername, dollar_1)
+	var i SuuntoToken
 	err := row.Scan(&i.UserID, &i.Data)
 	return i, err
 }
