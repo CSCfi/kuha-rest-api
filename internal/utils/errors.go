@@ -25,6 +25,7 @@ var (
 	ErrMissingDate     = errors.New("date is required")
 	ErrMissingGeneral  = errors.New("this field is required")
 	ErrMissingType     = errors.New("type is required")
+	ErrMissingSource   = errors.New("source is required")
 
 	//ErrInvalid
 	ErrInvalidUUID       = errors.New("invalid UUID")
@@ -35,6 +36,7 @@ var (
 	ErrInvalidValue      = errors.New("invalid value provided")
 	ErrInvalidSectorCode = errors.New("invalid sector code. Allowed values: JP, NK, CC")
 	ErrInvalidDevice     = errors.New("invalid device type. Allowed values: garmin, oura, polar, suunto")
+	ErrInvalidSource     = errors.New("invalid source. Allowed values: garmin, oura, polar, suunto, klab")
 )
 
 func FormatValidationErrors(err error) map[string]string {
@@ -62,6 +64,8 @@ func FormatValidationErrors(err error) map[string]string {
 				errors["type"] = ErrMissingType.Error()
 			case "Sector":
 				errors["sector"] = ErrMissingSector.Error()
+			case "Source":
+				errors["source"] = ErrMissingSource.Error()
 			default:
 				errors[field] = ErrMissingGeneral.Error()
 			}
@@ -72,6 +76,8 @@ func FormatValidationErrors(err error) map[string]string {
 				errors["sector"] = ErrInvalidSectorCode.Error()
 			case "Device":
 				errors["device"] = ErrInvalidDevice.Error()
+			case "Source":
+				errors["source"] = ErrInvalidSource.Error()
 			default:
 				errors[field] = ErrInvalidChoice.Error()
 			}

@@ -486,3 +486,18 @@ INSERT INTO klab_tokens (user_id, data)
 VALUES ($1, $2)
 ON CONFLICT (user_id) DO UPDATE SET data = $2;
 
+-- name: DeletePolarToken :exec
+DELETE FROM polar_tokens WHERE user_id = $1;
+
+-- name: DeleteOuraToken :exec
+DELETE FROM oura_tokens WHERE user_id = $1;
+
+-- name: DeleteGarminToken :exec
+DELETE FROM garmin_tokens WHERE user_id = $1;
+
+-- name: DeleteSuuntoToken :exec
+DELETE FROM suunto_tokens WHERE user_id = $1;
+
+-- name: DeleteKlabToken :exec
+DELETE FROM klab_tokens WHERE user_id = $1;
+

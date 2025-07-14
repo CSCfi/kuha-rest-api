@@ -146,6 +146,11 @@ func (app *api) mount() http.Handler {
 					app.store.UTV.Polar(),
 					app.store.UTV.Suunto(),
 					app.store.UTV.Garmin(),
+					app.store.UTV.OuraToken(),
+					app.store.UTV.PolarToken(),
+					app.store.UTV.SuuntoToken(),
+					app.store.UTV.GarminToken(),
+					app.store.UTV.KlabToken(),
 					app.cacheStorage,
 				)
 				ouraHandler := utvapi.NewOuraDataHandler(app.store.UTV.Oura(), app.cacheStorage)
@@ -161,6 +166,7 @@ func (app *api) mount() http.Handler {
 				// General routes
 				r.Get("/latest", generalHandler.GetLatestData)
 				r.Get("/all", generalHandler.GetAllByType)
+				r.Delete("/disconnect", generalHandler.Disconnect)
 
 				// Klab routes
 				r.Route("/klab", func(r chi.Router) {

@@ -25,3 +25,8 @@ func (s *KlabTokenStore) UpsertToken(ctx context.Context, userID uuid.UUID, data
 		Data:   data,
 	})
 }
+
+func (s *KlabTokenStore) DeleteToken(ctx context.Context, userID uuid.UUID) error {
+	queries := utvsqlc.New(s.db)
+	return queries.DeleteKlabToken(ctx, userID)
+}

@@ -38,3 +38,8 @@ func (s *SuuntoTokenStore) GetTokenByUsername(ctx context.Context, username stri
 	}
 	return row.UserID, row.Data, nil
 }
+
+func (s *SuuntoTokenStore) DeleteToken(ctx context.Context, userID uuid.UUID) error {
+	queries := utvsqlc.New(s.db)
+	return queries.DeleteSuuntoToken(ctx, userID)
+}

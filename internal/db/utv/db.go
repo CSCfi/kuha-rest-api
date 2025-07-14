@@ -51,8 +51,23 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.deleteAllSuuntoDataStmt, err = db.PrepareContext(ctx, deleteAllSuuntoData); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteAllSuuntoData: %w", err)
 	}
+	if q.deleteGarminTokenStmt, err = db.PrepareContext(ctx, deleteGarminToken); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteGarminToken: %w", err)
+	}
 	if q.deleteGroupStmt, err = db.PrepareContext(ctx, deleteGroup); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteGroup: %w", err)
+	}
+	if q.deleteKlabTokenStmt, err = db.PrepareContext(ctx, deleteKlabToken); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteKlabToken: %w", err)
+	}
+	if q.deleteOuraTokenStmt, err = db.PrepareContext(ctx, deleteOuraToken); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteOuraToken: %w", err)
+	}
+	if q.deletePolarTokenStmt, err = db.PrepareContext(ctx, deletePolarToken); err != nil {
+		return nil, fmt.Errorf("error preparing query DeletePolarToken: %w", err)
+	}
+	if q.deleteSuuntoTokenStmt, err = db.PrepareContext(ctx, deleteSuuntoToken); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteSuuntoToken: %w", err)
 	}
 	if q.deleteUserStmt, err = db.PrepareContext(ctx, deleteUser); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteUser: %w", err)
@@ -293,9 +308,34 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing deleteAllSuuntoDataStmt: %w", cerr)
 		}
 	}
+	if q.deleteGarminTokenStmt != nil {
+		if cerr := q.deleteGarminTokenStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteGarminTokenStmt: %w", cerr)
+		}
+	}
 	if q.deleteGroupStmt != nil {
 		if cerr := q.deleteGroupStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing deleteGroupStmt: %w", cerr)
+		}
+	}
+	if q.deleteKlabTokenStmt != nil {
+		if cerr := q.deleteKlabTokenStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteKlabTokenStmt: %w", cerr)
+		}
+	}
+	if q.deleteOuraTokenStmt != nil {
+		if cerr := q.deleteOuraTokenStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteOuraTokenStmt: %w", cerr)
+		}
+	}
+	if q.deletePolarTokenStmt != nil {
+		if cerr := q.deletePolarTokenStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deletePolarTokenStmt: %w", cerr)
+		}
+	}
+	if q.deleteSuuntoTokenStmt != nil {
+		if cerr := q.deleteSuuntoTokenStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteSuuntoTokenStmt: %w", cerr)
 		}
 	}
 	if q.deleteUserStmt != nil {
@@ -661,7 +701,12 @@ type Queries struct {
 	deleteAllOuraDataStmt             *sql.Stmt
 	deleteAllPolarDataStmt            *sql.Stmt
 	deleteAllSuuntoDataStmt           *sql.Stmt
+	deleteGarminTokenStmt             *sql.Stmt
 	deleteGroupStmt                   *sql.Stmt
+	deleteKlabTokenStmt               *sql.Stmt
+	deleteOuraTokenStmt               *sql.Stmt
+	deletePolarTokenStmt              *sql.Stmt
+	deleteSuuntoTokenStmt             *sql.Stmt
 	deleteUserStmt                    *sql.Stmt
 	garminTokenExistsStmt             *sql.Stmt
 	getAllDataForDateGarminStmt       *sql.Stmt
@@ -740,7 +785,12 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		deleteAllOuraDataStmt:             q.deleteAllOuraDataStmt,
 		deleteAllPolarDataStmt:            q.deleteAllPolarDataStmt,
 		deleteAllSuuntoDataStmt:           q.deleteAllSuuntoDataStmt,
+		deleteGarminTokenStmt:             q.deleteGarminTokenStmt,
 		deleteGroupStmt:                   q.deleteGroupStmt,
+		deleteKlabTokenStmt:               q.deleteKlabTokenStmt,
+		deleteOuraTokenStmt:               q.deleteOuraTokenStmt,
+		deletePolarTokenStmt:              q.deletePolarTokenStmt,
+		deleteSuuntoTokenStmt:             q.deleteSuuntoTokenStmt,
 		deleteUserStmt:                    q.deleteUserStmt,
 		garminTokenExistsStmt:             q.garminTokenExistsStmt,
 		getAllDataForDateGarminStmt:       q.getAllDataForDateGarminStmt,

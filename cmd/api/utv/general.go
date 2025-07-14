@@ -32,11 +32,16 @@ type AllByTypeInput struct {
 
 // store and cache interfaces
 type GeneralDataHandler struct {
-	oura   utv.OuraData
-	polar  utv.PolarData
-	suunto utv.SuuntoData
-	garmin utv.GarminData
-	cache  *cache.Storage
+	oura        utv.OuraData
+	polar       utv.PolarData
+	suunto      utv.SuuntoData
+	garmin      utv.GarminData
+	ouraToken   utv.OuraToken
+	polarToken  utv.PolarToken
+	suuntoToken utv.SuuntoToken
+	garminToken utv.GarminToken
+	klabToken   utv.KlabToken
+	cache       *cache.Storage
 }
 
 // response structs
@@ -47,13 +52,29 @@ type LatestDataResponse struct {
 }
 
 // NewGeneralDataHandler initializes the handler
-func NewGeneralDataHandler(oura utv.OuraData, polar utv.PolarData, suunto utv.SuuntoData, garmin utv.GarminData, cache *cache.Storage) *GeneralDataHandler {
+func NewGeneralDataHandler(
+	oura utv.OuraData,
+	polar utv.PolarData,
+	suunto utv.SuuntoData,
+	garmin utv.GarminData,
+	ouraToken utv.OuraToken,
+	polarToken utv.PolarToken,
+	suuntoToken utv.SuuntoToken,
+	garminToken utv.GarminToken,
+	klabToken utv.KlabToken,
+	cache *cache.Storage,
+) *GeneralDataHandler {
 	return &GeneralDataHandler{
-		oura:   oura,
-		polar:  polar,
-		suunto: suunto,
-		garmin: garmin,
-		cache:  cache,
+		oura:        oura,
+		polar:       polar,
+		suunto:      suunto,
+		garmin:      garmin,
+		ouraToken:   ouraToken,
+		polarToken:  polarToken,
+		suuntoToken: suuntoToken,
+		garminToken: garminToken,
+		klabToken:   klabToken,
+		cache:       cache,
 	}
 }
 
@@ -264,4 +285,74 @@ func (h *GeneralDataHandler) GetAllByType(w http.ResponseWriter, r *http.Request
 	}
 
 	utils.WriteJSON(w, http.StatusOK, results)
+}
+
+type DisconnectParams struct {
+	UserID string `form:"user_id" validate:"required,uuid4"`
+	Source string `form:"source" validate:"required,oneof=polar oura suunto garmin klab"`
+}
+
+// Disconnect godoc
+//
+//	@Summary		Disconnect a wearable device
+//	@Description	Disconnects a user's wearable device by deleting the associated token
+//	@Tags			UTV - General
+//	@Accept			json
+//	@Produce		json
+//	@Param			user_id	query	string	true	"User ID (UUID)"
+//	@Param			source	query	string	true	"Source device to disconnect (one of: 'polar', 'oura', 'suunto', 'garmin', 'klab')"
+//	@Success		200		"Successfully disconnected"
+//	@Failure		400		{object}	swagger.ValidationErrorResponse
+//	@Failure		403		{object}	swagger.ForbiddenResponse
+//	@Failure		500		{object}	swagger.InternalServerErrorResponse
+//	@Security		BearerAuth
+//	@Router			/utv/disconnect [delete]
+func (h *GeneralDataHandler) Disconnect(w http.ResponseWriter, r *http.Request) {
+	if !authz.Authorize(r) {
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
+		return
+	}
+
+	err := utils.ValidateParams(r, []string{"user_id", "source"})
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	params := DisconnectParams{
+		UserID: r.URL.Query().Get("user_id"),
+		Source: r.URL.Query().Get("source"),
+	}
+
+	if err := utils.GetValidator().Struct(params); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	userID, err := utils.ParseUUID(params.UserID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	var delErr error
+	switch params.Source {
+	case "polar":
+		delErr = h.polarToken.DeleteToken(r.Context(), userID)
+	case "oura":
+		delErr = h.ouraToken.DeleteToken(r.Context(), userID)
+	case "suunto":
+		delErr = h.suuntoToken.DeleteToken(r.Context(), userID)
+	case "garmin":
+		delErr = h.garminToken.DeleteToken(r.Context(), userID)
+	case "klab":
+		delErr = h.klabToken.DeleteToken(r.Context(), userID)
+	}
+
+	if delErr != nil {
+		utils.InternalServerError(w, r, delErr)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

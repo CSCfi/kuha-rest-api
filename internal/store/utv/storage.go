@@ -32,6 +32,7 @@ type OuraToken interface {
 	GetStatus(ctx context.Context, userID uuid.UUID) (bool, bool, error)
 	UpsertToken(ctx context.Context, userID uuid.UUID, data json.RawMessage) error
 	GetTokenByOuraID(ctx context.Context, ouraID string) (uuid.UUID, json.RawMessage, error)
+	DeleteToken(ctx context.Context, userID uuid.UUID) error
 }
 
 // PolarData interface
@@ -50,6 +51,7 @@ type PolarToken interface {
 	GetStatus(ctx context.Context, userID uuid.UUID) (bool, bool, error)
 	UpsertToken(ctx context.Context, userID uuid.UUID, data json.RawMessage) error
 	GetTokenByPolarID(ctx context.Context, polarID string) (uuid.UUID, json.RawMessage, error)
+	DeleteToken(ctx context.Context, userID uuid.UUID) error
 }
 
 // SuuntoData interface
@@ -68,6 +70,7 @@ type SuuntoToken interface {
 	GetStatus(ctx context.Context, userID uuid.UUID) (bool, bool, error)
 	UpsertToken(ctx context.Context, userID uuid.UUID, data json.RawMessage) error
 	GetTokenByUsername(ctx context.Context, username string) (uuid.UUID, json.RawMessage, error)
+	DeleteToken(ctx context.Context, userID uuid.UUID) error
 }
 
 // GarminData interface
@@ -87,12 +90,14 @@ type GarminToken interface {
 	UpsertToken(ctx context.Context, userID uuid.UUID, data json.RawMessage) error
 	TokenExists(ctx context.Context, token string) (bool, error)
 	GetUserIDByToken(ctx context.Context, token string) (uuid.UUID, error)
+	DeleteToken(ctx context.Context, userID uuid.UUID) error
 }
 
 // KlabToken interface
 type KlabToken interface {
 	GetStatus(ctx context.Context, userID uuid.UUID) (bool, error)
 	UpsertToken(ctx context.Context, userID uuid.UUID, data json.RawMessage) error
+	DeleteToken(ctx context.Context, userID uuid.UUID) error
 }
 
 // UTVStorage struct to hold table-specific storage

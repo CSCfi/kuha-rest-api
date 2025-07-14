@@ -1908,3 +1908,48 @@ func (q *Queries) UpsertKlabToken(ctx context.Context, arg UpsertKlabTokenParams
 	_, err := q.exec(ctx, q.upsertKlabTokenStmt, upsertKlabToken, arg.UserID, arg.Data)
 	return err
 }
+
+const deleteGarminToken = `-- name: DeleteGarminToken :exec
+DELETE FROM garmin_tokens WHERE user_id = $1
+`
+
+func (q *Queries) DeleteGarminToken(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.exec(ctx, q.deleteGarminTokenStmt, deleteGarminToken, userID)
+	return err
+}
+
+const deleteKlabToken = `-- name: DeleteKlabToken :exec
+DELETE FROM klab_tokens WHERE user_id = $1
+`
+
+func (q *Queries) DeleteKlabToken(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.exec(ctx, q.deleteKlabTokenStmt, deleteKlabToken, userID)
+	return err
+}
+
+const deleteOuraToken = `-- name: DeleteOuraToken :exec
+DELETE FROM oura_tokens WHERE user_id = $1
+`
+
+func (q *Queries) DeleteOuraToken(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.exec(ctx, q.deleteOuraTokenStmt, deleteOuraToken, userID)
+	return err
+}
+
+const deletePolarToken = `-- name: DeletePolarToken :exec
+DELETE FROM polar_tokens WHERE user_id = $1
+`
+
+func (q *Queries) DeletePolarToken(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.exec(ctx, q.deletePolarTokenStmt, deletePolarToken, userID)
+	return err
+}
+
+const deleteSuuntoToken = `-- name: DeleteSuuntoToken :exec
+DELETE FROM suunto_tokens WHERE user_id = $1
+`
+
+func (q *Queries) DeleteSuuntoToken(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.exec(ctx, q.deleteSuuntoTokenStmt, deleteSuuntoToken, userID)
+	return err
+}

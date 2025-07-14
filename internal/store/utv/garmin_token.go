@@ -39,3 +39,8 @@ func (s *GarminTokenStore) GetUserIDByToken(ctx context.Context, token string) (
 	queries := utvsqlc.New(s.db)
 	return queries.GetGarminUserIDByToken(ctx, token)
 }
+
+func (s *GarminTokenStore) DeleteToken(ctx context.Context, userID uuid.UUID) error {
+	queries := utvsqlc.New(s.db)
+	return queries.DeleteGarminToken(ctx, userID)
+}

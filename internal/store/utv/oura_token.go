@@ -38,3 +38,8 @@ func (s *OuraTokenStore) GetTokenByOuraID(ctx context.Context, ouraID string) (u
 	}
 	return row.UserID, row.Data, nil
 }
+
+func (s *OuraTokenStore) DeleteToken(ctx context.Context, userID uuid.UUID) error {
+	queries := utvsqlc.New(s.db)
+	return queries.DeleteOuraToken(ctx, userID)
+}

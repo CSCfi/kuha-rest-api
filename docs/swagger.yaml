@@ -1051,6 +1051,46 @@ paths:
       summary: Get all data by type
       tags:
       - UTV - General
+  /utv/disconnect:
+    delete:
+      consumes:
+      - application/json
+      description: Disconnects a user's wearable device by deleting the associated
+        token
+      parameters:
+      - description: User ID (UUID)
+        in: query
+        name: user_id
+        required: true
+        type: string
+      - description: 'Source device to disconnect (one of: ''polar'', ''oura'', ''suunto'',
+          ''garmin'', ''klab'')'
+        in: query
+        name: source
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully disconnected
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Disconnect a wearable device
+      tags:
+      - UTV - General
   /utv/garmin/data:
     delete:
       consumes:

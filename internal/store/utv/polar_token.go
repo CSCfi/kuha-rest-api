@@ -38,3 +38,8 @@ func (s *PolarTokenStore) GetTokenByPolarID(ctx context.Context, polarID string)
 	}
 	return row.UserID, row.Data, nil
 }
+
+func (s *PolarTokenStore) DeleteToken(ctx context.Context, userID uuid.UUID) error {
+	queries := utvsqlc.New(s.db)
+	return queries.DeletePolarToken(ctx, userID)
+}
