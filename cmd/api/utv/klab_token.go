@@ -40,7 +40,7 @@ type KlabStatusParams struct {
 //	@Router			/utv/klab/status [get]
 func (h *KlabTokenHandler) GetStatus(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
-		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
 		return
 	}
 
@@ -96,7 +96,7 @@ type KlabTokenInput struct {
 //	@Router			/utv/klab/token [post]
 func (h *KlabTokenHandler) UpsertToken(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
-		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
 		return
 	}
 

@@ -40,7 +40,7 @@ type GarminStatusParams struct {
 //	@Router			/utv/garmin/status [get]
 func (h *GarminTokenHandler) GetStatus(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
-		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
 		return
 	}
 
@@ -97,7 +97,7 @@ type GarminTokenInput struct {
 //	@Router			/utv/garmin/token [post]
 func (h *GarminTokenHandler) UpsertToken(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
-		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
 		return
 	}
 
@@ -146,7 +146,7 @@ type GarminTokenByAccessTokenParams struct {
 //	@Router			/utv/garmin/user-id-by-token [get]
 func (h *GarminTokenHandler) GetUserIDByToken(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
-		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
 		return
 	}
 
@@ -191,7 +191,7 @@ func (h *GarminTokenHandler) GetUserIDByToken(w http.ResponseWriter, r *http.Req
 //	@Router			/utv/garmin/token-exists [get]
 func (h *GarminTokenHandler) TokenExists(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
-		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
 		return
 	}
 

@@ -40,7 +40,7 @@ type GetStatusParams struct {
 //	@Router			/utv/polar/status [get]
 func (h *PolarTokenHandler) GetStatus(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
-		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
 		return
 	}
 
@@ -97,7 +97,7 @@ type PolarTokenInput struct {
 //	@Router			/utv/polar/token [post]
 func (h *PolarTokenHandler) UpsertToken(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
-		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
 		return
 	}
 
@@ -146,7 +146,7 @@ type GetTokenByPolarIDParams struct {
 //	@Router			/utv/polar/token-by-id [get]
 func (h *PolarTokenHandler) GetTokenByPolarID(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
-		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
 		return
 	}
 

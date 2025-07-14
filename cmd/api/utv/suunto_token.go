@@ -40,7 +40,7 @@ type SuuntoStatusParams struct {
 //	@Router			/utv/suunto/status [get]
 func (h *SuuntoTokenHandler) GetStatus(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
-		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
 		return
 	}
 
@@ -97,7 +97,7 @@ type SuuntoTokenInput struct {
 //	@Router			/utv/suunto/token [post]
 func (h *SuuntoTokenHandler) UpsertToken(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
-		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
 		return
 	}
 
@@ -146,7 +146,7 @@ type GetTokenByUsernameParams struct {
 //	@Router			/utv/suunto/token-by-username [get]
 func (h *SuuntoTokenHandler) GetTokenByUsername(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
-		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
 		return
 	}
 

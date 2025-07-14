@@ -40,7 +40,7 @@ type OuraStatusParams struct {
 //	@Router			/utv/oura/status [get]
 func (h *OuraTokenHandler) GetStatus(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
-		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
 		return
 	}
 
@@ -97,7 +97,7 @@ type OuraTokenInput struct {
 //	@Router			/utv/oura/token [post]
 func (h *OuraTokenHandler) UpsertToken(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
-		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
 		return
 	}
 
@@ -146,7 +146,7 @@ type GetTokenByOuraIDParams struct {
 //	@Router			/utv/oura/token-by-id [get]
 func (h *OuraTokenHandler) GetTokenByOuraID(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
-		utils.ForbiddenResponse(w, r, fmt.Errorf("unauthorized"))
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
 		return
 	}
 
