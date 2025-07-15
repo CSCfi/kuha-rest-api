@@ -516,3 +516,28 @@ WHERE (data ->> 'token_last_refreshed')::timestamp < sqlc.arg(cutoff)::timestamp
 -- name: GetSuuntoTokensForUpdate :many
 SELECT user_id, data FROM suunto_tokens
 WHERE (data ->> 'token_last_refreshed')::timestamp < sqlc.arg(cutoff)::timestamp;
+
+-- name: GetPolarDataForUpdate :many
+SELECT user_id, data
+FROM polar_tokens
+WHERE (data ->> 'data_last_fetched') IS NULL
+   OR (data ->> 'data_last_fetched')::timestamp < $1::timestamp;
+
+-- name: GetOuraDataForUpdate :many
+SELECT user_id, data
+FROM oura_tokens
+WHERE (data ->> 'data_last_fetched') IS NULL
+   OR (data ->> 'data_last_fetched')::timestamp < $1::timestamp;
+
+-- name: GetGarminDataForUpdate :many
+SELECT user_id, data
+FROM garmin_tokens
+WHERE (data ->> 'data_last_fetched') IS NULL
+   OR (data ->> 'data_last_fetched')::timestamp < $1::timestamp;
+
+-- name: GetSuuntoDataForUpdate :many
+SELECT user_id, data
+FROM suunto_tokens
+WHERE (data ->> 'data_last_fetched') IS NULL
+   OR (data ->> 'data_last_fetched')::timestamp < $1::timestamp;
+

@@ -123,6 +123,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getDatesFromSuuntoDataStmt, err = db.PrepareContext(ctx, getDatesFromSuuntoData); err != nil {
 		return nil, fmt.Errorf("error preparing query GetDatesFromSuuntoData: %w", err)
 	}
+	if q.getGarminDataForUpdateStmt, err = db.PrepareContext(ctx, getGarminDataForUpdate); err != nil {
+		return nil, fmt.Errorf("error preparing query GetGarminDataForUpdate: %w", err)
+	}
 	if q.getGarminStatusStmt, err = db.PrepareContext(ctx, getGarminStatus); err != nil {
 		return nil, fmt.Errorf("error preparing query GetGarminStatus: %w", err)
 	}
@@ -150,6 +153,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getNotificationStmt, err = db.PrepareContext(ctx, getNotification); err != nil {
 		return nil, fmt.Errorf("error preparing query GetNotification: %w", err)
 	}
+	if q.getOuraDataForUpdateStmt, err = db.PrepareContext(ctx, getOuraDataForUpdate); err != nil {
+		return nil, fmt.Errorf("error preparing query GetOuraDataForUpdate: %w", err)
+	}
 	if q.getOuraStatusStmt, err = db.PrepareContext(ctx, getOuraStatus); err != nil {
 		return nil, fmt.Errorf("error preparing query GetOuraStatus: %w", err)
 	}
@@ -158,6 +164,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.getOuraTokensForUpdateStmt, err = db.PrepareContext(ctx, getOuraTokensForUpdate); err != nil {
 		return nil, fmt.Errorf("error preparing query GetOuraTokensForUpdate: %w", err)
+	}
+	if q.getPolarDataForUpdateStmt, err = db.PrepareContext(ctx, getPolarDataForUpdate); err != nil {
+		return nil, fmt.Errorf("error preparing query GetPolarDataForUpdate: %w", err)
 	}
 	if q.getPolarStatusStmt, err = db.PrepareContext(ctx, getPolarStatus); err != nil {
 		return nil, fmt.Errorf("error preparing query GetPolarStatus: %w", err)
@@ -182,6 +191,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.getSpecificDataForDateSuuntoStmt, err = db.PrepareContext(ctx, getSpecificDataForDateSuunto); err != nil {
 		return nil, fmt.Errorf("error preparing query GetSpecificDataForDateSuunto: %w", err)
+	}
+	if q.getSuuntoDataForUpdateStmt, err = db.PrepareContext(ctx, getSuuntoDataForUpdate); err != nil {
+		return nil, fmt.Errorf("error preparing query GetSuuntoDataForUpdate: %w", err)
 	}
 	if q.getSuuntoStatusStmt, err = db.PrepareContext(ctx, getSuuntoStatus); err != nil {
 		return nil, fmt.Errorf("error preparing query GetSuuntoStatus: %w", err)
@@ -440,6 +452,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getDatesFromSuuntoDataStmt: %w", cerr)
 		}
 	}
+	if q.getGarminDataForUpdateStmt != nil {
+		if cerr := q.getGarminDataForUpdateStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getGarminDataForUpdateStmt: %w", cerr)
+		}
+	}
 	if q.getGarminStatusStmt != nil {
 		if cerr := q.getGarminStatusStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getGarminStatusStmt: %w", cerr)
@@ -485,6 +502,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getNotificationStmt: %w", cerr)
 		}
 	}
+	if q.getOuraDataForUpdateStmt != nil {
+		if cerr := q.getOuraDataForUpdateStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getOuraDataForUpdateStmt: %w", cerr)
+		}
+	}
 	if q.getOuraStatusStmt != nil {
 		if cerr := q.getOuraStatusStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getOuraStatusStmt: %w", cerr)
@@ -498,6 +520,11 @@ func (q *Queries) Close() error {
 	if q.getOuraTokensForUpdateStmt != nil {
 		if cerr := q.getOuraTokensForUpdateStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getOuraTokensForUpdateStmt: %w", cerr)
+		}
+	}
+	if q.getPolarDataForUpdateStmt != nil {
+		if cerr := q.getPolarDataForUpdateStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getPolarDataForUpdateStmt: %w", cerr)
 		}
 	}
 	if q.getPolarStatusStmt != nil {
@@ -538,6 +565,11 @@ func (q *Queries) Close() error {
 	if q.getSpecificDataForDateSuuntoStmt != nil {
 		if cerr := q.getSpecificDataForDateSuuntoStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getSpecificDataForDateSuuntoStmt: %w", cerr)
+		}
+	}
+	if q.getSuuntoDataForUpdateStmt != nil {
+		if cerr := q.getSuuntoDataForUpdateStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getSuuntoDataForUpdateStmt: %w", cerr)
 		}
 	}
 	if q.getSuuntoStatusStmt != nil {
@@ -757,6 +789,7 @@ type Queries struct {
 	getDatesFromOuraDataStmt          *sql.Stmt
 	getDatesFromPolarDataStmt         *sql.Stmt
 	getDatesFromSuuntoDataStmt        *sql.Stmt
+	getGarminDataForUpdateStmt        *sql.Stmt
 	getGarminStatusStmt               *sql.Stmt
 	getGarminTokensForUpdateStmt      *sql.Stmt
 	getGarminUserIDByTokenStmt        *sql.Stmt
@@ -766,9 +799,11 @@ type Queries struct {
 	getLatestPolarDataByTypeStmt      *sql.Stmt
 	getLatestSuuntoDataByTypeStmt     *sql.Stmt
 	getNotificationStmt               *sql.Stmt
+	getOuraDataForUpdateStmt          *sql.Stmt
 	getOuraStatusStmt                 *sql.Stmt
 	getOuraTokenByOuraIDStmt          *sql.Stmt
 	getOuraTokensForUpdateStmt        *sql.Stmt
+	getPolarDataForUpdateStmt         *sql.Stmt
 	getPolarStatusStmt                *sql.Stmt
 	getPolarTokenByPolarIDStmt        *sql.Stmt
 	getPolarTokensForUpdateStmt       *sql.Stmt
@@ -777,6 +812,7 @@ type Queries struct {
 	getSpecificDataForDateOuraStmt    *sql.Stmt
 	getSpecificDataForDatePolarStmt   *sql.Stmt
 	getSpecificDataForDateSuuntoStmt  *sql.Stmt
+	getSuuntoDataForUpdateStmt        *sql.Stmt
 	getSuuntoStatusStmt               *sql.Stmt
 	getSuuntoTokenByUsernameStmt      *sql.Stmt
 	getSuuntoTokensForUpdateStmt      *sql.Stmt
@@ -845,6 +881,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getDatesFromOuraDataStmt:          q.getDatesFromOuraDataStmt,
 		getDatesFromPolarDataStmt:         q.getDatesFromPolarDataStmt,
 		getDatesFromSuuntoDataStmt:        q.getDatesFromSuuntoDataStmt,
+		getGarminDataForUpdateStmt:        q.getGarminDataForUpdateStmt,
 		getGarminStatusStmt:               q.getGarminStatusStmt,
 		getGarminTokensForUpdateStmt:      q.getGarminTokensForUpdateStmt,
 		getGarminUserIDByTokenStmt:        q.getGarminUserIDByTokenStmt,
@@ -854,9 +891,11 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getLatestPolarDataByTypeStmt:      q.getLatestPolarDataByTypeStmt,
 		getLatestSuuntoDataByTypeStmt:     q.getLatestSuuntoDataByTypeStmt,
 		getNotificationStmt:               q.getNotificationStmt,
+		getOuraDataForUpdateStmt:          q.getOuraDataForUpdateStmt,
 		getOuraStatusStmt:                 q.getOuraStatusStmt,
 		getOuraTokenByOuraIDStmt:          q.getOuraTokenByOuraIDStmt,
 		getOuraTokensForUpdateStmt:        q.getOuraTokensForUpdateStmt,
+		getPolarDataForUpdateStmt:         q.getPolarDataForUpdateStmt,
 		getPolarStatusStmt:                q.getPolarStatusStmt,
 		getPolarTokenByPolarIDStmt:        q.getPolarTokenByPolarIDStmt,
 		getPolarTokensForUpdateStmt:       q.getPolarTokensForUpdateStmt,
@@ -865,6 +904,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getSpecificDataForDateOuraStmt:    q.getSpecificDataForDateOuraStmt,
 		getSpecificDataForDatePolarStmt:   q.getSpecificDataForDatePolarStmt,
 		getSpecificDataForDateSuuntoStmt:  q.getSpecificDataForDateSuuntoStmt,
+		getSuuntoDataForUpdateStmt:        q.getSuuntoDataForUpdateStmt,
 		getSuuntoStatusStmt:               q.getSuuntoStatusStmt,
 		getSuuntoTokenByUsernameStmt:      q.getSuuntoTokenByUsernameStmt,
 		getSuuntoTokensForUpdateStmt:      q.getSuuntoTokensForUpdateStmt,

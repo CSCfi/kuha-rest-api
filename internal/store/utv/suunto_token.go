@@ -49,3 +49,8 @@ func (s *SuuntoTokenStore) GetTokensForUpdate(ctx context.Context, cutoff time.T
 	queries := utvsqlc.New(s.db)
 	return queries.GetSuuntoTokensForUpdate(ctx, cutoff)
 }
+
+func (s *SuuntoTokenStore) GetDataForUpdate(ctx context.Context, cutoff time.Time) ([]utvsqlc.SuuntoToken, error) {
+	queries := utvsqlc.New(s.db)
+	return queries.GetSuuntoDataForUpdate(ctx, cutoff)
+}

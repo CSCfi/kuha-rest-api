@@ -1051,6 +1051,51 @@ paths:
       summary: Get all data by type
       tags:
       - UTV - General
+  /utv/data4update:
+    get:
+      consumes:
+      - application/json
+      description: Returns token records where 'data_last_fetched' is older than the
+        cutoff
+      parameters:
+      - description: 'Source (one of: ''polar'', ''oura'', ''suunto'', ''garmin'')'
+        in: query
+        name: source
+        required: true
+        type: string
+      - description: Number of hours to look back (1-8760)
+        in: query
+        name: hours
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of tokens needing data update
+          schema:
+            items:
+              $ref: '#/definitions/swagger.PolarTokenInput'
+            type: array
+        "204":
+          description: 'No Content: No data found'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get data for update
+      tags:
+      - UTV - General
   /utv/disconnect:
     delete:
       consumes:

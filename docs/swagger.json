@@ -334,6 +334,74 @@
                 }
             }
         },
+        "/utv/data4update": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns token records where 'data_last_fetched' is older than the cutoff",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UTV - General"
+                ],
+                "summary": "Get data for update",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Source (one of: 'polar', 'oura', 'suunto', 'garmin')",
+                        "name": "source",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of hours to look back (1-8760)",
+                        "name": "hours",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of tokens needing data update",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/swagger.PolarTokenInput"
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No Content: No data found"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/utv/disconnect": {
             "delete": {
                 "security": [

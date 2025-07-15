@@ -49,3 +49,8 @@ func (s *PolarTokenStore) GetTokensForUpdate(ctx context.Context, cutoff time.Ti
 	queries := utvsqlc.New(s.db)
 	return queries.GetPolarTokensForUpdate(ctx, cutoff)
 }
+
+func (s *PolarTokenStore) GetDataForUpdate(ctx context.Context, cutoff time.Time) ([]utvsqlc.PolarToken, error) {
+	queries := utvsqlc.New(s.db)
+	return queries.GetPolarDataForUpdate(ctx, cutoff)
+}

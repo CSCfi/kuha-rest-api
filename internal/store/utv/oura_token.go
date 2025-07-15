@@ -49,3 +49,8 @@ func (s *OuraTokenStore) GetTokensForUpdate(ctx context.Context, cutoff time.Tim
 	queries := utvsqlc.New(s.db)
 	return queries.GetOuraTokensForUpdate(ctx, cutoff)
 }
+
+func (s *OuraTokenStore) GetDataForUpdate(ctx context.Context, cutoff time.Time) ([]utvsqlc.OuraToken, error) {
+	queries := utvsqlc.New(s.db)
+	return queries.GetOuraDataForUpdate(ctx, cutoff)
+}

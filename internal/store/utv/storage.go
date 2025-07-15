@@ -35,6 +35,7 @@ type OuraToken interface {
 	GetTokenByOuraID(ctx context.Context, ouraID string) (uuid.UUID, json.RawMessage, error)
 	DeleteToken(ctx context.Context, userID uuid.UUID) error
 	GetTokensForUpdate(ctx context.Context, cutoff time.Time) ([]utvsqlc.OuraToken, error)
+	GetDataForUpdate(ctx context.Context, cutoff time.Time) ([]utvsqlc.OuraToken, error)
 }
 
 // PolarData interface
@@ -55,6 +56,7 @@ type PolarToken interface {
 	GetTokenByPolarID(ctx context.Context, polarID string) (uuid.UUID, json.RawMessage, error)
 	DeleteToken(ctx context.Context, userID uuid.UUID) error
 	GetTokensForUpdate(ctx context.Context, cutoff time.Time) ([]utvsqlc.PolarToken, error)
+	GetDataForUpdate(ctx context.Context, cutoff time.Time) ([]utvsqlc.PolarToken, error)
 }
 
 // SuuntoData interface
@@ -75,6 +77,7 @@ type SuuntoToken interface {
 	GetTokenByUsername(ctx context.Context, username string) (uuid.UUID, json.RawMessage, error)
 	DeleteToken(ctx context.Context, userID uuid.UUID) error
 	GetTokensForUpdate(ctx context.Context, cutoff time.Time) ([]utvsqlc.SuuntoToken, error)
+	GetDataForUpdate(ctx context.Context, cutoff time.Time) ([]utvsqlc.SuuntoToken, error)
 }
 
 // GarminData interface
@@ -96,6 +99,7 @@ type GarminToken interface {
 	GetUserIDByToken(ctx context.Context, token string) (uuid.UUID, error)
 	DeleteToken(ctx context.Context, userID uuid.UUID) error
 	GetTokensForUpdate(ctx context.Context, cutoff time.Time) ([]utvsqlc.GarminToken, error)
+	GetDataForUpdate(ctx context.Context, cutoff time.Time) ([]utvsqlc.GarminToken, error)
 }
 
 // KlabToken interface

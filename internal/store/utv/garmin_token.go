@@ -50,3 +50,8 @@ func (s *GarminTokenStore) GetTokensForUpdate(ctx context.Context, cutoff time.T
 	queries := utvsqlc.New(s.db)
 	return queries.GetGarminTokensForUpdate(ctx, cutoff)
 }
+
+func (s *GarminTokenStore) GetDataForUpdate(ctx context.Context, cutoff time.Time) ([]utvsqlc.GarminToken, error) {
+	queries := utvsqlc.New(s.db)
+	return queries.GetGarminDataForUpdate(ctx, cutoff)
+}

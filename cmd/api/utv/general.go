@@ -462,3 +462,109 @@ func (h *GeneralDataHandler) GetTokensForUpdate(w http.ResponseWriter, r *http.R
 		utils.BadRequestResponse(w, r, fmt.Errorf("invalid source: must be one of polar, oura, suunto, garmin"))
 	}
 }
+
+type DataForUpdateParams struct {
+	Source string `form:"source" validate:"required,oneof=polar oura suunto garmin"`
+	Hours  int    `form:"hours" validate:"required,min=1,max=8760"`
+}
+
+// GetDataForUpdate godoc
+//
+//	@Summary		Get data for update
+//	@Description	Returns token records where 'data_last_fetched' is older than the cutoff
+//	@Tags			UTV - General
+//	@Accept			json
+//	@Produce		json
+//	@Param			source	query	string					true	"Source (one of: 'polar', 'oura', 'suunto', 'garmin')"
+//	@Param			hours	query	int						true	"Number of hours to look back (1-8760)"
+//	@Success		200		{array}	swagger.PolarTokenInput	"List of tokens needing data update"
+//	@Success		204		"No Content: No data found"
+//	@Failure		400		{object}	swagger.ValidationErrorResponse
+//	@Failure		403		{object}	swagger.ForbiddenResponse
+//	@Failure		500		{object}	swagger.InternalServerErrorResponse
+//	@Security		BearerAuth
+//	@Router			/utv/data4update [get]
+func (h *GeneralDataHandler) GetDataForUpdate(w http.ResponseWriter, r *http.Request) {
+	if !authz.Authorize(r) {
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
+		return
+	}
+
+	if err := utils.ValidateParams(r, []string{"source", "hours"}); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	params := DataForUpdateParams{
+		Source: r.URL.Query().Get("source"),
+	}
+
+	if hoursStr := r.URL.Query().Get("hours"); hoursStr != "" {
+		hours, err := strconv.Atoi(hoursStr)
+		if err != nil {
+			utils.BadRequestResponse(w, r, fmt.Errorf("invalid hours format"))
+			return
+		}
+		params.Hours = hours
+	}
+
+	if err := utils.GetValidator().Struct(params); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	cutoff := time.Now().Add(-time.Duration(params.Hours) * time.Hour)
+
+	switch params.Source {
+	case "polar":
+		data, err := h.polarToken.GetDataForUpdate(r.Context(), cutoff)
+		if err != nil {
+			utils.InternalServerError(w, r, err)
+			return
+		}
+		if len(data) == 0 {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		utils.WriteJSON(w, http.StatusOK, data)
+
+	case "oura":
+		data, err := h.ouraToken.GetDataForUpdate(r.Context(), cutoff)
+		if err != nil {
+			utils.InternalServerError(w, r, err)
+			return
+		}
+		if len(data) == 0 {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		utils.WriteJSON(w, http.StatusOK, data)
+
+	case "suunto":
+		data, err := h.suuntoToken.GetDataForUpdate(r.Context(), cutoff)
+		if err != nil {
+			utils.InternalServerError(w, r, err)
+			return
+		}
+		if len(data) == 0 {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		utils.WriteJSON(w, http.StatusOK, data)
+
+	case "garmin":
+		data, err := h.garminToken.GetDataForUpdate(r.Context(), cutoff)
+		if err != nil {
+			utils.InternalServerError(w, r, err)
+			return
+		}
+		if len(data) == 0 {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		utils.WriteJSON(w, http.StatusOK, data)
+
+	default:
+		utils.BadRequestResponse(w, r, fmt.Errorf("invalid source: must be one of polar, oura, suunto, garmin"))
+	}
+}
