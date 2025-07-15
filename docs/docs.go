@@ -2869,7 +2869,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/utv/user-id-by-sport_id": {
+        "/utv/user-id-by-sport-id": {
             "get": {
                 "security": [
                     {

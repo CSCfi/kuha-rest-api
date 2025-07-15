@@ -2778,7 +2778,7 @@ paths:
       summary: Save or update user
       tags:
       - UTV - User
-  /utv/user-id-by-sport_id:
+  /utv/user-id-by-sport-id:
     get:
       consumes:
       - application/json

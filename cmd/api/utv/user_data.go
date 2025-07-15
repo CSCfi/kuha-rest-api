@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/DeRuina/KUHA-REST-API/internal/auth/authz"
+	"github.com/DeRuina/KUHA-REST-API/internal/logger"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/cache"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/utv"
 	"github.com/DeRuina/KUHA-REST-API/internal/utils"
@@ -27,7 +28,7 @@ type UserIDParam struct {
 }
 
 type SportIDParam struct {
-	SportID string `form:"sport_id" validate:"required"`
+	SportID string `form:"sport_id" validate:"required,numeric"`
 }
 
 type UserDataInput struct {
@@ -210,7 +211,7 @@ func (h *UserDataHandler) DeleteUserData(w http.ResponseWriter, r *http.Request)
 //	@Failure		404			{object}	swagger.NotFoundResponse
 //	@Failure		500			{object}	swagger.InternalServerErrorResponse
 //	@Security		BearerAuth
-//	@Router			/utv/user-id-by-sport_id [get]
+//	@Router			/utv/user-id-by-sport-id [get]
 func (h *UserDataHandler) GetUserIDBySportID(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
 		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
@@ -229,6 +230,8 @@ func (h *UserDataHandler) GetUserIDBySportID(w http.ResponseWriter, r *http.Requ
 		utils.BadRequestResponse(w, r, err)
 		return
 	}
+
+	logger.Logger.Warnw("Looking up sport_id", "sport_id", params.SportID)
 
 	userID, err := h.store.GetUserIDBySportID(r.Context(), params.SportID)
 	if err == sql.ErrNoRows {

@@ -27,17 +27,20 @@ var (
 	ErrMissingType     = errors.New("type is required")
 	ErrMissingSource   = errors.New("source is required")
 	ErrMissingHours    = errors.New("hours is required")
+	ErrMissingSportID  = errors.New("sport_id is required")
 
 	//ErrInvalid
-	ErrInvalidUUID       = errors.New("invalid UUID")
-	ErrInvalidDate       = errors.New("invalid date: ensure the format is YYYY-MM-DD and values are realistic")
-	ErrInvalidParameter  = errors.New("invalid parameter provided")
-	ErrInvalidDateRange  = errors.New("invalid date range")
-	ErrInvalidChoice     = errors.New("invalid choice: must be one of the allowed values")
-	ErrInvalidValue      = errors.New("invalid value provided")
-	ErrInvalidSectorCode = errors.New("invalid sector code. Allowed values: JP, NK, CC")
-	ErrInvalidDevice     = errors.New("invalid device type. Allowed values: garmin, oura, polar, suunto")
-	ErrInvalidSource     = errors.New("invalid source. Please use one of the allowed devices")
+	ErrInvalidUUID         = errors.New("invalid UUID")
+	ErrInvalidDate         = errors.New("invalid date: ensure the format is YYYY-MM-DD and values are realistic")
+	ErrInvalidParameter    = errors.New("invalid parameter provided")
+	ErrInvalidDateRange    = errors.New("invalid date range")
+	ErrInvalidChoice       = errors.New("invalid choice: must be one of the allowed values")
+	ErrInvalidValue        = errors.New("invalid value provided")
+	ErrInvalidSectorCode   = errors.New("invalid sector code. Allowed values: JP, NK, CC")
+	ErrInvalidDevice       = errors.New("invalid device type. Allowed values: garmin, oura, polar, suunto")
+	ErrInvalidSource       = errors.New("invalid source. Please use one of the allowed devices")
+	ErrInvalidSportID      = errors.New("invalid sport_id format")
+	ErrInvalidnumericValue = errors.New("value must be numeric")
 )
 
 func FormatValidationErrors(err error) map[string]string {
@@ -69,6 +72,8 @@ func FormatValidationErrors(err error) map[string]string {
 				errors["source"] = ErrMissingSource.Error()
 			case "Hours":
 				errors["hours"] = ErrMissingHours.Error()
+			case "SportID":
+				errors["sport_id"] = ErrMissingSportID.Error()
 			default:
 				errors[field] = ErrMissingGeneral.Error()
 			}
@@ -90,6 +95,14 @@ func FormatValidationErrors(err error) map[string]string {
 
 		case "datetime":
 			errors["date"] = ErrInvalidDate.Error()
+
+		case "numeric":
+			switch field {
+			case "SportID":
+				errors["sport_id"] = ErrInvalidSportID.Error()
+			default:
+				errors[field] = ErrInvalidnumericValue.Error()
+			}
 
 		default:
 			errors[field] = ErrInvalidValue.Error()

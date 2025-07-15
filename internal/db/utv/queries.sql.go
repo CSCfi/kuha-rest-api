@@ -2212,7 +2212,7 @@ func (q *Queries) GetUserData(ctx context.Context, userID uuid.UUID) (json.RawMe
 const getUserIDBySportID = `-- name: GetUserIDBySportID :one
 SELECT user_id
 FROM user_data
-WHERE (data -> 'contact_info' ->> 'sport_id') = $1
+WHERE (data -> 'contact_info' ->> 'sport_id')::text = $1
 `
 
 func (q *Queries) GetUserIDBySportID(ctx context.Context, sportID string) (uuid.UUID, error) {
