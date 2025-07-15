@@ -27,6 +27,7 @@ type UTV interface {
 	SuuntoToken() utv.SuuntoToken
 	OuraToken() utv.OuraToken
 	KlabToken() utv.KlabToken
+	UserData() utv.UserData
 }
 
 type Auth interface {

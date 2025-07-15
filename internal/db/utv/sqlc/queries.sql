@@ -541,3 +541,23 @@ FROM suunto_tokens
 WHERE (data ->> 'data_last_fetched') IS NULL
    OR (data ->> 'data_last_fetched')::timestamp < $1::timestamp;
 
+-- name: GetUserData :one
+SELECT data
+FROM user_data
+WHERE user_id = $1;
+
+-- name: UpsertUserData :exec
+INSERT INTO user_data(user_id, data)
+VALUES ($1, $2)
+ON CONFLICT (user_id)
+DO UPDATE SET data = EXCLUDED.data;
+
+-- name: DeleteUserData :exec
+DELETE FROM user_data
+WHERE user_id = $1;
+
+-- name: GetUserIDBySportID :one
+SELECT user_id
+FROM user_data
+WHERE (data -> 'contact_info' ->> 'sport_id')::text = $1;
+

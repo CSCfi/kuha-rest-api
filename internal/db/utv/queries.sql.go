@@ -2185,3 +2185,56 @@ func (q *Queries) GetSuuntoDataForUpdate(ctx context.Context, dollar_1 time.Time
 	}
 	return items, nil
 }
+
+const deleteUserData = `-- name: DeleteUserData :exec
+DELETE FROM user_data
+WHERE user_id = $1
+`
+
+func (q *Queries) DeleteUserData(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.exec(ctx, q.deleteUserDataStmt, deleteUserData, userID)
+	return err
+}
+
+const getUserData = `-- name: GetUserData :one
+SELECT data
+FROM user_data
+WHERE user_id = $1
+`
+
+func (q *Queries) GetUserData(ctx context.Context, userID uuid.UUID) (json.RawMessage, error) {
+	row := q.queryRow(ctx, q.getUserDataStmt, getUserData, userID)
+	var data json.RawMessage
+	err := row.Scan(&data)
+	return data, err
+}
+
+const getUserIDBySportID = `-- name: GetUserIDBySportID :one
+SELECT user_id
+FROM user_data
+WHERE (data -> 'contact_info' ->> 'sport_id') = $1
+`
+
+func (q *Queries) GetUserIDBySportID(ctx context.Context, sportID string) (uuid.UUID, error) {
+	row := q.queryRow(ctx, q.getUserIDBySportIDStmt, getUserIDBySportID, sportID)
+	var user_id uuid.UUID
+	err := row.Scan(&user_id)
+	return user_id, err
+}
+
+const upsertUserData = `-- name: UpsertUserData :exec
+INSERT INTO user_data(user_id, data)
+VALUES ($1, $2)
+ON CONFLICT (user_id)
+DO UPDATE SET data = EXCLUDED.data
+`
+
+type UpsertUserDataParams struct {
+	UserID uuid.UUID
+	Data   json.RawMessage
+}
+
+func (q *Queries) UpsertUserData(ctx context.Context, arg UpsertUserDataParams) error {
+	_, err := q.exec(ctx, q.upsertUserDataStmt, upsertUserData, arg.UserID, arg.Data)
+	return err
+}

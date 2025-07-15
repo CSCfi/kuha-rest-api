@@ -2,6 +2,9 @@ package utils
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -13,12 +16,20 @@ func WriteJSON(w http.ResponseWriter, status int, data any) error {
 }
 
 func ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
-	maxBytes := 1_048_578 // 1mb
+	maxBytes := 1_048_578 // 1MB
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
-	return decoder.Decode(data)
+
+	if err := decoder.Decode(data); err != nil {
+		if errors.Is(err, io.EOF) {
+			return fmt.Errorf("request body is required")
+		}
+		return err
+	}
+
+	return nil
 }
 
 func WriteJSONError(w http.ResponseWriter, statusCode int, message interface{}) {

@@ -358,7 +358,41 @@ type KlabTokenInput struct {
 	Details KlabTokenDetails `json:"details"`
 }
 
-type TokensForUpdateResponse struct {
-	UserID string                 `json:"user_id" example:"dcabe48a-3578-4743-93ba-001409c82a82"`
-	Data   map[string]interface{} `json:"data" swaggertype:"object" example:"{\"token_last_refreshed\":\"2025-02-21T13:02:00Z\"}"`
+type UserDataDetails struct {
+	ContactInfo struct {
+		SportID            int    `json:"sport_id" example:"87432910"`
+		FirstName          string `json:"first_name" example:"Arttu"`
+		MiddleName         string `json:"middle_name" example:"Ilmari"`
+		LastName           string `json:"last_name" example:"Virtanen"`
+		NickName           string `json:"nick_name" example:"Artzi"`
+		Phone              string `json:"phone" example:"+358401234567"`
+		MobilePhone        string `json:"mobile_phone" example:"+358451112233"`
+		Address            string `json:"address" example:"Keskuskatu 12 A, 00100 Helsinki"`
+		PhoneVisible       bool   `json:"phone_visible" example:"false"`
+		MobilePhoneVisible bool   `json:"mobile_phone_visible" example:"false"`
+		AddressVisible     bool   `json:"address_visible" example:"true"`
+		SportIDVisible     bool   `json:"sport_id_visible" example:"false"`
+		FirstNameVisible   bool   `json:"first_name_visible" example:"true"`
+		LastNameVisible    bool   `json:"last_name_visible" example:"true"`
+		MiddleNameVisible  bool   `json:"middle_name_visible" example:"false"`
+		FirstNameRequired  bool   `json:"first_name_required" example:"true"`
+		LastNameRequired   bool   `json:"last_name_required" example:"true"`
+		NickNameRequired   bool   `json:"nick_name_required" example:"false"`
+	} `json:"contact_info"`
+}
+
+type UserDataInput struct {
+	Data UserDataDetails `json:"data"`
+}
+
+type UserDataResponse struct {
+	Data UserDataDetails `json:"data"`
+}
+
+type UserIDResponse struct {
+	UserID string `json:"user_id" example:"dcabe48a-3578-4743-93ba-001409c82a82"`
+}
+
+type NotFoundResponse struct {
+	Error string `json:"error" example:"resource not found"`
 }

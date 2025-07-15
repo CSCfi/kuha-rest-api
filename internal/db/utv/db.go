@@ -72,6 +72,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.deleteUserStmt, err = db.PrepareContext(ctx, deleteUser); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteUser: %w", err)
 	}
+	if q.deleteUserDataStmt, err = db.PrepareContext(ctx, deleteUserData); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteUserData: %w", err)
+	}
 	if q.garminTokenExistsStmt, err = db.PrepareContext(ctx, garminTokenExists); err != nil {
 		return nil, fmt.Errorf("error preparing query GarminTokenExists: %w", err)
 	}
@@ -222,6 +225,12 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getUniqueCoachtechDataTypesStmt, err = db.PrepareContext(ctx, getUniqueCoachtechDataTypes); err != nil {
 		return nil, fmt.Errorf("error preparing query GetUniqueCoachtechDataTypes: %w", err)
 	}
+	if q.getUserDataStmt, err = db.PrepareContext(ctx, getUserData); err != nil {
+		return nil, fmt.Errorf("error preparing query GetUserData: %w", err)
+	}
+	if q.getUserIDBySportIDStmt, err = db.PrepareContext(ctx, getUserIDBySportID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetUserIDBySportID: %w", err)
+	}
 	if q.insertGarminDataStmt, err = db.PrepareContext(ctx, insertGarminData); err != nil {
 		return nil, fmt.Errorf("error preparing query InsertGarminData: %w", err)
 	}
@@ -281,6 +290,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.upsertSuuntoTokenStmt, err = db.PrepareContext(ctx, upsertSuuntoToken); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertSuuntoToken: %w", err)
+	}
+	if q.upsertUserDataStmt, err = db.PrepareContext(ctx, upsertUserData); err != nil {
+		return nil, fmt.Errorf("error preparing query UpsertUserData: %w", err)
 	}
 	return &q, nil
 }
@@ -365,6 +377,11 @@ func (q *Queries) Close() error {
 	if q.deleteUserStmt != nil {
 		if cerr := q.deleteUserStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing deleteUserStmt: %w", cerr)
+		}
+	}
+	if q.deleteUserDataStmt != nil {
+		if cerr := q.deleteUserDataStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteUserDataStmt: %w", cerr)
 		}
 	}
 	if q.garminTokenExistsStmt != nil {
@@ -617,6 +634,16 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getUniqueCoachtechDataTypesStmt: %w", cerr)
 		}
 	}
+	if q.getUserDataStmt != nil {
+		if cerr := q.getUserDataStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getUserDataStmt: %w", cerr)
+		}
+	}
+	if q.getUserIDBySportIDStmt != nil {
+		if cerr := q.getUserIDBySportIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getUserIDBySportIDStmt: %w", cerr)
+		}
+	}
 	if q.insertGarminDataStmt != nil {
 		if cerr := q.insertGarminDataStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing insertGarminDataStmt: %w", cerr)
@@ -717,6 +744,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing upsertSuuntoTokenStmt: %w", cerr)
 		}
 	}
+	if q.upsertUserDataStmt != nil {
+		if cerr := q.upsertUserDataStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing upsertUserDataStmt: %w", cerr)
+		}
+	}
 	return err
 }
 
@@ -772,6 +804,7 @@ type Queries struct {
 	deletePolarTokenStmt              *sql.Stmt
 	deleteSuuntoTokenStmt             *sql.Stmt
 	deleteUserStmt                    *sql.Stmt
+	deleteUserDataStmt                *sql.Stmt
 	garminTokenExistsStmt             *sql.Stmt
 	getAllDataForDateGarminStmt       *sql.Stmt
 	getAllDataForDateOuraStmt         *sql.Stmt
@@ -822,6 +855,8 @@ type Queries struct {
 	getTypesFromPolarDataStmt         *sql.Stmt
 	getTypesFromSuuntoDataStmt        *sql.Stmt
 	getUniqueCoachtechDataTypesStmt   *sql.Stmt
+	getUserDataStmt                   *sql.Stmt
+	getUserIDBySportIDStmt            *sql.Stmt
 	insertGarminDataStmt              *sql.Stmt
 	insertOuraDataStmt                *sql.Stmt
 	insertPolarDataStmt               *sql.Stmt
@@ -842,6 +877,7 @@ type Queries struct {
 	upsertOuraTokenStmt               *sql.Stmt
 	upsertPolarTokenStmt              *sql.Stmt
 	upsertSuuntoTokenStmt             *sql.Stmt
+	upsertUserDataStmt                *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
@@ -864,6 +900,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		deletePolarTokenStmt:              q.deletePolarTokenStmt,
 		deleteSuuntoTokenStmt:             q.deleteSuuntoTokenStmt,
 		deleteUserStmt:                    q.deleteUserStmt,
+		deleteUserDataStmt:                q.deleteUserDataStmt,
 		garminTokenExistsStmt:             q.garminTokenExistsStmt,
 		getAllDataForDateGarminStmt:       q.getAllDataForDateGarminStmt,
 		getAllDataForDateOuraStmt:         q.getAllDataForDateOuraStmt,
@@ -914,6 +951,8 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getTypesFromPolarDataStmt:         q.getTypesFromPolarDataStmt,
 		getTypesFromSuuntoDataStmt:        q.getTypesFromSuuntoDataStmt,
 		getUniqueCoachtechDataTypesStmt:   q.getUniqueCoachtechDataTypesStmt,
+		getUserDataStmt:                   q.getUserDataStmt,
+		getUserIDBySportIDStmt:            q.getUserIDBySportIDStmt,
 		insertGarminDataStmt:              q.insertGarminDataStmt,
 		insertOuraDataStmt:                q.insertOuraDataStmt,
 		insertPolarDataStmt:               q.insertPolarDataStmt,
@@ -934,5 +973,6 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		upsertOuraTokenStmt:               q.upsertOuraTokenStmt,
 		upsertPolarTokenStmt:              q.upsertPolarTokenStmt,
 		upsertSuuntoTokenStmt:             q.upsertSuuntoTokenStmt,
+		upsertUserDataStmt:                q.upsertUserDataStmt,
 	}
 }

@@ -361,6 +361,12 @@ definitions:
           type: string
         type: array
     type: object
+  swagger.NotFoundResponse:
+    properties:
+      error:
+        example: resource not found
+        type: string
+    type: object
   swagger.OuraDailyExample:
     properties:
       day:
@@ -818,6 +824,82 @@ definitions:
     properties:
       error:
         example: invalid date range
+        type: string
+    type: object
+  swagger.UserDataDetails:
+    properties:
+      contact_info:
+        properties:
+          address:
+            example: Keskuskatu 12 A, 00100 Helsinki
+            type: string
+          address_visible:
+            example: true
+            type: boolean
+          first_name:
+            example: Arttu
+            type: string
+          first_name_required:
+            example: true
+            type: boolean
+          first_name_visible:
+            example: true
+            type: boolean
+          last_name:
+            example: Virtanen
+            type: string
+          last_name_required:
+            example: true
+            type: boolean
+          last_name_visible:
+            example: true
+            type: boolean
+          middle_name:
+            example: Ilmari
+            type: string
+          middle_name_visible:
+            example: false
+            type: boolean
+          mobile_phone:
+            example: "+358451112233"
+            type: string
+          mobile_phone_visible:
+            example: false
+            type: boolean
+          nick_name:
+            example: Artzi
+            type: string
+          nick_name_required:
+            example: false
+            type: boolean
+          phone:
+            example: "+358401234567"
+            type: string
+          phone_visible:
+            example: false
+            type: boolean
+          sport_id:
+            example: 87432910
+            type: integer
+          sport_id_visible:
+            example: false
+            type: boolean
+        type: object
+    type: object
+  swagger.UserDataInput:
+    properties:
+      data:
+        $ref: '#/definitions/swagger.UserDataDetails'
+    type: object
+  swagger.UserDataResponse:
+    properties:
+      data:
+        $ref: '#/definitions/swagger.UserDataDetails'
+    type: object
+  swagger.UserIDResponse:
+    properties:
+      user_id:
+        example: dcabe48a-3578-4743-93ba-001409c82a82
         type: string
     type: object
   swagger.ValidationError:
@@ -2591,6 +2673,150 @@ paths:
       summary: Get tokens for update
       tags:
       - UTV - General
+  /utv/user:
+    delete:
+      description: Removes a user
+      parameters:
+      - description: User ID (UUID)
+        in: query
+        name: user_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a user
+      tags:
+      - UTV - User
+    get:
+      consumes:
+      - application/json
+      description: Returns JSON user data for a given UTV user ID
+      parameters:
+      - description: User ID (UUID)
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.UserDataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user
+      tags:
+      - UTV - User
+    post:
+      consumes:
+      - application/json
+      description: Upserts the user data JSON blob for a specific user
+      parameters:
+      - description: User ID (UUID)
+        in: query
+        name: user_id
+        required: true
+        type: string
+      - description: User data input
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.UserDataInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Save or update user
+      tags:
+      - UTV - User
+  /utv/user-id-by-sport_id:
+    get:
+      consumes:
+      - application/json
+      description: Find user_id from sport_id
+      parameters:
+      - description: Sport ID
+        in: query
+        name: sport_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.UserIDResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get UTV user ID by sport ID
+      tags:
+      - UTV - User
 securityDefinitions:
   BearerAuth:
     description: 'Use format: Bearer your_JWT_here'

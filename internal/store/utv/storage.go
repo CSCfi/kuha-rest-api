@@ -109,6 +109,14 @@ type KlabToken interface {
 	DeleteToken(ctx context.Context, userID uuid.UUID) error
 }
 
+// UserData interface
+type UserData interface {
+	GetUserData(ctx context.Context, userID uuid.UUID) (json.RawMessage, error)
+	UpsertUserData(ctx context.Context, userID uuid.UUID, data json.RawMessage) error
+	DeleteUserData(ctx context.Context, userID uuid.UUID) error
+	GetUserIDBySportID(ctx context.Context, sportID string) (uuid.UUID, error)
+}
+
 // UTVStorage struct to hold table-specific storage
 type UTVStorage struct {
 	db          *sql.DB
@@ -121,6 +129,7 @@ type UTVStorage struct {
 	suuntoToken SuuntoToken
 	ouraToken   OuraToken
 	klabToken   KlabToken
+	userData    UserData
 }
 
 // Ping method
@@ -165,6 +174,10 @@ func (s *UTVStorage) KlabToken() KlabToken {
 	return s.klabToken
 }
 
+func (s *UTVStorage) UserData() UserData {
+	return s.userData
+}
+
 // Storage for UTV database tables
 func NewUTVStorage(db *sql.DB) *UTVStorage {
 	return &UTVStorage{
@@ -178,5 +191,6 @@ func NewUTVStorage(db *sql.DB) *UTVStorage {
 		suuntoToken: &SuuntoTokenStore{db: db},
 		ouraToken:   &OuraTokenStore{db: db},
 		klabToken:   &KlabTokenStore{db: db},
+		userData:    &UserDataStore{db: db},
 	}
 }

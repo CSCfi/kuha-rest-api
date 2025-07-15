@@ -2704,6 +2704,231 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/utv/user": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns JSON user data for a given UTV user ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UTV - User"
+                ],
+                "summary": "Get user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID (UUID)",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UserDataResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upserts the user data JSON blob for a specific user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UTV - User"
+                ],
+                "summary": "Save or update user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID (UUID)",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "User data input",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UserDataInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Removes a user",
+                "tags": [
+                    "UTV - User"
+                ],
+                "summary": "Delete a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID (UUID)",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/utv/user-id-by-sport_id": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find user_id from sport_id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UTV - User"
+                ],
+                "summary": "Get UTV user ID by sport ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Sport ID",
+                        "name": "sport_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UserIDResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -3229,6 +3454,15 @@ const docTemplate = `{
                         "NOR",
                         "GER"
                     ]
+                }
+            }
+        },
+        "swagger.NotFoundResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "resource not found"
                 }
             }
         },
@@ -3896,6 +4130,113 @@ const docTemplate = `{
                 "error": {
                     "type": "string",
                     "example": "invalid date range"
+                }
+            }
+        },
+        "swagger.UserDataDetails": {
+            "type": "object",
+            "properties": {
+                "contact_info": {
+                    "type": "object",
+                    "properties": {
+                        "address": {
+                            "type": "string",
+                            "example": "Keskuskatu 12 A, 00100 Helsinki"
+                        },
+                        "address_visible": {
+                            "type": "boolean",
+                            "example": true
+                        },
+                        "first_name": {
+                            "type": "string",
+                            "example": "Arttu"
+                        },
+                        "first_name_required": {
+                            "type": "boolean",
+                            "example": true
+                        },
+                        "first_name_visible": {
+                            "type": "boolean",
+                            "example": true
+                        },
+                        "last_name": {
+                            "type": "string",
+                            "example": "Virtanen"
+                        },
+                        "last_name_required": {
+                            "type": "boolean",
+                            "example": true
+                        },
+                        "last_name_visible": {
+                            "type": "boolean",
+                            "example": true
+                        },
+                        "middle_name": {
+                            "type": "string",
+                            "example": "Ilmari"
+                        },
+                        "middle_name_visible": {
+                            "type": "boolean",
+                            "example": false
+                        },
+                        "mobile_phone": {
+                            "type": "string",
+                            "example": "+358451112233"
+                        },
+                        "mobile_phone_visible": {
+                            "type": "boolean",
+                            "example": false
+                        },
+                        "nick_name": {
+                            "type": "string",
+                            "example": "Artzi"
+                        },
+                        "nick_name_required": {
+                            "type": "boolean",
+                            "example": false
+                        },
+                        "phone": {
+                            "type": "string",
+                            "example": "+358401234567"
+                        },
+                        "phone_visible": {
+                            "type": "boolean",
+                            "example": false
+                        },
+                        "sport_id": {
+                            "type": "integer",
+                            "example": 87432910
+                        },
+                        "sport_id_visible": {
+                            "type": "boolean",
+                            "example": false
+                        }
+                    }
+                }
+            }
+        },
+        "swagger.UserDataInput": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/swagger.UserDataDetails"
+                }
+            }
+        },
+        "swagger.UserDataResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/swagger.UserDataDetails"
+                }
+            }
+        },
+        "swagger.UserIDResponse": {
+            "type": "object",
+            "properties": {
+                "user_id": {
+                    "type": "string",
+                    "example": "dcabe48a-3578-4743-93ba-001409c82a82"
                 }
             }
         },

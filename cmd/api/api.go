@@ -162,6 +162,7 @@ func (app *api) mount() http.Handler {
 				suuntoTokenHandler := utvapi.NewSuuntoTokenHandler(app.store.UTV.SuuntoToken(), app.cacheStorage)
 				garminTokenHandler := utvapi.NewGarminTokenHandler(app.store.UTV.GarminToken(), app.cacheStorage)
 				klabTokenHandler := utvapi.NewKlabTokenHandler(app.store.UTV.KlabToken(), app.cacheStorage)
+				userDataHandler := utvapi.NewUserDataHandler(app.store.UTV.UserData(), app.cacheStorage)
 
 				// General routes
 				r.Get("/latest", generalHandler.GetLatestData)
@@ -169,6 +170,12 @@ func (app *api) mount() http.Handler {
 				r.Delete("/disconnect", generalHandler.Disconnect)
 				r.Get("/tokens4update", generalHandler.GetTokensForUpdate)
 				r.Get("/data4update", generalHandler.GetDataForUpdate)
+
+				// User data routes
+				r.Get("/user", userDataHandler.GetUserData)
+				r.Post("/user", userDataHandler.UpsertUserData)
+				r.Delete("/user", userDataHandler.DeleteUserData)
+				r.Get("/user-id-by-sport-id", userDataHandler.GetUserIDBySportID)
 
 				// Klab routes
 				r.Route("/klab", func(r chi.Router) {
