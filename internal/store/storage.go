@@ -7,6 +7,7 @@ import (
 	"github.com/DeRuina/KUHA-REST-API/internal/db"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/auth"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/fis"
+	"github.com/DeRuina/KUHA-REST-API/internal/store/tietoevry"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/utv"
 )
 
@@ -37,19 +38,25 @@ type Auth interface {
 	RefreshToken(ctx context.Context, refreshToken, ip, userAgent string) (string, error)
 }
 
+type Tietoevry interface {
+	Ping(ctx context.Context) error
+}
+
 // Storage struct for multiple databases
 type Storage struct {
-	FIS  FIS
-	UTV  UTV
-	Auth Auth
+	FIS       FIS
+	UTV       UTV
+	Auth      Auth
+	Tietoevry Tietoevry
 }
 
 // Initializes storage for multiple databases
 func NewStorage(databases *db.Database) *Storage {
 	return &Storage{
-		FIS:  fis.NewFISStorage(databases.FIS),
-		UTV:  utv.NewUTVStorage(databases.UTV),
-		Auth: auth.NewAuthStorage(databases.Auth),
+		FIS:       fis.NewFISStorage(databases.FIS),
+		UTV:       utv.NewUTVStorage(databases.UTV),
+		Auth:      auth.NewAuthStorage(databases.Auth),
+		Tietoevry: tietoevry.NewTietoevryStorage(databases.Tietoevry),
 	}
 }
 

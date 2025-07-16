@@ -33,12 +33,13 @@ func main() {
 		addr:   env.GetString("ADDR", ":8080"),
 		apiURL: env.GetString("EXTERNAL_URL", "localhost:8080"),
 		db: dbConfig{
-			fisAddr:      env.GetString("FIS_DB_ADDR", ""),
-			utvAddr:      env.GetString("UTV_DB_ADDR", ""),
-			authAddr:     env.GetString("AUTH_DB_ADDR", ""),
-			maxOpenConns: env.GetInt("DB_MAX_OPEN_CONNS", 30),
-			maxIdleConns: env.GetInt("DB_MAX_IDLE_CONNS", 30),
-			maxIdleTime:  env.GetString("DB_MAX_IDLE_TIME", "15m"),
+			fisAddr:       env.GetString("FIS_DB_ADDR", ""),
+			utvAddr:       env.GetString("UTV_DB_ADDR", ""),
+			authAddr:      env.GetString("AUTH_DB_ADDR", ""),
+			tietoevryAddr: env.GetString("TIETOEVRY_DB_ADDR", ""),
+			maxOpenConns:  env.GetInt("DB_MAX_OPEN_CONNS", 30),
+			maxIdleConns:  env.GetInt("DB_MAX_IDLE_CONNS", 30),
+			maxIdleTime:   env.GetString("DB_MAX_IDLE_TIME", "15m"),
 		},
 		redisCfg: redisConfig{
 			addr:    env.GetString("REDIS_ADDR", "localhost:6379"),
@@ -96,7 +97,7 @@ func main() {
 	}
 
 	// Database
-	databases, err := db.New(cfg.db.fisAddr, cfg.db.utvAddr, cfg.db.authAddr, cfg.db.maxOpenConns, cfg.db.maxIdleConns, cfg.db.maxIdleTime)
+	databases, err := db.New(cfg.db.fisAddr, cfg.db.utvAddr, cfg.db.authAddr, cfg.db.tietoevryAddr, cfg.db.maxOpenConns, cfg.db.maxIdleConns, cfg.db.maxIdleTime)
 	if err != nil {
 		logger.Logger.Fatal(err)
 	}
@@ -104,6 +105,7 @@ func main() {
 	defer databases.FIS.Close()
 	defer databases.UTV.Close()
 	defer databases.Auth.Close()
+	defer databases.Tietoevry.Close()
 	logger.Logger.Info("database connection pool established")
 
 	// Authentication
@@ -141,6 +143,12 @@ func main() {
 	expvar.Publish("database_auth", expvar.Func(func() any {
 		if databases.Auth != nil {
 			return databases.Auth.Stats()
+		}
+		return nil
+	}))
+	expvar.Publish("database_tietoevry", expvar.Func(func() any {
+		if databases.Tietoevry != nil {
+			return databases.Tietoevry.Stats()
 		}
 		return nil
 	}))

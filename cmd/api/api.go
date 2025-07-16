@@ -70,12 +70,13 @@ type jwtConfig struct {
 }
 
 type dbConfig struct {
-	fisAddr      string
-	utvAddr      string
-	authAddr     string
-	maxOpenConns int
-	maxIdleConns int
-	maxIdleTime  string
+	fisAddr       string
+	utvAddr       string
+	authAddr      string
+	tietoevryAddr string
+	maxOpenConns  int
+	maxIdleConns  int
+	maxIdleTime   string
 }
 
 func (app *api) mount() http.Handler {

@@ -10,9 +10,10 @@ import (
 
 // Database struct to hold multiple connections
 type Database struct {
-	FIS  *sql.DB
-	UTV  *sql.DB
-	Auth *sql.DB
+	FIS       *sql.DB
+	UTV       *sql.DB
+	Auth      *sql.DB
+	Tietoevry *sql.DB
 }
 
 func NewSingleDB(addr string, maxOpenConns, maxIdleConns int, maxIdleTime string) (*sql.DB, error) {
@@ -24,7 +25,7 @@ func NewSingleDB(addr string, maxOpenConns, maxIdleConns int, maxIdleTime string
 	return db, nil
 }
 
-func New(fisAddr, utvAddr, authAddr string, maxOpenConns, maxIdleConns int, maxIdleTime string) (*Database, error) {
+func New(fisAddr, utvAddr, authAddr, tietoevryAddr string, maxOpenConns, maxIdleConns int, maxIdleTime string) (*Database, error) {
 	fisDB, err := connectDB(fisAddr, maxOpenConns, maxIdleConns, maxIdleTime)
 	if err != nil {
 		return nil, err
@@ -40,7 +41,12 @@ func New(fisAddr, utvAddr, authAddr string, maxOpenConns, maxIdleConns int, maxI
 		return nil, err
 	}
 
-	return &Database{FIS: fisDB, UTV: utvDB, Auth: authDB}, nil
+	tietoevryDB, err := connectDB(tietoevryAddr, maxOpenConns, maxIdleConns, maxIdleTime)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Database{FIS: fisDB, UTV: utvDB, Auth: authDB, Tietoevry: tietoevryDB}, nil
 }
 
 func connectDB(addr string, maxOpenConns, maxIdleConns int, maxIdleTime string) (*sql.DB, error) {
