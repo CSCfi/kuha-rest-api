@@ -237,6 +237,12 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getUserIDBySportIDStmt, err = db.PrepareContext(ctx, getUserIDBySportID); err != nil {
 		return nil, fmt.Errorf("error preparing query GetUserIDBySportID: %w", err)
 	}
+	if q.insertCoachtechDataStmt, err = db.PrepareContext(ctx, insertCoachtechData); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertCoachtechData: %w", err)
+	}
+	if q.insertCoachtechIDStmt, err = db.PrepareContext(ctx, insertCoachtechID); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertCoachtechID: %w", err)
+	}
 	if q.insertGarminDataStmt, err = db.PrepareContext(ctx, insertGarminData); err != nil {
 		return nil, fmt.Errorf("error preparing query InsertGarminData: %w", err)
 	}
@@ -660,6 +666,16 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getUserIDBySportIDStmt: %w", cerr)
 		}
 	}
+	if q.insertCoachtechDataStmt != nil {
+		if cerr := q.insertCoachtechDataStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertCoachtechDataStmt: %w", cerr)
+		}
+	}
+	if q.insertCoachtechIDStmt != nil {
+		if cerr := q.insertCoachtechIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertCoachtechIDStmt: %w", cerr)
+		}
+	}
 	if q.insertGarminDataStmt != nil {
 		if cerr := q.insertGarminDataStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing insertGarminDataStmt: %w", cerr)
@@ -875,6 +891,8 @@ type Queries struct {
 	getUniqueCoachtechDataTypesStmt   *sql.Stmt
 	getUserDataStmt                   *sql.Stmt
 	getUserIDBySportIDStmt            *sql.Stmt
+	insertCoachtechDataStmt           *sql.Stmt
+	insertCoachtechIDStmt             *sql.Stmt
 	insertGarminDataStmt              *sql.Stmt
 	insertOuraDataStmt                *sql.Stmt
 	insertPolarDataStmt               *sql.Stmt
@@ -973,6 +991,8 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getUniqueCoachtechDataTypesStmt:   q.getUniqueCoachtechDataTypesStmt,
 		getUserDataStmt:                   q.getUserDataStmt,
 		getUserIDBySportIDStmt:            q.getUserIDBySportIDStmt,
+		insertCoachtechDataStmt:           q.insertCoachtechDataStmt,
+		insertCoachtechIDStmt:             q.insertCoachtechIDStmt,
 		insertGarminDataStmt:              q.insertGarminDataStmt,
 		insertOuraDataStmt:                q.insertOuraDataStmt,
 		insertPolarDataStmt:               q.insertPolarDataStmt,

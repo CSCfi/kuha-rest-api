@@ -42,3 +42,27 @@ func (s *CoachtechDataStore) GetData(ctx context.Context, userID uuid.UUID, afte
 
 	return data, nil
 }
+
+func (s *CoachtechDataStore) InsertCoachtechID(ctx context.Context, userID uuid.UUID, coachtechID int32) error {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	queries := utvsqlc.New(s.db)
+	return queries.InsertCoachtechID(ctx, utvsqlc.InsertCoachtechIDParams{
+		UserID:      userID,
+		CoachtechID: coachtechID,
+	})
+}
+
+func (s *CoachtechDataStore) InsertCoachtechData(ctx context.Context, coachtechID int32, summaryDate time.Time, testID string, data json.RawMessage) error {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	queries := utvsqlc.New(s.db)
+	return queries.InsertCoachtechData(ctx, utvsqlc.InsertCoachtechDataParams{
+		CoachtechID: coachtechID,
+		SummaryDate: summaryDate,
+		TestID:      testID,
+		Data:        data,
+	})
+}

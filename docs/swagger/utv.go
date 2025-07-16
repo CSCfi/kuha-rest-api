@@ -400,3 +400,19 @@ type NotFoundResponse struct {
 type CoachtechStatusResponse struct {
 	Data bool `json:"data" example:"true"`
 }
+
+type CoachtechData struct {
+	Example  string `json:"example" example:"example_data"`
+	Example1 string `json:"example1" example:"example_data_1"`
+	Example2 string `json:"example2" example:"example_data_2"`
+	Example3 string `json:"example3" example:"example_data_3"`
+	Example4 string `json:"example4" example:"example_data_4"`
+}
+
+type CoachtechInsertInput struct {
+	UserID      string        `json:"user_id" example:"1c2f6ad2-dc8c-4c44-85e2-381d70b093ef"`
+	CoachtechID int32         `json:"coachtech_id" example:"123"`
+	SummaryDate string        `json:"summary_date" example:"2025-07-14"`
+	TestID      string        `json:"test_id" example:"endurance_test_1"`
+	Data        CoachtechData `json:"data"`
+}

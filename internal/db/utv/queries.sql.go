@@ -2299,3 +2299,42 @@ func (q *Queries) GetCoachtechStatus(ctx context.Context, userID uuid.UUID) (boo
 	err := row.Scan(&has_data)
 	return has_data, err
 }
+
+const insertCoachtechData = `-- name: InsertCoachtechData :exec
+INSERT INTO coachtech_data (coachtech_id, summary_date, test_id, data)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT DO NOTHING
+`
+
+type InsertCoachtechDataParams struct {
+	CoachtechID int32
+	SummaryDate time.Time
+	TestID      string
+	Data        json.RawMessage
+}
+
+func (q *Queries) InsertCoachtechData(ctx context.Context, arg InsertCoachtechDataParams) error {
+	_, err := q.exec(ctx, q.insertCoachtechDataStmt, insertCoachtechData,
+		arg.CoachtechID,
+		arg.SummaryDate,
+		arg.TestID,
+		arg.Data,
+	)
+	return err
+}
+
+const insertCoachtechID = `-- name: InsertCoachtechID :exec
+INSERT INTO coachtech_ids (user_id, coachtech_id)
+VALUES ($1, $2)
+ON CONFLICT (user_id) DO NOTHING
+`
+
+type InsertCoachtechIDParams struct {
+	UserID      uuid.UUID
+	CoachtechID int32
+}
+
+func (q *Queries) InsertCoachtechID(ctx context.Context, arg InsertCoachtechIDParams) error {
+	_, err := q.exec(ctx, q.insertCoachtechIDStmt, insertCoachtechID, arg.UserID, arg.CoachtechID)
+	return err
+}

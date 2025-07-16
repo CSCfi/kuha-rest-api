@@ -584,4 +584,13 @@ AND ($2::date IS NULL OR summary_date >= $2)
 AND ($3::date IS NULL OR summary_date <= $3)
 ORDER BY summary_date DESC;
 
+-- name: InsertCoachtechID :exec
+INSERT INTO coachtech_ids (user_id, coachtech_id)
+VALUES ($1, $2)
+ON CONFLICT (user_id) DO NOTHING;
+
+-- name: InsertCoachtechData :exec
+INSERT INTO coachtech_data (coachtech_id, summary_date, test_id, data)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT DO NOTHING;
 

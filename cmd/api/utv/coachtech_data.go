@@ -1,8 +1,10 @@
 package utvapi
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/DeRuina/KUHA-REST-API/internal/auth/authz"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/cache"
@@ -154,4 +156,68 @@ func (h *CoachtechDataHandler) GetData(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusOK, data)
+}
+
+type CoachtechInsertInput struct {
+	UserID      string          `json:"user_id" validate:"required,uuid4"`
+	CoachtechID int32           `json:"coachtech_id" validate:"required"`
+	SummaryDate string          `json:"summary_date" validate:"required,datetime=2006-01-02"`
+	TestID      string          `json:"test_id" validate:"required"`
+	Data        json.RawMessage `json:"data" validate:"required"`
+}
+
+// InsertCoachtechData godoc
+//
+//	@Summary		Insert Coachtech data
+//	@Description	Adds a Coachtech ID and corresponding data for a user
+//	@Tags			UTV - Coachtech
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body	swagger.CoachtechInsertInput	true	"Coachtech data input"
+//	@Success		201		"Created"
+//	@Failure		400		{object}	swagger.ValidationErrorResponse
+//	@Failure		403		{object}	swagger.ForbiddenResponse
+//	@Failure		500		{object}	swagger.InternalServerErrorResponse
+//	@Security		BearerAuth
+//	@Router			/utv/coachtech/insert [post]
+func (h *CoachtechDataHandler) Insert(w http.ResponseWriter, r *http.Request) {
+	if !authz.Authorize(r) {
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
+		return
+	}
+
+	var input CoachtechInsertInput
+	if err := utils.ReadJSON(w, r, &input); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	if err := utils.GetValidator().Struct(input); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	userID, err := utils.ParseUUID(input.UserID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	date, err := time.Parse("2006-01-02", input.SummaryDate)
+	if err != nil {
+		utils.BadRequestResponse(w, r, fmt.Errorf("invalid date format"))
+		return
+	}
+
+	if err := h.store.InsertCoachtechID(r.Context(), userID, input.CoachtechID); err != nil {
+		utils.InternalServerError(w, r, err)
+		return
+	}
+
+	if err := h.store.InsertCoachtechData(r.Context(), input.CoachtechID, date, input.TestID, input.Data); err != nil {
+		utils.InternalServerError(w, r, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }
