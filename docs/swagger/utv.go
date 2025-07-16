@@ -396,3 +396,7 @@ type UserIDResponse struct {
 type NotFoundResponse struct {
 	Error string `json:"error" example:"resource not found"`
 }
+
+type CoachtechStatusResponse struct {
+	Data bool `json:"data" example:"true"`
+}

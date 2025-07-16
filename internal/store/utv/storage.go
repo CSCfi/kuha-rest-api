@@ -109,6 +109,12 @@ type KlabToken interface {
 	DeleteToken(ctx context.Context, userID uuid.UUID) error
 }
 
+// CoachtechData interface
+type CoachtechData interface {
+	GetStatus(ctx context.Context, userID uuid.UUID) (bool, error)
+	GetData(ctx context.Context, userID string, afterStr, beforeStr *string) ([]json.RawMessage, error)
+}
+
 // UserData interface
 type UserData interface {
 	GetUserData(ctx context.Context, userID uuid.UUID) (json.RawMessage, error)
@@ -129,6 +135,7 @@ type UTVStorage struct {
 	suuntoToken SuuntoToken
 	ouraToken   OuraToken
 	klabToken   KlabToken
+	coachtech   CoachtechData
 	userData    UserData
 }
 
@@ -174,6 +181,10 @@ func (s *UTVStorage) KlabToken() KlabToken {
 	return s.klabToken
 }
 
+func (s *UTVStorage) Coachtech() CoachtechData {
+	return s.coachtech
+}
+
 func (s *UTVStorage) UserData() UserData {
 	return s.userData
 }
@@ -191,6 +202,7 @@ func NewUTVStorage(db *sql.DB) *UTVStorage {
 		suuntoToken: &SuuntoTokenStore{db: db},
 		ouraToken:   &OuraTokenStore{db: db},
 		klabToken:   &KlabTokenStore{db: db},
+		coachtech:   &CoachtechDataStore{db: db},
 		userData:    &UserDataStore{db: db},
 	}
 }

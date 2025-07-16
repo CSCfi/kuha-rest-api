@@ -2238,3 +2238,63 @@ func (q *Queries) UpsertUserData(ctx context.Context, arg UpsertUserDataParams) 
 	_, err := q.exec(ctx, q.upsertUserDataStmt, upsertUserData, arg.UserID, arg.Data)
 	return err
 }
+
+const getCoachtechData = `-- name: GetCoachtechData :many
+SELECT data
+FROM coachtech_data
+WHERE coachtech_id = (
+    SELECT coachtech_id 
+    FROM coachtech_ids 
+    WHERE user_id = $1
+)
+AND summary_date BETWEEN $2 AND $3
+ORDER BY summary_date DESC
+`
+
+type GetCoachtechDataParams struct {
+	UserID     uuid.UUID
+	AfterDate  sql.NullTime
+	BeforeDate sql.NullTime
+}
+
+func (q *Queries) GetCoachtechData(ctx context.Context, arg GetCoachtechDataParams) ([]json.RawMessage, error) {
+	rows, err := q.query(ctx, q.getCoachtechDataStmt, getCoachtechData, arg.UserID, arg.AfterDate, arg.BeforeDate)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []json.RawMessage
+	for rows.Next() {
+		var data json.RawMessage
+		if err := rows.Scan(&data); err != nil {
+			return nil, err
+		}
+		items = append(items, data)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getCoachtechStatus = `-- name: GetCoachtechStatus :one
+SELECT EXISTS (
+    SELECT 1 
+    FROM coachtech_data 
+    WHERE coachtech_id = (
+        SELECT coachtech_id 
+        FROM coachtech_ids 
+        WHERE user_id = $1
+    )
+) AS has_data
+`
+
+func (q *Queries) GetCoachtechStatus(ctx context.Context, userID uuid.UUID) (bool, error) {
+	row := q.queryRow(ctx, q.getCoachtechStatusStmt, getCoachtechStatus, userID)
+	var has_data bool
+	err := row.Scan(&has_data)
+	return has_data, err
+}

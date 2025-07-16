@@ -96,6 +96,12 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getAppDataStmt, err = db.PrepareContext(ctx, getAppData); err != nil {
 		return nil, fmt.Errorf("error preparing query GetAppData: %w", err)
 	}
+	if q.getCoachtechDataStmt, err = db.PrepareContext(ctx, getCoachtechData); err != nil {
+		return nil, fmt.Errorf("error preparing query GetCoachtechData: %w", err)
+	}
+	if q.getCoachtechStatusStmt, err = db.PrepareContext(ctx, getCoachtechStatus); err != nil {
+		return nil, fmt.Errorf("error preparing query GetCoachtechStatus: %w", err)
+	}
 	if q.getDataByTypeGarminStmt, err = db.PrepareContext(ctx, getDataByTypeGarmin); err != nil {
 		return nil, fmt.Errorf("error preparing query GetDataByTypeGarmin: %w", err)
 	}
@@ -417,6 +423,16 @@ func (q *Queries) Close() error {
 	if q.getAppDataStmt != nil {
 		if cerr := q.getAppDataStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getAppDataStmt: %w", cerr)
+		}
+	}
+	if q.getCoachtechDataStmt != nil {
+		if cerr := q.getCoachtechDataStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getCoachtechDataStmt: %w", cerr)
+		}
+	}
+	if q.getCoachtechStatusStmt != nil {
+		if cerr := q.getCoachtechStatusStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getCoachtechStatusStmt: %w", cerr)
 		}
 	}
 	if q.getDataByTypeGarminStmt != nil {
@@ -812,6 +828,8 @@ type Queries struct {
 	getAllDataForDateSuuntoStmt       *sql.Stmt
 	getAllDataTypesStmt               *sql.Stmt
 	getAppDataStmt                    *sql.Stmt
+	getCoachtechDataStmt              *sql.Stmt
+	getCoachtechStatusStmt            *sql.Stmt
 	getDataByTypeGarminStmt           *sql.Stmt
 	getDataByTypeOuraStmt             *sql.Stmt
 	getDataByTypePolarStmt            *sql.Stmt
@@ -908,6 +926,8 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getAllDataForDateSuuntoStmt:       q.getAllDataForDateSuuntoStmt,
 		getAllDataTypesStmt:               q.getAllDataTypesStmt,
 		getAppDataStmt:                    q.getAppDataStmt,
+		getCoachtechDataStmt:              q.getCoachtechDataStmt,
+		getCoachtechStatusStmt:            q.getCoachtechStatusStmt,
 		getDataByTypeGarminStmt:           q.getDataByTypeGarminStmt,
 		getDataByTypeOuraStmt:             q.getDataByTypeOuraStmt,
 		getDataByTypePolarStmt:            q.getDataByTypePolarStmt,

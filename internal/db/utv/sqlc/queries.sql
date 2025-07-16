@@ -561,3 +561,25 @@ SELECT user_id
 FROM user_data
 WHERE (data -> 'contact_info' ->> 'sport_id')::text = $1;
 
+-- name: GetCoachtechStatus :one
+SELECT EXISTS (
+    SELECT 1 
+    FROM coachtech_data 
+    WHERE coachtech_id = (
+        SELECT coachtech_id 
+        FROM coachtech_ids 
+        WHERE user_id = $1
+    )
+) AS has_data;
+
+-- name: GetCoachtechData :many
+SELECT data
+FROM coachtech_data
+WHERE coachtech_id = (
+    SELECT coachtech_id 
+    FROM coachtech_ids 
+    WHERE user_id = $1
+)
+AND summary_date BETWEEN $2 AND $3
+ORDER BY summary_date DESC;
+

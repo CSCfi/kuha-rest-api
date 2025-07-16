@@ -45,6 +45,12 @@ definitions:
           $ref: '#/definitions/swagger.Athlete'
         type: array
     type: object
+  swagger.CoachtechStatusResponse:
+    properties:
+      data:
+        example: true
+        type: boolean
+    type: object
   swagger.DailyActivity:
     properties:
       day:
@@ -1133,6 +1139,82 @@ paths:
       summary: Get all data by type
       tags:
       - UTV - General
+  /utv/coachtech/data:
+    get:
+      consumes:
+      - application/json
+      description: Returns Coachtech data for a user between two dates
+      parameters:
+      - description: User ID (UUID)
+        in: query
+        name: user_id
+        required: true
+        type: string
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: after_date
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: before_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Coachtech data
+      tags:
+      - UTV - Coachtech
+  /utv/coachtech/status:
+    get:
+      consumes:
+      - application/json
+      description: Returns whether Coachtech data exists for a given user
+      parameters:
+      - description: User ID (UUID)
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.CoachtechStatusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Check Coachtech data availability
+      tags:
+      - UTV - Coachtech
   /utv/data4update:
     get:
       consumes:
