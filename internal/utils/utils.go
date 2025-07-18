@@ -112,3 +112,27 @@ func ValidateParams(r *http.Request, allowedParams []string) error {
 
 	return nil
 }
+
+// Converts a string pointer to sql.NullString
+func NullStringPtr(s *string) sql.NullString {
+	if s == nil {
+		return sql.NullString{}
+	}
+	return sql.NullString{String: *s, Valid: true}
+}
+
+// Converts a float64 pointer to sql.NullFloat64
+func NullFloat64Ptr(f *float64) sql.NullFloat64 {
+	if f == nil {
+		return sql.NullFloat64{}
+	}
+	return sql.NullFloat64{Float64: *f, Valid: true}
+}
+
+// Converts an int32 pointer to sql.NullInt32
+func NullInt32Ptr(i *int32) sql.NullInt32 {
+	if i == nil {
+		return sql.NullInt32{}
+	}
+	return sql.NullInt32{Int32: *i, Valid: true}
+}
