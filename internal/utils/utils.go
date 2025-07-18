@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
@@ -135,4 +136,16 @@ func NullInt32Ptr(i *int32) sql.NullInt32 {
 		return sql.NullInt32{}
 	}
 	return sql.NullInt32{Int32: *i, Valid: true}
+}
+
+// Converts a Go type to a more user-friendly string representation
+func toSnakeCase(s string) string {
+	var result []rune
+	for i, r := range s {
+		if unicode.IsUpper(r) && i > 0 {
+			result = append(result, '_')
+		}
+		result = append(result, unicode.ToLower(r))
+	}
+	return string(result)
 }

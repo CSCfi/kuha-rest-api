@@ -3,6 +3,7 @@ package utils
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/DeRuina/KUHA-REST-API/internal/logger"
@@ -17,18 +18,20 @@ var (
 	ErrQueryTimeOut = errors.New("database query timed out")
 
 	//ErrMissing
-	ErrMissingUserID   = errors.New("user_id is required")
-	ErrMissingUsername = errors.New("username is required")
-	ErrMissingPolarID  = errors.New("polar-id is required")
-	ErrMissingOuraID   = errors.New("oura-id is required")
-	ErrMissingToken    = errors.New("token is required")
-	ErrMissingSector   = errors.New("sector is required")
-	ErrMissingDate     = errors.New("date is required")
-	ErrMissingGeneral  = errors.New("this field is required")
-	ErrMissingType     = errors.New("type is required")
-	ErrMissingSource   = errors.New("source is required")
-	ErrMissingHours    = errors.New("hours is required")
-	ErrMissingSportID  = errors.New("sport_id is required")
+	ErrMissingUserID    = errors.New("user_id is required")
+	ErrMissingUsername  = errors.New("username is required")
+	ErrMissingPolarID   = errors.New("polar-id is required")
+	ErrMissingOuraID    = errors.New("oura-id is required")
+	ErrMissingToken     = errors.New("token is required")
+	ErrMissingSector    = errors.New("sector is required")
+	ErrMissingDate      = errors.New("date is required")
+	ErrMissingGeneral   = errors.New("this field is required")
+	ErrMissingType      = errors.New("type is required")
+	ErrMissingSource    = errors.New("source is required")
+	ErrMissingHours     = errors.New("hours is required")
+	ErrMissingSportID   = errors.New("sport_id is required")
+	ErrMissingSporttiID = errors.New("sportti_id is required")
+	ErrMissingID        = errors.New("id is required")
 
 	//ErrInvalid
 	ErrInvalidUUID         = errors.New("invalid UUID")
@@ -75,6 +78,10 @@ func FormatValidationErrors(err error) map[string]string {
 				errors["hours"] = ErrMissingHours.Error()
 			case "SportID":
 				errors["sport_id"] = ErrMissingSportID.Error()
+			case "SporttiID":
+				errors["sportti_id"] = ErrMissingSporttiID.Error()
+			case "ID":
+				errors["id"] = ErrMissingID.Error()
 			default:
 				errors[field] = ErrMissingGeneral.Error()
 			}
@@ -92,7 +99,12 @@ func FormatValidationErrors(err error) map[string]string {
 			}
 
 		case "uuid4":
-			errors["user_id"] = ErrInvalidUUID.Error()
+			switch field {
+			case "UserID":
+				errors["user_id"] = ErrInvalidUUID.Error()
+			case "ID":
+				errors["id"] = ErrInvalidUUID.Error()
+			}
 
 		case "datetime":
 			errors["date"] = ErrInvalidDate.Error()
@@ -111,6 +123,17 @@ func FormatValidationErrors(err error) map[string]string {
 	}
 
 	return errors
+}
+
+// invalidTypeError
+type InvalidFieldTypeError struct {
+	Field        string
+	ExpectedType string
+	ActualType   string
+}
+
+func (e *InvalidFieldTypeError) Error() string {
+	return fmt.Sprintf("value must be %s", e.ExpectedType)
 }
 
 func logError(r *http.Request, msg string, err error, status int) {
@@ -138,9 +161,18 @@ func InternalServerError(w http.ResponseWriter, r *http.Request, err error) {
 func BadRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
 	logError(r, "Bad request error", err, http.StatusBadRequest)
 
+	// Handle validator validation errors
 	if validationErrs, ok := err.(validator.ValidationErrors); ok {
 		formattedErrors := FormatValidationErrors(validationErrs)
 		WriteJSONError(w, http.StatusBadRequest, formattedErrors)
+		return
+	}
+
+	// Handle JSON decoding errors
+	if fieldErr, ok := err.(*InvalidFieldTypeError); ok {
+		WriteJSONError(w, http.StatusBadRequest, map[string]string{
+			toSnakeCase(fieldErr.Field): fieldErr.Error(),
+		})
 		return
 	}
 

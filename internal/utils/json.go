@@ -15,6 +15,19 @@ func WriteJSON(w http.ResponseWriter, status int, data any) error {
 
 }
 
+func goTypeToFriendlyType(goType string) string {
+	switch goType {
+	case "string":
+		return "a string"
+	case "int", "int32", "int64", "float32", "float64":
+		return "a number"
+	case "Time":
+		return "a date (YYYY-MM-DD)"
+	default:
+		return "the correct type"
+	}
+}
+
 func ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
 	maxBytes := 1_048_578 // 1MB
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
@@ -23,10 +36,22 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
 	decoder.DisallowUnknownFields()
 
 	if err := decoder.Decode(data); err != nil {
-		if errors.Is(err, io.EOF) {
-			return fmt.Errorf("request body is required")
+		switch e := err.(type) {
+		case *json.UnmarshalTypeError:
+			return &InvalidFieldTypeError{
+				Field:        e.Field,
+				ExpectedType: goTypeToFriendlyType(e.Type.Name()),
+				ActualType:   e.Value,
+			}
+
+		case *json.InvalidUnmarshalError:
+			return ErrInvalidValue
+		default:
+			if errors.Is(err, io.EOF) {
+				return fmt.Errorf("request body is required")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
