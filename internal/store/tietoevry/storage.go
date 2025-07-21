@@ -8,17 +8,21 @@ import (
 	"github.com/google/uuid"
 )
 
-// Interface
-
+// Interfaces
 type Users interface {
 	UpsertUser(ctx context.Context, arg tietoevrysqlc.UpsertUserParams) error
 	DeleteUser(ctx context.Context, id uuid.UUID) (int64, error)
 }
 
+type Exercises interface {
+	InsertExerciseBundle(ctx context.Context, input ExercisePayload) error
+}
+
 // TietoevryStorage
 type TietoevryStorage struct {
-	db    *sql.DB
-	users Users
+	db        *sql.DB
+	users     Users
+	exercises Exercises
 }
 
 // Methods
@@ -30,10 +34,15 @@ func (s *TietoevryStorage) Users() Users {
 	return s.users
 }
 
+func (s *TietoevryStorage) Exercises() Exercises {
+	return s.exercises
+}
+
 // NewTietoevryStorage creates a new TietoevryStorage instance
 func NewTietoevryStorage(db *sql.DB) *TietoevryStorage {
 	return &TietoevryStorage{
-		db:    db,
-		users: &UserStore{db: db},
+		db:        db,
+		users:     &UserStore{db: db},
+		exercises: &ExercisesStore{db: db},
 	}
 }

@@ -8,8 +8,11 @@ package tietoevrysqlc
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
+	"github.com/sqlc-dev/pqtype"
 )
 
 const deleteUser = `-- name: DeleteUser :execrows
@@ -23,6 +26,198 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) (int64, error) {
 		return 0, err
 	}
 	return result.RowsAffected()
+}
+
+const insertExercise = `-- name: InsertExercise :exec
+INSERT INTO exercises (
+    id, created_at, updated_at, user_id, start_time, duration,
+    comment, sport_type, detailed_sport_type, distance, avg_heart_rate,
+    max_heart_rate, trimp, sprint_count, avg_speed, max_speed,
+    source, status, calories, training_load, raw_id,
+    feeling, recovery, rpe, raw_data
+) VALUES (
+    $1, $2, $3, $4, $5, $6,
+    $7, $8, $9, $10, $11,
+    $12, $13, $14, $15, $16,
+    $17, $18, $19, $20, $21,
+    $22, $23, $24, $25
+)
+ON CONFLICT (source, raw_id) DO NOTHING
+`
+
+type InsertExerciseParams struct {
+	ID                uuid.UUID
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+	UserID            uuid.UUID
+	StartTime         time.Time
+	Duration          int64
+	Comment           sql.NullString
+	SportType         sql.NullString
+	DetailedSportType sql.NullString
+	Distance          sql.NullFloat64
+	AvgHeartRate      sql.NullFloat64
+	MaxHeartRate      sql.NullFloat64
+	Trimp             sql.NullFloat64
+	SprintCount       sql.NullInt32
+	AvgSpeed          sql.NullFloat64
+	MaxSpeed          sql.NullFloat64
+	Source            string
+	Status            sql.NullString
+	Calories          sql.NullInt32
+	TrainingLoad      sql.NullInt32
+	RawID             sql.NullString
+	Feeling           sql.NullInt32
+	Recovery          sql.NullInt32
+	Rpe               sql.NullInt32
+	RawData           pqtype.NullRawMessage
+}
+
+func (q *Queries) InsertExercise(ctx context.Context, arg InsertExerciseParams) error {
+	_, err := q.exec(ctx, q.insertExerciseStmt, insertExercise,
+		arg.ID,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.UserID,
+		arg.StartTime,
+		arg.Duration,
+		arg.Comment,
+		arg.SportType,
+		arg.DetailedSportType,
+		arg.Distance,
+		arg.AvgHeartRate,
+		arg.MaxHeartRate,
+		arg.Trimp,
+		arg.SprintCount,
+		arg.AvgSpeed,
+		arg.MaxSpeed,
+		arg.Source,
+		arg.Status,
+		arg.Calories,
+		arg.TrainingLoad,
+		arg.RawID,
+		arg.Feeling,
+		arg.Recovery,
+		arg.Rpe,
+		arg.RawData,
+	)
+	return err
+}
+
+const insertExerciseHRZone = `-- name: InsertExerciseHRZone :exec
+INSERT INTO exercise_hr_zones (
+    exercise_id, zone_index, seconds_in_zone,
+    lower_limit, upper_limit, created_at, updated_at
+) VALUES (
+    $1, $2, $3,
+    $4, $5, $6, $7
+)
+ON CONFLICT (exercise_id, zone_index) DO NOTHING
+`
+
+type InsertExerciseHRZoneParams struct {
+	ExerciseID    uuid.UUID
+	ZoneIndex     int32
+	SecondsInZone int32
+	LowerLimit    int32
+	UpperLimit    int32
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
+func (q *Queries) InsertExerciseHRZone(ctx context.Context, arg InsertExerciseHRZoneParams) error {
+	_, err := q.exec(ctx, q.insertExerciseHRZoneStmt, insertExerciseHRZone,
+		arg.ExerciseID,
+		arg.ZoneIndex,
+		arg.SecondsInZone,
+		arg.LowerLimit,
+		arg.UpperLimit,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+	)
+	return err
+}
+
+const insertExerciseSample = `-- name: InsertExerciseSample :exec
+INSERT INTO exercise_samples (
+    id, user_id, exercise_id,
+    sample_type, recording_rate, samples, source
+) VALUES (
+    $1, $2, $3,
+    $4, $5, $6, $7
+)
+ON CONFLICT (exercise_id, sample_type) DO NOTHING
+`
+
+type InsertExerciseSampleParams struct {
+	ID            uuid.UUID
+	UserID        uuid.UUID
+	ExerciseID    uuid.UUID
+	SampleType    string
+	RecordingRate int32
+	Samples       []float64
+	Source        string
+}
+
+func (q *Queries) InsertExerciseSample(ctx context.Context, arg InsertExerciseSampleParams) error {
+	_, err := q.exec(ctx, q.insertExerciseSampleStmt, insertExerciseSample,
+		arg.ID,
+		arg.UserID,
+		arg.ExerciseID,
+		arg.SampleType,
+		arg.RecordingRate,
+		pq.Array(arg.Samples),
+		arg.Source,
+	)
+	return err
+}
+
+const insertExerciseSection = `-- name: InsertExerciseSection :exec
+INSERT INTO exercise_sections (
+    id, user_id, exercise_id,
+    created_at, updated_at, start_time, end_time,
+    section_type, name, comment, source, raw_id, raw_data
+) VALUES (
+    $1, $2, $3,
+    $4, $5, $6, $7,
+    $8, $9, $10, $11, $12, $13
+)
+ON CONFLICT (id) DO NOTHING
+`
+
+type InsertExerciseSectionParams struct {
+	ID          uuid.UUID
+	UserID      uuid.UUID
+	ExerciseID  uuid.UUID
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	StartTime   time.Time
+	EndTime     time.Time
+	SectionType sql.NullString
+	Name        sql.NullString
+	Comment     sql.NullString
+	Source      string
+	RawID       sql.NullString
+	RawData     pqtype.NullRawMessage
+}
+
+func (q *Queries) InsertExerciseSection(ctx context.Context, arg InsertExerciseSectionParams) error {
+	_, err := q.exec(ctx, q.insertExerciseSectionStmt, insertExerciseSection,
+		arg.ID,
+		arg.UserID,
+		arg.ExerciseID,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.StartTime,
+		arg.EndTime,
+		arg.SectionType,
+		arg.Name,
+		arg.Comment,
+		arg.Source,
+		arg.RawID,
+		arg.RawData,
+	)
+	return err
 }
 
 const upsertUser = `-- name: UpsertUser :exec

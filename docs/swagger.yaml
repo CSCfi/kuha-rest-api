@@ -316,6 +316,30 @@ definitions:
         example: e19c1832-d7f3-4d65-90ea-33a3d7f6d6df
         type: string
     type: object
+  swagger.HRZone:
+    properties:
+      created_at:
+        example: "2024-07-21T08:00:00Z"
+        type: string
+      exercise_id:
+        example: 2d4f6aee-b62c-408e-85e1-07bd78f383a7
+        type: string
+      lower_limit:
+        example: 120
+        type: integer
+      seconds_in_zone:
+        example: 90
+        type: integer
+      updated_at:
+        example: "2024-07-21T08:00:00Z"
+        type: string
+      upper_limit:
+        example: 140
+        type: integer
+      zone_index:
+        example: 2
+        type: integer
+    type: object
   swagger.HealthStatusResponse:
     properties:
       api:
@@ -699,6 +723,73 @@ definitions:
           type: string
         type: array
     type: object
+  swagger.Sample:
+    properties:
+      exercise_id:
+        example: 2d4f6aee-b62c-408e-85e1-07bd78f383a7
+        type: string
+      id:
+        example: 3f28c7a1-2ea3-438c-9b35-099c4372da49
+        type: string
+      recording_rate:
+        example: 1
+        type: integer
+      sample_type:
+        example: heart_rate
+        type: string
+      samples:
+        items:
+          type: number
+        type: array
+      source:
+        example: garmin
+        type: string
+      user_id:
+        example: 7cffe6e0-3f28-43b6-b511-d836d3a9f7b5
+        type: string
+    type: object
+  swagger.Section:
+    properties:
+      comment:
+        example: Felt great
+        type: string
+      created_at:
+        example: "2024-07-21T08:00:00Z"
+        type: string
+      end_time:
+        example: "2024-07-21T08:30:00Z"
+        type: string
+      exercise_id:
+        example: 2d4f6aee-b62c-408e-85e1-07bd78f383a7
+        type: string
+      id:
+        example: 1a2b3c4d-0000-0000-0000-111122223333
+        type: string
+      name:
+        example: Warm-up
+        type: string
+      raw_data:
+        example: '{"extra":"data"}'
+        type: string
+      raw_id:
+        example: abc-123
+        type: string
+      section_type:
+        example: warmup
+        type: string
+      source:
+        example: polar
+        type: string
+      start_time:
+        example: "2024-07-21T08:10:00Z"
+        type: string
+      updated_at:
+        example: "2024-07-21T08:05:00Z"
+        type: string
+      user_id:
+        example: 7cffe6e0-3f28-43b6-b511-d836d3a9f7b5
+        type: string
+    type: object
   swagger.SleepData:
     properties:
       average_heart_rate:
@@ -880,6 +971,96 @@ definitions:
       totalTime:
         example: 3707.57
         type: number
+    type: object
+  swagger.TietoevryExerciseUpsertInput:
+    properties:
+      avg_heart_rate:
+        example: 145.2
+        type: number
+      avg_speed:
+        example: 3.2
+        type: number
+      calories:
+        example: 450
+        type: integer
+      comment:
+        example: Morning run
+        type: string
+      created_at:
+        example: "2024-07-21T08:00:00Z"
+        type: string
+      detailed_sport_type:
+        example: trail
+        type: string
+      distance:
+        example: 8.5
+        type: number
+      duration:
+        example: 3600
+        type: integer
+      feeling:
+        example: 4
+        type: integer
+      hr_zones:
+        items:
+          $ref: '#/definitions/swagger.HRZone'
+        type: array
+      id:
+        example: 2d4f6aee-b62c-408e-85e1-07bd78f383a7
+        type: string
+      max_heart_rate:
+        example: 165.3
+        type: number
+      max_speed:
+        example: 4.8
+        type: number
+      raw_data:
+        example: '{"power":300}'
+        type: string
+      raw_id:
+        example: xyz789
+        type: string
+      recovery:
+        example: 3
+        type: integer
+      rpe:
+        example: 7
+        type: integer
+      samples:
+        items:
+          $ref: '#/definitions/swagger.Sample'
+        type: array
+      sections:
+        items:
+          $ref: '#/definitions/swagger.Section'
+        type: array
+      source:
+        example: garmin
+        type: string
+      sport_type:
+        example: running
+        type: string
+      sprint_count:
+        example: 2
+        type: integer
+      start_time:
+        example: "2024-07-21T08:10:00Z"
+        type: string
+      status:
+        example: completed
+        type: string
+      training_load:
+        example: 55
+        type: integer
+      trimp:
+        example: 100.5
+        type: number
+      updated_at:
+        example: "2024-07-21T08:00:00Z"
+        type: string
+      user_id:
+        example: 7cffe6e0-3f28-43b6-b511-d836d3a9f7b5
+        type: string
     type: object
   swagger.TietoevryUserUpsertInput:
     properties:
@@ -1187,6 +1368,40 @@ paths:
       summary: Healthcheck
       tags:
       - Health
+  /tietoevry/exercises:
+    post:
+      consumes:
+      - application/json
+      description: Insert a new exercise bundle (main + zones + samples + sections)
+      parameters:
+      - description: Exercise data
+        in: body
+        name: exercise
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.TietoevryExerciseUpsertInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upsert exercise
+      tags:
+      - Tietoevry - Exercise
   /tietoevry/users:
     delete:
       consumes:

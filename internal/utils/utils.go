@@ -2,6 +2,7 @@ package utils
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	"github.com/sqlc-dev/pqtype"
 )
 
 // query timeout duration
@@ -148,4 +150,36 @@ func toSnakeCase(s string) string {
 		result = append(result, unicode.ToLower(r))
 	}
 	return string(result)
+}
+
+// ParseTimestamp parses a required RFC3339 timestamp string
+func ParseTimestamp(value string) (time.Time, error) {
+	if value == "" {
+		return time.Time{}, ErrInvalidDate
+	}
+	t, err := time.Parse(time.RFC3339, value)
+	if err != nil {
+		return time.Time{}, ErrInvalidDate
+	}
+	return t, nil
+}
+
+// ParseTimestampPtr parses a *string RFC3339 timestamp or returns nil
+func ParseTimestampPtr(value *string) (*time.Time, error) {
+	if value == nil || *value == "" {
+		return nil, nil
+	}
+	t, err := time.Parse(time.RFC3339, *value)
+	if err != nil {
+		return nil, ErrInvalidDate
+	}
+	return &t, nil
+}
+
+// ParseRawJSON converts a string pointer to pqtype.NullRawMessage
+func ParseRawJSON(s *string) pqtype.NullRawMessage {
+	if s == nil || *s == "" {
+		return pqtype.NullRawMessage{}
+	}
+	return pqtype.NullRawMessage{Valid: true, RawMessage: json.RawMessage(*s)}
 }

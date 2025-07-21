@@ -256,6 +256,60 @@ const docTemplate = `{
                 }
             }
         },
+        "/tietoevry/exercises": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Insert a new exercise bundle (main + zones + samples + sections)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tietoevry - Exercise"
+                ],
+                "summary": "Upsert exercise",
+                "parameters": [
+                    {
+                        "description": "Exercise data",
+                        "name": "exercise",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.TietoevryExerciseUpsertInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "created"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/tietoevry/users": {
             "post": {
                 "security": [
@@ -3677,6 +3731,39 @@ const docTemplate = `{
                 }
             }
         },
+        "swagger.HRZone": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-07-21T08:00:00Z"
+                },
+                "exercise_id": {
+                    "type": "string",
+                    "example": "2d4f6aee-b62c-408e-85e1-07bd78f383a7"
+                },
+                "lower_limit": {
+                    "type": "integer",
+                    "example": 120
+                },
+                "seconds_in_zone": {
+                    "type": "integer",
+                    "example": 90
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-07-21T08:00:00Z"
+                },
+                "upper_limit": {
+                    "type": "integer",
+                    "example": 140
+                },
+                "zone_index": {
+                    "type": "integer",
+                    "example": 2
+                }
+            }
+        },
         "swagger.HealthStatusResponse": {
             "type": "object",
             "properties": {
@@ -4233,6 +4320,98 @@ const docTemplate = `{
                 }
             }
         },
+        "swagger.Sample": {
+            "type": "object",
+            "properties": {
+                "exercise_id": {
+                    "type": "string",
+                    "example": "2d4f6aee-b62c-408e-85e1-07bd78f383a7"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "3f28c7a1-2ea3-438c-9b35-099c4372da49"
+                },
+                "recording_rate": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "sample_type": {
+                    "type": "string",
+                    "example": "heart_rate"
+                },
+                "samples": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "source": {
+                    "type": "string",
+                    "example": "garmin"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "7cffe6e0-3f28-43b6-b511-d836d3a9f7b5"
+                }
+            }
+        },
+        "swagger.Section": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string",
+                    "example": "Felt great"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-07-21T08:00:00Z"
+                },
+                "end_time": {
+                    "type": "string",
+                    "example": "2024-07-21T08:30:00Z"
+                },
+                "exercise_id": {
+                    "type": "string",
+                    "example": "2d4f6aee-b62c-408e-85e1-07bd78f383a7"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "1a2b3c4d-0000-0000-0000-111122223333"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Warm-up"
+                },
+                "raw_data": {
+                    "type": "string",
+                    "example": "{\"extra\":\"data\"}"
+                },
+                "raw_id": {
+                    "type": "string",
+                    "example": "abc-123"
+                },
+                "section_type": {
+                    "type": "string",
+                    "example": "warmup"
+                },
+                "source": {
+                    "type": "string",
+                    "example": "polar"
+                },
+                "start_time": {
+                    "type": "string",
+                    "example": "2024-07-21T08:10:00Z"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-07-21T08:05:00Z"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "7cffe6e0-3f28-43b6-b511-d836d3a9f7b5"
+                }
+            }
+        },
         "swagger.SleepData": {
             "type": "object",
             "properties": {
@@ -4492,6 +4671,129 @@ const docTemplate = `{
                 "totalTime": {
                     "type": "number",
                     "example": 3707.57
+                }
+            }
+        },
+        "swagger.TietoevryExerciseUpsertInput": {
+            "type": "object",
+            "properties": {
+                "avg_heart_rate": {
+                    "type": "number",
+                    "example": 145.2
+                },
+                "avg_speed": {
+                    "type": "number",
+                    "example": 3.2
+                },
+                "calories": {
+                    "type": "integer",
+                    "example": 450
+                },
+                "comment": {
+                    "type": "string",
+                    "example": "Morning run"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-07-21T08:00:00Z"
+                },
+                "detailed_sport_type": {
+                    "type": "string",
+                    "example": "trail"
+                },
+                "distance": {
+                    "type": "number",
+                    "example": 8.5
+                },
+                "duration": {
+                    "type": "integer",
+                    "example": 3600
+                },
+                "feeling": {
+                    "type": "integer",
+                    "example": 4
+                },
+                "hr_zones": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.HRZone"
+                    }
+                },
+                "id": {
+                    "type": "string",
+                    "example": "2d4f6aee-b62c-408e-85e1-07bd78f383a7"
+                },
+                "max_heart_rate": {
+                    "type": "number",
+                    "example": 165.3
+                },
+                "max_speed": {
+                    "type": "number",
+                    "example": 4.8
+                },
+                "raw_data": {
+                    "type": "string",
+                    "example": "{\"power\":300}"
+                },
+                "raw_id": {
+                    "type": "string",
+                    "example": "xyz789"
+                },
+                "recovery": {
+                    "type": "integer",
+                    "example": 3
+                },
+                "rpe": {
+                    "type": "integer",
+                    "example": 7
+                },
+                "samples": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.Sample"
+                    }
+                },
+                "sections": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.Section"
+                    }
+                },
+                "source": {
+                    "type": "string",
+                    "example": "garmin"
+                },
+                "sport_type": {
+                    "type": "string",
+                    "example": "running"
+                },
+                "sprint_count": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "start_time": {
+                    "type": "string",
+                    "example": "2024-07-21T08:10:00Z"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "completed"
+                },
+                "training_load": {
+                    "type": "integer",
+                    "example": 55
+                },
+                "trimp": {
+                    "type": "number",
+                    "example": 100.5
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-07-21T08:00:00Z"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "7cffe6e0-3f28-43b6-b511-d836d3a9f7b5"
                 }
             }
         },

@@ -27,6 +27,18 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.deleteUserStmt, err = db.PrepareContext(ctx, deleteUser); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteUser: %w", err)
 	}
+	if q.insertExerciseStmt, err = db.PrepareContext(ctx, insertExercise); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertExercise: %w", err)
+	}
+	if q.insertExerciseHRZoneStmt, err = db.PrepareContext(ctx, insertExerciseHRZone); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertExerciseHRZone: %w", err)
+	}
+	if q.insertExerciseSampleStmt, err = db.PrepareContext(ctx, insertExerciseSample); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertExerciseSample: %w", err)
+	}
+	if q.insertExerciseSectionStmt, err = db.PrepareContext(ctx, insertExerciseSection); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertExerciseSection: %w", err)
+	}
 	if q.upsertUserStmt, err = db.PrepareContext(ctx, upsertUser); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertUser: %w", err)
 	}
@@ -38,6 +50,26 @@ func (q *Queries) Close() error {
 	if q.deleteUserStmt != nil {
 		if cerr := q.deleteUserStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing deleteUserStmt: %w", cerr)
+		}
+	}
+	if q.insertExerciseStmt != nil {
+		if cerr := q.insertExerciseStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertExerciseStmt: %w", cerr)
+		}
+	}
+	if q.insertExerciseHRZoneStmt != nil {
+		if cerr := q.insertExerciseHRZoneStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertExerciseHRZoneStmt: %w", cerr)
+		}
+	}
+	if q.insertExerciseSampleStmt != nil {
+		if cerr := q.insertExerciseSampleStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertExerciseSampleStmt: %w", cerr)
+		}
+	}
+	if q.insertExerciseSectionStmt != nil {
+		if cerr := q.insertExerciseSectionStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertExerciseSectionStmt: %w", cerr)
 		}
 	}
 	if q.upsertUserStmt != nil {
@@ -82,17 +114,25 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db             DBTX
-	tx             *sql.Tx
-	deleteUserStmt *sql.Stmt
-	upsertUserStmt *sql.Stmt
+	db                        DBTX
+	tx                        *sql.Tx
+	deleteUserStmt            *sql.Stmt
+	insertExerciseStmt        *sql.Stmt
+	insertExerciseHRZoneStmt  *sql.Stmt
+	insertExerciseSampleStmt  *sql.Stmt
+	insertExerciseSectionStmt *sql.Stmt
+	upsertUserStmt            *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:             tx,
-		tx:             tx,
-		deleteUserStmt: q.deleteUserStmt,
-		upsertUserStmt: q.upsertUserStmt,
+		db:                        tx,
+		tx:                        tx,
+		deleteUserStmt:            q.deleteUserStmt,
+		insertExerciseStmt:        q.insertExerciseStmt,
+		insertExerciseHRZoneStmt:  q.insertExerciseHRZoneStmt,
+		insertExerciseSampleStmt:  q.insertExerciseSampleStmt,
+		insertExerciseSectionStmt: q.insertExerciseSectionStmt,
+		upsertUserStmt:            q.upsertUserStmt,
 	}
 }
