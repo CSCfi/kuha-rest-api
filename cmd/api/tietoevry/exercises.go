@@ -9,6 +9,7 @@ import (
 	"github.com/DeRuina/KUHA-REST-API/internal/store/cache"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/tietoevry"
 	"github.com/DeRuina/KUHA-REST-API/internal/utils"
+	"github.com/google/uuid"
 )
 
 type TietoevryExerciseHandler struct {
@@ -120,6 +121,22 @@ func (h *TietoevryExerciseHandler) InsertExercisesBulk(w http.ResponseWriter, r 
 		return
 	}
 	if err := utils.GetValidator().Struct(input); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	// Prevalidation
+	userIDs := make([]uuid.UUID, len(input.Exercises))
+	for i, exercise := range input.Exercises {
+		userID, err := utils.ParseUUID(exercise.UserID)
+		if err != nil {
+			utils.BadRequestResponse(w, r, err)
+			return
+		}
+		userIDs[i] = userID
+	}
+
+	if err := h.store.ValidateUsersExist(r.Context(), userIDs); err != nil {
 		utils.BadRequestResponse(w, r, err)
 		return
 	}

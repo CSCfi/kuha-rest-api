@@ -9,6 +9,7 @@ import (
 	"github.com/DeRuina/KUHA-REST-API/internal/store/cache"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/tietoevry"
 	"github.com/DeRuina/KUHA-REST-API/internal/utils"
+	"github.com/google/uuid"
 )
 
 // Handler struct
@@ -71,6 +72,22 @@ func (h *TietoevrySymptomHandler) InsertSymptomsBulk(w http.ResponseWriter, r *h
 		return
 	}
 	if err := utils.GetValidator().Struct(input); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	// PreValidation
+	userIDs := make([]uuid.UUID, len(input.Symptoms))
+	for i, symptom := range input.Symptoms {
+		userID, err := utils.ParseUUID(symptom.UserID)
+		if err != nil {
+			utils.BadRequestResponse(w, r, err)
+			return
+		}
+		userIDs[i] = userID
+	}
+
+	if err := h.store.ValidateUsersExist(r.Context(), userIDs); err != nil {
 		utils.BadRequestResponse(w, r, err)
 		return
 	}

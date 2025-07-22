@@ -15,10 +15,12 @@ type Users interface {
 }
 
 type Exercises interface {
+	ValidateUsersExist(ctx context.Context, userIDs []uuid.UUID) error
 	InsertExercisesBulk(ctx context.Context, exercises []ExercisePayload) error
 }
 
 type Symptoms interface {
+	ValidateUsersExist(ctx context.Context, userIDs []uuid.UUID) error
 	InsertSymptomsBulk(ctx context.Context, symptoms []tietoevrysqlc.InsertSymptomParams) error
 }
 
