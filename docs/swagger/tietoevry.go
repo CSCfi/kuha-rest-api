@@ -82,3 +82,22 @@ type TietoevryExerciseUpsertInput struct {
 	Samples  []Sample  `json:"samples"`
 	Sections []Section `json:"sections"`
 }
+
+type TietoevrySymptomInput struct {
+	ID             string  `json:"id" validate:"required,uuid4" example:"2d4f6aee-b62c-408e-85e1-07bd78f383a7"`
+	UserID         string  `json:"user_id" validate:"required,uuid4" example:"7cffe6e0-3f28-43b6-b511-d836d3a9f7b5"`
+	Date           string  `json:"date" validate:"required" example:"2024-01-15"`
+	Symptom        string  `json:"symptom" validate:"required" example:"knee pain"`
+	Severity       int32   `json:"severity" validate:"required" example:"7"`
+	Comment        *string `json:"comment" example:"Pain started after morning run"`
+	Source         string  `json:"source" validate:"required" example:"polar"`
+	CreatedAt      string  `json:"created_at" validate:"required" example:"2024-01-15T10:30:00Z"`
+	UpdatedAt      string  `json:"updated_at" validate:"required" example:"2024-01-15T10:30:00Z"`
+	RawID          *string `json:"raw_id" example:"raw_symptom_123"`
+	OriginalID     *string `json:"original_id" example:""`
+	Recovered      *bool   `json:"recovered" example:"true"`
+	PainIndex      *int32  `json:"pain_index" example:"8"`
+	Side           *string `json:"side" example:"left"`
+	Category       *string `json:"category" example:"joint"`
+	AdditionalData *string `json:"additional_data" example:"{\"intensity\": \"moderate\", \"duration\": \"30min\"}"`
+}

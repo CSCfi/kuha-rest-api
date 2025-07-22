@@ -18,11 +18,16 @@ type Exercises interface {
 	InsertExerciseBundle(ctx context.Context, input ExercisePayload) error
 }
 
+type Symptoms interface {
+	InsertSymptom(ctx context.Context, arg tietoevrysqlc.InsertSymptomParams) error
+}
+
 // TietoevryStorage
 type TietoevryStorage struct {
 	db        *sql.DB
 	users     Users
 	exercises Exercises
+	symptoms  Symptoms
 }
 
 // Methods
@@ -38,11 +43,16 @@ func (s *TietoevryStorage) Exercises() Exercises {
 	return s.exercises
 }
 
+func (s *TietoevryStorage) Symptoms() Symptoms {
+	return s.symptoms
+}
+
 // NewTietoevryStorage creates a new TietoevryStorage instance
 func NewTietoevryStorage(db *sql.DB) *TietoevryStorage {
 	return &TietoevryStorage{
 		db:        db,
 		users:     &UserStore{db: db},
 		exercises: &ExercisesStore{db: db},
+		symptoms:  &SymptomsStore{db: db},
 	}
 }

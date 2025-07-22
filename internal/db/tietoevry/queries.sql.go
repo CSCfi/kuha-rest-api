@@ -220,6 +220,60 @@ func (q *Queries) InsertExerciseSection(ctx context.Context, arg InsertExerciseS
 	return err
 }
 
+const insertSymptom = `-- name: InsertSymptom :exec
+INSERT INTO symptoms (
+    id, user_id, date, symptom, severity, comment, source,
+    created_at, updated_at, raw_id, original_id, recovered,
+    pain_index, side, category, additional_data
+) VALUES (
+    $1, $2, $3, $4, $5, $6, $7,
+    $8, $9, $10, $11, $12,
+    $13, $14, $15, $16
+)
+ON CONFLICT (source, user_id, date, raw_id) DO NOTHING
+`
+
+type InsertSymptomParams struct {
+	ID             uuid.UUID
+	UserID         uuid.UUID
+	Date           time.Time
+	Symptom        string
+	Severity       int32
+	Comment        sql.NullString
+	Source         string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	RawID          sql.NullString
+	OriginalID     uuid.NullUUID
+	Recovered      sql.NullBool
+	PainIndex      sql.NullInt32
+	Side           sql.NullString
+	Category       sql.NullString
+	AdditionalData pqtype.NullRawMessage
+}
+
+func (q *Queries) InsertSymptom(ctx context.Context, arg InsertSymptomParams) error {
+	_, err := q.exec(ctx, q.insertSymptomStmt, insertSymptom,
+		arg.ID,
+		arg.UserID,
+		arg.Date,
+		arg.Symptom,
+		arg.Severity,
+		arg.Comment,
+		arg.Source,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.RawID,
+		arg.OriginalID,
+		arg.Recovered,
+		arg.PainIndex,
+		arg.Side,
+		arg.Category,
+		arg.AdditionalData,
+	)
+	return err
+}
+
 const upsertUser = `-- name: UpsertUser :exec
 INSERT INTO users (
     id, sportti_id, profile_gender, profile_birthdate, profile_weight,

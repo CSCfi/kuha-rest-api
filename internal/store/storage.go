@@ -45,6 +45,7 @@ type Tietoevry interface {
 	Ping(ctx context.Context) error
 	Users() tietoevry.Users
 	Exercises() tietoevry.Exercises
+	Symptoms() tietoevry.Symptoms
 }
 
 type KAMK interface {

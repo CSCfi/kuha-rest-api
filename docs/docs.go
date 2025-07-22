@@ -273,7 +273,7 @@ const docTemplate = `{
                 "tags": [
                     "Tietoevry - Exercise"
                 ],
-                "summary": "Upsert exercise",
+                "summary": "Insert exercise",
                 "parameters": [
                     {
                         "description": "Exercise data",
@@ -282,6 +282,60 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/swagger.TietoevryExerciseUpsertInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "created"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/tietoevry/symptoms": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Insert a symptom records",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tietoevry - Symptom"
+                ],
+                "summary": "Insert symptoms",
+                "parameters": [
+                    {
+                        "description": "Symptom data",
+                        "name": "symptom",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.TietoevrySymptomInput"
                         }
                     }
                 ],
@@ -4790,6 +4844,85 @@ const docTemplate = `{
                 "updated_at": {
                     "type": "string",
                     "example": "2024-07-21T08:00:00Z"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "7cffe6e0-3f28-43b6-b511-d836d3a9f7b5"
+                }
+            }
+        },
+        "swagger.TietoevrySymptomInput": {
+            "type": "object",
+            "required": [
+                "created_at",
+                "date",
+                "id",
+                "severity",
+                "source",
+                "symptom",
+                "updated_at",
+                "user_id"
+            ],
+            "properties": {
+                "additional_data": {
+                    "type": "string",
+                    "example": "{\"intensity\": \"moderate\", \"duration\": \"30min\"}"
+                },
+                "category": {
+                    "type": "string",
+                    "example": "joint"
+                },
+                "comment": {
+                    "type": "string",
+                    "example": "Pain started after morning run"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
+                },
+                "date": {
+                    "type": "string",
+                    "example": "2024-01-15"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "2d4f6aee-b62c-408e-85e1-07bd78f383a7"
+                },
+                "original_id": {
+                    "type": "string",
+                    "example": ""
+                },
+                "pain_index": {
+                    "type": "integer",
+                    "example": 8
+                },
+                "raw_id": {
+                    "type": "string",
+                    "example": "raw_symptom_123"
+                },
+                "recovered": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "severity": {
+                    "type": "integer",
+                    "example": 7
+                },
+                "side": {
+                    "type": "string",
+                    "example": "left"
+                },
+                "source": {
+                    "type": "string",
+                    "example": "polar"
+                },
+                "symptom": {
+                    "type": "string",
+                    "example": "knee pain"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-01-15T10:30:00Z"
                 },
                 "user_id": {
                     "type": "string",

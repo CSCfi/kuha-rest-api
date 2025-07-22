@@ -139,13 +139,17 @@ func (app *api) mount() http.Handler {
 				//register handlers
 				userHandler := tietoevryapi.NewTietoevryUserHandler(app.store.Tietoevry.Users(), app.cacheStorage)
 				exerciseHandler := tietoevryapi.NewTietoevryExerciseHandler(app.store.Tietoevry.Exercises(), app.cacheStorage)
+				symptomHandler := tietoevryapi.NewTietoevrySymptomHandler(app.store.Tietoevry.Symptoms(), app.cacheStorage)
 
 				// User routes
 				r.Post("/users", userHandler.UpsertUser)
 				r.Delete("/users", userHandler.DeleteUser)
 
 				// Exercise routes
-				r.Post("/exercises", exerciseHandler.UpsertExercise)
+				r.Post("/exercises", exerciseHandler.InsertExercise)
+
+				// Symptom routes
+				r.Post("/symptoms", symptomHandler.InsertSymptom)
 			})
 
 			// FIS routes

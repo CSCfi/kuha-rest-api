@@ -39,6 +39,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.insertExerciseSectionStmt, err = db.PrepareContext(ctx, insertExerciseSection); err != nil {
 		return nil, fmt.Errorf("error preparing query InsertExerciseSection: %w", err)
 	}
+	if q.insertSymptomStmt, err = db.PrepareContext(ctx, insertSymptom); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertSymptom: %w", err)
+	}
 	if q.upsertUserStmt, err = db.PrepareContext(ctx, upsertUser); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertUser: %w", err)
 	}
@@ -70,6 +73,11 @@ func (q *Queries) Close() error {
 	if q.insertExerciseSectionStmt != nil {
 		if cerr := q.insertExerciseSectionStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing insertExerciseSectionStmt: %w", cerr)
+		}
+	}
+	if q.insertSymptomStmt != nil {
+		if cerr := q.insertSymptomStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertSymptomStmt: %w", cerr)
 		}
 	}
 	if q.upsertUserStmt != nil {
@@ -121,6 +129,7 @@ type Queries struct {
 	insertExerciseHRZoneStmt  *sql.Stmt
 	insertExerciseSampleStmt  *sql.Stmt
 	insertExerciseSectionStmt *sql.Stmt
+	insertSymptomStmt         *sql.Stmt
 	upsertUserStmt            *sql.Stmt
 }
 
@@ -133,6 +142,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		insertExerciseHRZoneStmt:  q.insertExerciseHRZoneStmt,
 		insertExerciseSampleStmt:  q.insertExerciseSampleStmt,
 		insertExerciseSectionStmt: q.insertExerciseSectionStmt,
+		insertSymptomStmt:         q.insertSymptomStmt,
 		upsertUserStmt:            q.upsertUserStmt,
 	}
 }

@@ -73,3 +73,16 @@ INSERT INTO exercise_sections (
     $8, $9, $10, $11, $12, $13
 )
 ON CONFLICT (id) DO NOTHING;
+
+
+-- name: InsertSymptom :exec
+INSERT INTO symptoms (
+    id, user_id, date, symptom, severity, comment, source,
+    created_at, updated_at, raw_id, original_id, recovered,
+    pain_index, side, category, additional_data
+) VALUES (
+    $1, $2, $3, $4, $5, $6, $7,
+    $8, $9, $10, $11, $12,
+    $13, $14, $15, $16
+)
+ON CONFLICT (source, user_id, date, raw_id) DO NOTHING;

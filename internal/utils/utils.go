@@ -183,3 +183,23 @@ func ParseRawJSON(s *string) pqtype.NullRawMessage {
 	}
 	return pqtype.NullRawMessage{Valid: true, RawMessage: json.RawMessage(*s)}
 }
+
+// ParseUUIDPtr parses a UUID string pointer to *uuid.NullUUID
+func ParseUUIDPtr(s *string) (uuid.NullUUID, error) {
+	if s == nil || *s == "" {
+		return uuid.NullUUID{Valid: false}, nil
+	}
+	parsed, err := uuid.Parse(*s)
+	if err != nil {
+		return uuid.NullUUID{}, ErrInvalidUUID
+	}
+	return uuid.NullUUID{UUID: parsed, Valid: true}, nil
+}
+
+// Converts a *bool to sql.NullBool
+func NullBoolPtr(b *bool) sql.NullBool {
+	if b == nil {
+		return sql.NullBool{}
+	}
+	return sql.NullBool{Bool: *b, Valid: true}
+}
