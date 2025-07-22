@@ -159,7 +159,7 @@ func ParseTimestamp(value string) (time.Time, error) {
 	}
 	t, err := time.Parse(time.RFC3339, value)
 	if err != nil {
-		return time.Time{}, ErrInvalidDate
+		return time.Time{}, ErrInvalidTimeStamp
 	}
 	return t, nil
 }
@@ -171,7 +171,7 @@ func ParseTimestampPtr(value *string) (*time.Time, error) {
 	}
 	t, err := time.Parse(time.RFC3339, *value)
 	if err != nil {
-		return nil, ErrInvalidDate
+		return nil, ErrInvalidTimeStamp
 	}
 	return &t, nil
 }

@@ -34,10 +34,15 @@ var (
 	ErrMissingSportID   = errors.New("sport_id is required")
 	ErrMissingSporttiID = errors.New("sportti_id is required")
 	ErrMissingID        = errors.New("id is required")
+	ErrMissingStartTime = errors.New("start_time is required")
+	ErrMissingUpdatedAt = errors.New("updated_at is required")
+	ErrMissingCreatedAt = errors.New("created_at is required")
+	ErrMissingDuration  = errors.New("duration is required")
 
 	//ErrInvalid
 	ErrInvalidUUID         = errors.New("invalid UUID")
 	ErrInvalidDate         = errors.New("invalid date: ensure the format is YYYY-MM-DD and values are realistic")
+	ErrInvalidTimeStamp    = errors.New("invalid timestamp: ensure the format is RFC3339 (e.g., 2023-10-01T15:04:05Z)")
 	ErrInvalidParameter    = errors.New("invalid parameter provided")
 	ErrInvalidDateRange    = errors.New("invalid date range")
 	ErrInvalidChoice       = errors.New("invalid choice: must be one of the allowed values")
@@ -90,6 +95,14 @@ func FormatValidationErrors(err error) map[string]string {
 				errors["sportti_id"] = ErrMissingSporttiID.Error()
 			case "ID":
 				errors["id"] = ErrMissingID.Error()
+			case "StartTime":
+				errors["start_time"] = ErrMissingStartTime.Error()
+			case "UpdatedAt":
+				errors["updated_at"] = ErrMissingUpdatedAt.Error()
+			case "CreatedAt":
+				errors["created_at"] = ErrMissingCreatedAt.Error()
+			case "Duration":
+				errors["duration"] = ErrMissingDuration.Error()
 			default:
 				errors[field] = ErrMissingGeneral.Error()
 			}
