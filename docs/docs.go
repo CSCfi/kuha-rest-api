@@ -301,6 +301,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/swagger.ForbiddenResponse"
                         }
                     },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ConflictResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -353,6 +359,12 @@ const docTemplate = `{
                         "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ConflictResponse"
                         }
                     },
                     "500": {
@@ -3453,6 +3465,26 @@ const docTemplate = `{
                 "data": {
                     "type": "boolean",
                     "example": true
+                }
+            }
+        },
+        "swagger.ConflictError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "record already exists"
+                }
+            }
+        },
+        "swagger.ConflictResponse": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.ConflictError"
+                    }
                 }
             }
         },

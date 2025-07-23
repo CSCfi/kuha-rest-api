@@ -46,3 +46,12 @@ type InvalidDateRange struct {
 type UnprocessableEntityError struct {
 	Error1 string `json:"error" example:"invalid date range"`
 }
+
+// 409 - Tietoevry
+type ConflictResponse struct {
+	Errors []ConflictError `json:"errors"`
+}
+
+type ConflictError struct {
+	Error1 string `json:"error" example:"record already exists"`
+}

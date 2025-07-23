@@ -57,6 +57,7 @@ type TietoevrySymptomsBulkInput struct {
 //	@Success		201			"Symptoms processed successfully (idempotent operation)"
 //	@Failure		400			{object}	swagger.ValidationErrorResponse
 //	@Failure		403			{object}	swagger.ForbiddenResponse
+//	@Failure		409			{object}	swagger.ConflictResponse
 //	@Failure		500			{object}	swagger.InternalServerErrorResponse
 //	@Security		BearerAuth
 //	@Router			/tietoevry/symptoms [post]

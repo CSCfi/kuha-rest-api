@@ -86,6 +86,19 @@ definitions:
         example: true
         type: boolean
     type: object
+  swagger.ConflictError:
+    properties:
+      error:
+        example: record already exists
+        type: string
+    type: object
+  swagger.ConflictResponse:
+    properties:
+      errors:
+        items:
+          $ref: '#/definitions/swagger.ConflictError'
+        type: array
+    type: object
   swagger.DailyActivity:
     properties:
       day:
@@ -1471,6 +1484,10 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/swagger.ForbiddenResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/swagger.ConflictResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -1505,6 +1522,10 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/swagger.ForbiddenResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/swagger.ConflictResponse'
         "500":
           description: Internal Server Error
           schema:

@@ -59,7 +59,7 @@ var (
 	ErrUserNotFound        = errors.New("user does not exist. Please create the user first")
 	ErrExerciseNotFound    = errors.New("exercise does not exist")
 	ErrForeignKeyViolation = errors.New("referenced record does not exist")
-	ErrInvalidExerciseData = errors.New("exercise data contains invalid references")
+	ErrInvalidExerciseData = errors.New("exercise data contains invalid exercise id")
 )
 
 func FormatValidationErrors(err error) map[string]string {
@@ -250,20 +250,42 @@ func HandleDatabaseError(w http.ResponseWriter, r *http.Request, err error) {
 		switch pqErr.Code {
 		case "23503": // foreign_key_violation
 			if strings.Contains(pqErr.Message, "user_id") || strings.Contains(pqErr.Detail, "user_id") {
-				BadRequestResponse(w, r, ErrUserNotFound)
+				// Try to extract the specific user_id from the error detail
+				if pqErr.Detail != "" {
+					BadRequestResponse(w, r, fmt.Errorf("user does not exist. Details: %s", pqErr.Detail))
+				} else {
+					BadRequestResponse(w, r, ErrUserNotFound)
+				}
 				return
 			} else if strings.Contains(pqErr.Message, "exercise_id") || strings.Contains(pqErr.Detail, "exercise_id") {
-				BadRequestResponse(w, r, ErrInvalidExerciseData)
+				// This usually means the main exercise insert was skipped due to conflict
+				if pqErr.Detail != "" {
+					BadRequestResponse(w, r, fmt.Errorf("exercise insert was skipped due to a conflict (duplicated raw_id, exercise_id, user_id for example), Details: %s", pqErr.Detail))
+				} else {
+					BadRequestResponse(w, r, ErrInvalidExerciseData)
+				}
 				return
 			}
-			// Generic foreign key violation
-			BadRequestResponse(w, r, ErrForeignKeyViolation)
+			// Generic foreign key violation with details if available
+			if pqErr.Detail != "" {
+				BadRequestResponse(w, r, fmt.Errorf("referenced record does not exist. Details: %s", pqErr.Detail))
+			} else {
+				BadRequestResponse(w, r, ErrForeignKeyViolation)
+			}
 			return
 		case "23505": // unique_violation
-			ConflictResponse(w, r, errors.New("record already exists"))
+			if pqErr.Detail != "" {
+				ConflictResponse(w, r, fmt.Errorf("record already exists. Details: %s", pqErr.Detail))
+			} else {
+				ConflictResponse(w, r, errors.New("record already exists"))
+			}
 			return
 		case "23514": // check_violation
-			BadRequestResponse(w, r, errors.New("data violates database constraints"))
+			if pqErr.Detail != "" {
+				BadRequestResponse(w, r, fmt.Errorf("data violates database constraints. Details: %s", pqErr.Detail))
+			} else {
+				BadRequestResponse(w, r, errors.New("data violates database constraints"))
+			}
 			return
 		}
 	}
