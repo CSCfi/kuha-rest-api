@@ -134,7 +134,8 @@ func (h *GeneralDataHandler) GetLatestData(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	cacheKey := fmt.Sprintf("latest:%s:%s:%s:%d", params.UserID, params.Type, params.Device, params.Limit)
+	cacheKey := fmt.Sprintf("utv:latest:%s:%s:%s:%d", params.UserID, params.Type, params.Device, params.Limit)
+
 	if h.cache != nil {
 		if cached, err := h.cache.Get(r.Context(), cacheKey); err == nil && cached != "" {
 			utils.WriteJSON(w, http.StatusOK, json.RawMessage(cached))
@@ -183,7 +184,8 @@ func (h *GeneralDataHandler) GetLatestData(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, results, 10*time.Minute)
+	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, results, 3*time.Minute)
+
 	utils.WriteJSON(w, http.StatusOK, results)
 }
 
@@ -254,6 +256,15 @@ func (h *GeneralDataHandler) GetAllByType(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	cacheKey := fmt.Sprintf("utv:all:%s:%s:after:%s:before:%s", userID, params.Type, after, before)
+
+	if h.cache != nil {
+		if cached, err := h.cache.Get(r.Context(), cacheKey); err == nil && cached != "" {
+			utils.WriteJSON(w, http.StatusOK, json.RawMessage(cached))
+			return
+		}
+	}
+
 	var results []LatestDataResponse
 
 	// Helper to query one device
@@ -283,6 +294,8 @@ func (h *GeneralDataHandler) GetAllByType(w http.ResponseWriter, r *http.Request
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
+
+	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, results, 3*time.Minute)
 
 	utils.WriteJSON(w, http.StatusOK, results)
 }

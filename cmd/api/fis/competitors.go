@@ -86,7 +86,7 @@ func (h *CompetitorsHandler) GetAthletesBySector(w http.ResponseWriter, r *http.
 		"athletes": competitors,
 	}
 
-	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, response, 10*time.Minute)
+	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, response, 3*time.Minute)
 
 	utils.WriteJSON(w, http.StatusOK, response)
 }
@@ -150,7 +150,7 @@ func (h *CompetitorsHandler) GetNationsBySector(w http.ResponseWriter, r *http.R
 		"nations": nations,
 	}
 
-	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, response, 10*time.Minute)
+	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, response, 3*time.Minute)
 
 	utils.WriteJSON(w, http.StatusOK, response)
 }

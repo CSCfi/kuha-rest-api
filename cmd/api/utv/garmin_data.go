@@ -97,7 +97,7 @@ func (h *GarminDataHandler) GetDates(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cacheKey := fmt.Sprintf("garmin:dates:%s:%s:%s", params.UserID, params.AfterDate, params.BeforeDate)
+	cacheKey := fmt.Sprintf("utv:garmin:dates:%s:%s:%s", params.UserID, params.AfterDate, params.BeforeDate)
 
 	if h.cache != nil {
 		if cached, err := h.cache.Get(r.Context(), cacheKey); err == nil && cached != "" {
@@ -122,7 +122,7 @@ func (h *GarminDataHandler) GetDates(w http.ResponseWriter, r *http.Request) {
 		"dates": dates,
 	}
 
-	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, response, 10*time.Minute)
+	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, response, 3*time.Minute)
 
 	utils.WriteJSON(w, http.StatusOK, response)
 }
@@ -165,7 +165,7 @@ func (h *GarminDataHandler) GetTypes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cacheKey := fmt.Sprintf("garmin:types:%s:%s", params.UserID, params.Date)
+	cacheKey := fmt.Sprintf("utv:garmin:types:%s:%s", params.UserID, params.Date)
 
 	if h.cache != nil {
 		if cached, err := h.cache.Get(r.Context(), cacheKey); err == nil && cached != "" {
@@ -190,7 +190,7 @@ func (h *GarminDataHandler) GetTypes(w http.ResponseWriter, r *http.Request) {
 		"types": types,
 	}
 
-	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, response, 10*time.Minute)
+	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, response, 3*time.Minute)
 
 	utils.WriteJSON(w, http.StatusOK, response)
 }
@@ -239,7 +239,7 @@ func (h *GarminDataHandler) GetData(w http.ResponseWriter, r *http.Request) {
 	if params.Key != "" {
 		keyPart = params.Key
 	}
-	cacheKey := fmt.Sprintf("garmin:data:%s:%s:%s", params.UserID, params.Date, keyPart)
+	cacheKey := fmt.Sprintf("utv:garmin:data:%s:%s:%s", params.UserID, params.Date, keyPart)
 
 	if h.cache != nil {
 		if cached, err := h.cache.Get(r.Context(), cacheKey); err == nil && cached != "" {
@@ -264,7 +264,7 @@ func (h *GarminDataHandler) GetData(w http.ResponseWriter, r *http.Request) {
 		"data": data,
 	}
 
-	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, response, 10*time.Minute)
+	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, response, 3*time.Minute)
 
 	utils.WriteJSON(w, http.StatusOK, response)
 }

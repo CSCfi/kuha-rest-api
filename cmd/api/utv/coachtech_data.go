@@ -144,6 +144,15 @@ func (h *CoachtechDataHandler) GetData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cacheKey := fmt.Sprintf("utv:coachtech:data:user:%s:after:%s:before:%s", userID, after, before)
+
+	if h.cache != nil {
+		if cached, err := h.cache.Get(r.Context(), cacheKey); err == nil && cached != "" {
+			utils.WriteJSON(w, http.StatusOK, json.RawMessage(cached))
+			return
+		}
+	}
+
 	data, err := h.store.GetData(r.Context(), userID, after, before)
 	if err != nil {
 		utils.InternalServerError(w, r, err)
@@ -154,6 +163,8 @@ func (h *CoachtechDataHandler) GetData(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
+
+	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, data, 3*time.Minute)
 
 	utils.WriteJSON(w, http.StatusOK, data)
 }
