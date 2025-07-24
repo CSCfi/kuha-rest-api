@@ -1463,7 +1463,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Insert multiple exercise bundles with idempotent behavior
+      description: Insert multiple exercise bundles for user (idempotent)
       parameters:
       - description: Exercise data
         in: body
@@ -1501,7 +1501,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Insert multiple symptoms with idempotent behavior
+      description: Insert multiple symptoms for user (idempotent)
       parameters:
       - description: Symptom data
         in: body

@@ -98,7 +98,7 @@ type TietoevryExercisesBulkInput struct {
 // InsertExercise godoc
 //
 //	@Summary		Insert exercise (bulk)
-//	@Description	Insert multiple exercise bundles with idempotent behavior
+//	@Description	Insert multiple exercise bundles for user (idempotent)
 //	@Tags			Tietoevry - Exercise
 //	@Accept			json
 //	@Produce		json

@@ -49,7 +49,7 @@ type TietoevrySymptomsBulkInput struct {
 // InsertSymptoms godoc
 //
 //	@Summary		Insert symptoms (bulk)
-//	@Description	Insert multiple symptoms with idempotent behavior
+//	@Description	Insert multiple symptoms for user (idempotent)
 //	@Tags			Tietoevry - Symptoms
 //	@Accept			json
 //	@Produce		json

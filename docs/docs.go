@@ -263,7 +263,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Insert multiple exercise bundles with idempotent behavior",
+                "description": "Insert multiple exercise bundles for user (idempotent)",
                 "consumes": [
                     "application/json"
                 ],
@@ -323,7 +323,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Insert multiple symptoms with idempotent behavior",
+                "description": "Insert multiple symptoms for user (idempotent)",
                 "consumes": [
                     "application/json"
                 ],

@@ -81,10 +81,10 @@ func (s *SymptomsStore) InsertSymptomsBulk(ctx context.Context, symptoms []tieto
 	}
 	defer tx.Rollback()
 
-	qtx := tietoevrysqlc.New(tx)
+	q := tietoevrysqlc.New(tx)
 
 	for _, symptom := range symptoms {
-		if err := qtx.InsertSymptom(ctx, symptom); err != nil {
+		if err := q.InsertSymptom(ctx, symptom); err != nil {
 			return err
 		}
 	}
