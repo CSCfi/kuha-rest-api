@@ -1202,6 +1202,11 @@ definitions:
         example: 72.5
         type: number
     type: object
+  swagger.TietoevryMeasurementResponse:
+    properties:
+      measurements:
+        $ref: '#/definitions/swagger.TietoevryMeasurementInput'
+    type: object
   swagger.TietoevryMeasurementsBulkInput:
     properties:
       measurements:
@@ -1860,6 +1865,40 @@ paths:
       tags:
       - Tietoevry - Exercise
   /tietoevry/measurements:
+    get:
+      consumes:
+      - application/json
+      description: Get all measurements for a specific user
+      parameters:
+      - description: User ID (UUID)
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.TietoevryMeasurementResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get measurements by user ID
+      tags:
+      - Tietoevry - Measurements
     post:
       consumes:
       - application/json

@@ -221,3 +221,7 @@ type TietoevryExerciseResponse struct {
 type TietoevrySymptomResponse struct {
 	Symptom TietoevrySymptomInput `json:"symptoms"`
 }
+
+type TietoevryMeasurementResponse struct {
+	Measurement TietoevryMeasurementInput `json:"measurements"`
+}

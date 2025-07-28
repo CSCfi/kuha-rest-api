@@ -86,3 +86,11 @@ func (s *MeasurementsStore) InsertMeasurementsBulk(ctx context.Context, measurem
 
 	return tx.Commit()
 }
+
+func (s *MeasurementsStore) GetMeasurementsByUser(ctx context.Context, userID uuid.UUID) ([]tietoevrysqlc.Measurement, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	q := tietoevrysqlc.New(s.db)
+	return q.GetMeasurementsByUser(ctx, userID)
+}

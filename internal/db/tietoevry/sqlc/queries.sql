@@ -179,3 +179,8 @@ ORDER BY start_time;
 SELECT * FROM symptoms
 WHERE user_id = $1
 ORDER BY date DESC, created_at DESC;
+
+-- name: GetMeasurementsByUser :many
+SELECT * FROM measurements
+WHERE user_id = $1
+ORDER BY date DESC, created_at DESC;

@@ -3,7 +3,9 @@ package tietoevryapi
 import (
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/DeRuina/KUHA-REST-API/docs/swagger"
 	"github.com/DeRuina/KUHA-REST-API/internal/auth/authz"
 	tietoevrysqlc "github.com/DeRuina/KUHA-REST-API/internal/db/tietoevry"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/cache"
@@ -145,4 +147,87 @@ func (h *TietoevryMeasurementHandler) InsertMeasurementsBulk(w http.ResponseWrit
 	}
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+type TietoevryMeasurementParams struct {
+	UserID string `form:"user_id" validate:"required,uuid4"`
+}
+
+// GetMeasurements godoc
+//
+//	@Summary		Get measurements by user ID
+//	@Description	Get all measurements for a specific user
+//	@Tags			Tietoevry - Measurements
+//	@Accept			json
+//	@Produce		json
+//	@Param			user_id	query		string	true	"User ID (UUID)"
+//	@Success		200		{object}	swagger.TietoevryMeasurementResponse
+//	@Failure		400		{object}	swagger.ValidationErrorResponse
+//	@Failure		403		{object}	swagger.ForbiddenResponse
+//	@Failure		500		{object}	swagger.InternalServerErrorResponse
+//	@Security		BearerAuth
+//	@Router			/tietoevry/measurements [get]
+func (h *TietoevryMeasurementHandler) GetMeasurements(w http.ResponseWriter, r *http.Request) {
+	if !authz.Authorize(r) {
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
+		return
+	}
+
+	if err := utils.ValidateParams(r, []string{"user_id"}); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	params := TietoevryMeasurementParams{
+		UserID: r.URL.Query().Get("user_id"),
+	}
+
+	if err := utils.GetValidator().Struct(params); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	userID, err := utils.ParseUUID(params.UserID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	measurements, err := h.store.GetMeasurementsByUser(r.Context(), userID)
+	if err != nil {
+		utils.InternalServerError(w, r, err)
+		return
+	}
+
+	if len(measurements) == 0 {
+		utils.WriteJSON(w, http.StatusOK, map[string]any{
+			"measurements": []swagger.TietoevryMeasurementInput{},
+		})
+		return
+	}
+
+	var output []swagger.TietoevryMeasurementInput
+	for _, measurement := range measurements {
+		out := swagger.TietoevryMeasurementInput{
+			ID:             measurement.ID.String(),
+			CreatedAt:      measurement.CreatedAt.Format(time.RFC3339),
+			UpdatedAt:      measurement.UpdatedAt.Format(time.RFC3339),
+			UserID:         measurement.UserID.String(),
+			Date:           measurement.Date.Format("2006-01-02"),
+			Name:           measurement.Name,
+			NameType:       measurement.NameType,
+			Source:         measurement.Source,
+			Value:          measurement.Value,
+			ValueNumeric:   utils.Float64PtrOrNil(measurement.ValueNumeric),
+			Comment:        utils.StringPtrOrNil(measurement.Comment),
+			RawID:          utils.StringPtrOrNil(measurement.RawID),
+			RawData:        utils.RawMessagePtrOrNil(measurement.RawData),
+			AdditionalInfo: utils.RawMessagePtrOrNil(measurement.AdditionalInfo),
+		}
+		output = append(output, out)
+	}
+
+	utils.WriteJSON(w, http.StatusOK, map[string]any{
+		"measurements": output,
+	})
 }

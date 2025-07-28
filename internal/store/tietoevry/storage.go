@@ -36,6 +36,7 @@ type Symptoms interface {
 type Measurements interface {
 	ValidateUsersExist(ctx context.Context, userIDs []uuid.UUID) error
 	InsertMeasurementsBulk(ctx context.Context, measurements []tietoevrysqlc.InsertMeasurementParams) error
+	GetMeasurementsByUser(ctx context.Context, userID uuid.UUID) ([]tietoevrysqlc.Measurement, error)
 }
 
 type TestResults interface {
