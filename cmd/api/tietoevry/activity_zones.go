@@ -3,7 +3,9 @@ package tietoevryapi
 import (
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/DeRuina/KUHA-REST-API/docs/swagger"
 	"github.com/DeRuina/KUHA-REST-API/internal/auth/authz"
 	tietoevrysqlc "github.com/DeRuina/KUHA-REST-API/internal/db/tietoevry"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/cache"
@@ -44,7 +46,7 @@ type TietoevryActivityZonesBulkInput struct {
 //
 //	@Summary		Insert activity zones (bulk)
 //	@Description	Insert multiple activity zone summaries for user (idempotent)
-//	@Tags			Tietoevry - ActivityZones
+//	@Tags			Tietoevry - Activity_Zones
 //	@Accept			json
 //	@Produce		json
 //	@Param			activity_zones	body	swagger.TietoevryActivityZonesBulkInput	true	"Activity zone summaries"
@@ -138,4 +140,85 @@ func (h *TietoevryActivityZoneHandler) InsertActivityZonesBulk(w http.ResponseWr
 	}
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+type TietoevryActivityZoneParams struct {
+	UserID string `json:"user_id" validate:"required,uuid4"`
+}
+
+// GetActivityZones godoc
+//
+//	@Summary		Get activity zones by user ID
+//	@Description	Get all activity zones for a specific user
+//	@Tags			Tietoevry - Activity_Zones
+//	@Accept			json
+//	@Produce		json
+//	@Param			user_id	query		string	true	"User ID (UUID)"
+//	@Success		200		{object}	swagger.TietoevryActivityZoneResponse
+//	@Failure		400		{object}	swagger.ValidationErrorResponse
+//	@Failure		403		{object}	swagger.ForbiddenResponse
+//	@Failure		500		{object}	swagger.InternalServerErrorResponse
+//	@Security		BearerAuth
+//	@Router			/tietoevry/activity-zones [get]
+func (h *TietoevryActivityZoneHandler) GetActivityZones(w http.ResponseWriter, r *http.Request) {
+	if !authz.Authorize(r) {
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
+		return
+	}
+
+	if err := utils.ValidateParams(r, []string{"user_id"}); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	params := TietoevryActivityZoneParams{
+		UserID: r.URL.Query().Get("user_id"),
+	}
+
+	if err := utils.GetValidator().Struct(params); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	userID, err := utils.ParseUUID(params.UserID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	activityZones, err := h.store.GetActivityZonesByUser(r.Context(), userID)
+	if err != nil {
+		utils.InternalServerError(w, r, err)
+		return
+	}
+
+	if len(activityZones) == 0 {
+		utils.WriteJSON(w, http.StatusOK, map[string]any{
+			"activity_zones": []swagger.TietoevryActivityZoneInput{},
+		})
+		return
+	}
+
+	var output []swagger.TietoevryActivityZoneInput
+	for _, activityZone := range activityZones {
+		out := swagger.TietoevryActivityZoneInput{
+			UserID:         activityZone.UserID.String(),
+			Date:           activityZone.Date.Format("2006-01-02"),
+			CreatedAt:      activityZone.CreatedAt.Format(time.RFC3339),
+			UpdatedAt:      activityZone.UpdatedAt.Format(time.RFC3339),
+			SecondsInZone0: utils.Float64PtrOrNil(activityZone.SecondsInZone0),
+			SecondsInZone1: utils.Float64PtrOrNil(activityZone.SecondsInZone1),
+			SecondsInZone2: utils.Float64PtrOrNil(activityZone.SecondsInZone2),
+			SecondsInZone3: utils.Float64PtrOrNil(activityZone.SecondsInZone3),
+			SecondsInZone4: utils.Float64PtrOrNil(activityZone.SecondsInZone4),
+			SecondsInZone5: utils.Float64PtrOrNil(activityZone.SecondsInZone5),
+			Source:         activityZone.Source,
+			RawData:        utils.RawMessagePtrOrNil(activityZone.RawData),
+		}
+		output = append(output, out)
+	}
+
+	utils.WriteJSON(w, http.StatusOK, map[string]any{
+		"activity_zones": output,
+	})
 }

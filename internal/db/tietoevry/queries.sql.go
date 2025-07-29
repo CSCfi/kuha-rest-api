@@ -29,6 +29,48 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) (int64, error) {
 	return result.RowsAffected()
 }
 
+const getActivityZonesByUser = `-- name: GetActivityZonesByUser :many
+SELECT user_id, date, created_at, updated_at, seconds_in_zone_0, seconds_in_zone_1, seconds_in_zone_2, seconds_in_zone_3, seconds_in_zone_4, seconds_in_zone_5, source, raw_data FROM activity_zones
+WHERE user_id = $1
+ORDER BY date DESC, created_at DESC
+`
+
+func (q *Queries) GetActivityZonesByUser(ctx context.Context, userID uuid.UUID) ([]ActivityZone, error) {
+	rows, err := q.query(ctx, q.getActivityZonesByUserStmt, getActivityZonesByUser, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ActivityZone
+	for rows.Next() {
+		var i ActivityZone
+		if err := rows.Scan(
+			&i.UserID,
+			&i.Date,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.SecondsInZone0,
+			&i.SecondsInZone1,
+			&i.SecondsInZone2,
+			&i.SecondsInZone3,
+			&i.SecondsInZone4,
+			&i.SecondsInZone5,
+			&i.Source,
+			&i.RawData,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getDeletedUsers = `-- name: GetDeletedUsers :many
 SELECT id, user_id, sportti_id, deleted_at
 FROM deleted_users_log

@@ -91,3 +91,11 @@ func (s *ActivityZonesStore) InsertActivityZonesBulk(ctx context.Context, zones 
 
 	return tx.Commit()
 }
+
+func (s *ActivityZonesStore) GetActivityZonesByUser(ctx context.Context, userID uuid.UUID) ([]tietoevrysqlc.ActivityZone, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	q := tietoevrysqlc.New(s.db)
+	return q.GetActivityZonesByUser(ctx, userID)
+}

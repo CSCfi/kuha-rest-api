@@ -257,6 +257,59 @@ const docTemplate = `{
             }
         },
         "/tietoevry/activity-zones": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all activity zones for a specific user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tietoevry - Activity_Zones"
+                ],
+                "summary": "Get activity zones by user ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID (UUID)",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.TietoevryActivityZoneResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -271,7 +324,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Tietoevry - ActivityZones"
+                    "Tietoevry - Activity_Zones"
                 ],
                 "summary": "Insert activity zones (bulk)",
                 "parameters": [
@@ -5411,6 +5464,14 @@ const docTemplate = `{
                 "user_id": {
                     "type": "string",
                     "example": "7cffe6e0-3f28-43b6-b511-d836d3a9f7b5"
+                }
+            }
+        },
+        "swagger.TietoevryActivityZoneResponse": {
+            "type": "object",
+            "properties": {
+                "activity_zones": {
+                    "$ref": "#/definitions/swagger.TietoevryActivityZoneInput"
                 }
             }
         },

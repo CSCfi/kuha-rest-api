@@ -194,3 +194,8 @@ ORDER BY timestamp DESC, created_at DESC;
 SELECT * FROM question_answers
 WHERE user_id = $1
 ORDER BY created_at DESC;
+
+-- name: GetActivityZonesByUser :many
+SELECT * FROM activity_zones
+WHERE user_id = $1
+ORDER BY date DESC, created_at DESC;

@@ -54,6 +54,7 @@ type Questionnaires interface {
 type ActivityZones interface {
 	ValidateUsersExist(ctx context.Context, userIDs []uuid.UUID) error
 	InsertActivityZonesBulk(ctx context.Context, zones []tietoevrysqlc.InsertActivityZoneParams) error
+	GetActivityZonesByUser(ctx context.Context, userID uuid.UUID) ([]tietoevrysqlc.ActivityZone, error)
 }
 
 // TietoevryStorage

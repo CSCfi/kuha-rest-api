@@ -233,3 +233,7 @@ type TietoevryTestResultResponse struct {
 type TietoevryQuestionnaireAnswerResponse struct {
 	QuestionnaireAnswer TietoevryQuestionnaireAnswerInput `json:"questionnaires"`
 }
+
+type TietoevryActivityZoneResponse struct {
+	ActivityZone TietoevryActivityZoneInput `json:"activity_zones"`
+}

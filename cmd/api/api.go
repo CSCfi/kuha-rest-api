@@ -173,6 +173,7 @@ func (app *api) mount() http.Handler {
 
 				// Activity Zone routes
 				r.Post("/activity-zones", activityZoneHandler.InsertActivityZonesBulk)
+				r.Get("/activity-zones", activityZoneHandler.GetActivityZones)
 			})
 
 			// FIS routes
