@@ -14,7 +14,6 @@ type CompetitorsStore struct {
 }
 
 // GetAthletesBySector
-
 type GetBySectorResponse struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
@@ -47,14 +46,13 @@ func (s *CompetitorsStore) GetAthletesBySector(ctx context.Context, sectorCode s
 }
 
 // GetNationsBySector
-
 func (s *CompetitorsStore) GetNationsBySector(ctx context.Context, sectorCode string) ([]string, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
 	queries := fissqlc.New(s.db)
 
 	dbSectorCode := sql.NullString{String: sectorCode, Valid: true}
-
-	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
-	defer cancel()
 
 	nations, err := queries.GetNationsBySector(ctx, dbSectorCode)
 	if err != nil {
