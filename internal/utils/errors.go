@@ -284,6 +284,15 @@ func ConflictResponse(w http.ResponseWriter, r *http.Request, err error) {
 	WriteJSONError(w, http.StatusConflict, map[string]string{"error": err.Error()})
 }
 
+// 503 Service Unavailable for a specific database
+func ServiceUnavailableDBResponse(w http.ResponseWriter, r *http.Request, dbName string) {
+	err := fmt.Errorf("%s database is unavailable", dbName)
+	logError(r, "Service unavailable", err, http.StatusServiceUnavailable)
+	WriteJSONError(w, http.StatusServiceUnavailable, map[string]string{
+		"error": err.Error(),
+	})
+}
+
 // HandleDatabaseError analyzes database errors and returns appropriate HTTP responses - defualt 500 Internal Server Error
 func HandleDatabaseError(w http.ResponseWriter, r *http.Request, err error) {
 	// Check if it's a PostgreSQL error

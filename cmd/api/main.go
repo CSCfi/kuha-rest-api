@@ -82,15 +82,15 @@ func main() {
 	var cacheStorage *cache.Storage
 	if cfg.redisCfg.enabled {
 		rdb := cache.NewRedisClient(cfg.redisCfg.addr, cfg.redisCfg.pw, cfg.redisCfg.db)
+		defer rdb.Close()
+
 		if err := rdb.Ping(context.Background()).Err(); err != nil {
 			logger.Logger.Warnw("failed to connect to Redis", "error", err)
 		} else {
 			cacheStorage = cache.NewRedisStorage(rdb)
 			redisLimiter = ratelimiter.NewRedisSlidingLimiter(rdb)
 			logger.Logger.Info("Redis cache connection established")
-			defer rdb.Close()
 		}
-		defer rdb.Close()
 	} else {
 		logger.Logger.Info("Redis cache disabled by configuration")
 		localLimiter = ratelimiter.NewFixedWindowLimiter(
@@ -99,20 +99,55 @@ func main() {
 		)
 	}
 
-	// Database
-	databases, err := db.New(cfg.db.fisAddr, cfg.db.utvAddr, cfg.db.authAddr, cfg.db.tietoevryAddr, cfg.db.kamkAddr, cfg.db.klabAddr, cfg.db.archinisisAddr, cfg.db.maxOpenConns, cfg.db.maxIdleConns, cfg.db.maxIdleTime)
-	if err != nil {
-		logger.Logger.Fatal(err)
+	// Database - Connect with graceful failure handling
+	databases, dbErrors := db.NewWithGracefulFailure(
+		cfg.db.fisAddr,
+		cfg.db.utvAddr,
+		cfg.db.authAddr,
+		cfg.db.tietoevryAddr,
+		cfg.db.kamkAddr,
+		cfg.db.klabAddr,
+		cfg.db.archinisisAddr,
+		cfg.db.maxOpenConns,
+		cfg.db.maxIdleConns,
+		cfg.db.maxIdleTime,
+	)
+
+	// Log connection status for each database
+	for name, err := range dbErrors {
+		if err == nil {
+			logger.Logger.Infow("Database connected successfully", "database", name)
+		} else if err.Error() == "not configured" {
+			logger.Logger.Infow("database not configured", "database", name)
+		} else {
+			logger.Logger.Warnw("database connection failed", "database", name, "error", err)
+		}
 	}
 
-	defer databases.FIS.Close()
-	defer databases.UTV.Close()
-	defer databases.Auth.Close()
-	defer databases.Tietoevry.Close()
-	defer databases.KAMK.Close()
-	defer databases.KLAB.Close()
-	defer databases.ARCHINISIS.Close()
-	logger.Logger.Info("database connection pool established")
+	// Close only successful connections
+	defer func() {
+		if databases.FIS != nil {
+			databases.FIS.Close()
+		}
+		if databases.UTV != nil {
+			databases.UTV.Close()
+		}
+		if databases.Auth != nil {
+			databases.Auth.Close()
+		}
+		if databases.Tietoevry != nil {
+			databases.Tietoevry.Close()
+		}
+		if databases.KAMK != nil {
+			databases.KAMK.Close()
+		}
+		if databases.KLAB != nil {
+			databases.KLAB.Close()
+		}
+		if databases.ARCHINISIS != nil {
+			databases.ARCHINISIS.Close()
+		}
+	}()
 
 	// Authentication
 	authn.LoadJWTConfig(authn.JWTConfig{

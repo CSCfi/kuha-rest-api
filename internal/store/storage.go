@@ -77,14 +77,49 @@ type Storage struct {
 
 // Initializes storage for multiple databases
 func NewStorage(databases *db.Database) *Storage {
+	var fisStore FIS
+	if databases.FIS != nil {
+		fisStore = fis.NewFISStorage(databases.FIS)
+	}
+
+	var utvStore UTV
+	if databases.UTV != nil {
+		utvStore = utv.NewUTVStorage(databases.UTV)
+	}
+
+	var authStore Auth
+	if databases.Auth != nil {
+		authStore = auth.NewAuthStorage(databases.Auth)
+	}
+
+	var tietoevryStore Tietoevry
+	if databases.Tietoevry != nil {
+		tietoevryStore = tietoevry.NewTietoevryStorage(databases.Tietoevry)
+	}
+
+	var kamkStore KAMK
+	if databases.KAMK != nil {
+		kamkStore = kamk.NewKAMKStorage(databases.KAMK)
+	}
+
+	var klabStore Klab
+	if databases.KLAB != nil {
+		klabStore = klab.NewKLABStorage(databases.KLAB)
+	}
+
+	var archinisisStore Archinisis
+	if databases.ARCHINISIS != nil {
+		archinisisStore = archinisis.NewArchinisisStorage(databases.ARCHINISIS)
+	}
+
 	return &Storage{
-		FIS:        fis.NewFISStorage(databases.FIS),
-		UTV:        utv.NewUTVStorage(databases.UTV),
-		Auth:       auth.NewAuthStorage(databases.Auth),
-		Tietoevry:  tietoevry.NewTietoevryStorage(databases.Tietoevry),
-		KAMK:       kamk.NewKAMKStorage(databases.KAMK),
-		KLAB:       klab.NewKLABStorage(databases.KLAB),
-		ARCHINISIS: archinisis.NewArchinisisStorage(databases.ARCHINISIS),
+		FIS:        fisStore,
+		UTV:        utvStore,
+		Auth:       authStore,
+		Tietoevry:  tietoevryStore,
+		KAMK:       kamkStore,
+		KLAB:       klabStore,
+		ARCHINISIS: archinisisStore,
 	}
 }
 

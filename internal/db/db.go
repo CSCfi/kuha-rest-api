@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -81,6 +82,64 @@ func connectDB(addr string, maxOpenConns, maxIdleConns int, maxIdleTime string) 
 		return nil, err
 	}
 	db.SetConnMaxIdleTime(time.Duration(duration))
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err = db.PingContext(ctx); err != nil {
+		return nil, err
+	}
+
+	return db, nil
+}
+
+func NewWithGracefulFailure(
+	fisAddr, utvAddr, authAddr, tietoevryAddr, kamkAddr, klabAddr, archinisisAddr string,
+	maxOpenConns, maxIdleConns int, maxIdleTime string,
+) (*Database, map[string]error) {
+	databases := &Database{}
+	errors := make(map[string]error)
+
+	tryConnect := func(name, addr string) *sql.DB {
+		if addr == "" {
+			errors[name] = fmt.Errorf("not configured")
+			return nil
+		}
+		db, err := connectToDB(addr, maxOpenConns, maxIdleConns, maxIdleTime)
+		if err != nil {
+			errors[name] = err
+			return nil
+		}
+		errors[name] = nil
+		return db
+	}
+
+	databases.FIS = tryConnect("fis", fisAddr)
+	databases.UTV = tryConnect("utv", utvAddr)
+	databases.Auth = tryConnect("auth", authAddr)
+	databases.Tietoevry = tryConnect("tietoevry", tietoevryAddr)
+	databases.KAMK = tryConnect("kamk", kamkAddr)
+	databases.KLAB = tryConnect("klab", klabAddr)
+	databases.ARCHINISIS = tryConnect("archinisis", archinisisAddr)
+
+	return databases, errors
+}
+
+func connectToDB(addr string, maxOpenConns, maxIdleConns int, maxIdleTime string) (*sql.DB, error) {
+	db, err := sql.Open("postgres", addr)
+	if err != nil {
+		return nil, err
+	}
+
+	duration, err := time.ParseDuration(maxIdleTime)
+	if err != nil {
+		db.Close()
+		return nil, err
+	}
+
+	db.SetMaxOpenConns(maxOpenConns)
+	db.SetMaxIdleConns(maxIdleConns)
+	db.SetConnMaxIdleTime(duration)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
