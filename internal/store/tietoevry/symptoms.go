@@ -72,7 +72,7 @@ func (s *SymptomsStore) ValidateUsersExist(ctx context.Context, userIDs []uuid.U
 }
 
 func (s *SymptomsStore) InsertSymptomsBulk(ctx context.Context, symptoms []tietoevrysqlc.InsertSymptomParams) error {
-	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	ctx, cancel := context.WithTimeout(ctx, DataTimeout)
 	defer cancel()
 
 	tx, err := s.db.BeginTx(ctx, nil)
@@ -93,7 +93,7 @@ func (s *SymptomsStore) InsertSymptomsBulk(ctx context.Context, symptoms []tieto
 }
 
 func (s *SymptomsStore) GetSymptomsByUser(ctx context.Context, userID uuid.UUID) ([]tietoevrysqlc.Symptom, error) {
-	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	ctx, cancel := context.WithTimeout(ctx, DataTimeout)
 	defer cancel()
 
 	return tietoevrysqlc.New(s.db).GetSymptomsByUser(ctx, userID)

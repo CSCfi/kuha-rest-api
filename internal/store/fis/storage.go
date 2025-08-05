@@ -3,7 +3,10 @@ package fis
 import (
 	"context"
 	"database/sql"
+	"time"
 )
+
+const DataTimeout = 30 * time.Second
 
 // Competitors interface
 type Competitors interface {

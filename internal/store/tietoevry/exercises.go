@@ -81,7 +81,7 @@ func (s *ExercisesStore) ValidateUsersExist(ctx context.Context, userIDs []uuid.
 }
 
 func (s *ExercisesStore) InsertExercisesBulk(ctx context.Context, exercises []ExercisePayload) error {
-	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	ctx, cancel := context.WithTimeout(ctx, DataTimeout)
 	defer cancel()
 
 	// Start a transaction to ensure atomicity for ALL exercises
@@ -93,28 +93,27 @@ func (s *ExercisesStore) InsertExercisesBulk(ctx context.Context, exercises []Ex
 
 	q := tietoevrysqlc.New(tx)
 
-	// Process each exercise bundle
 	for _, exercise := range exercises {
-		// 1. Insert base exercise
+		// Insert base exercise
 		if err := q.InsertExercise(ctx, exercise.Exercise); err != nil {
 			return err
 		}
 
-		// 2. Insert HR zones
+		//Insert HR zones
 		for _, zone := range exercise.HRZones {
 			if err := q.InsertExerciseHRZone(ctx, zone); err != nil {
 				return err
 			}
 		}
 
-		// 3. Insert samples
+		// Insert samples
 		for _, sample := range exercise.Samples {
 			if err := q.InsertExerciseSample(ctx, sample); err != nil {
 				return err
 			}
 		}
 
-		// 4. Insert sections
+		// Insert sections
 		for _, section := range exercise.Sections {
 			if err := q.InsertExerciseSection(ctx, section); err != nil {
 				return err
@@ -122,24 +121,29 @@ func (s *ExercisesStore) InsertExercisesBulk(ctx context.Context, exercises []Ex
 		}
 	}
 
-	// Commit the transaction if all exercises succeeded
 	return tx.Commit()
 }
 
 func (s *ExercisesStore) GetExercisesByUser(ctx context.Context, userID uuid.UUID) ([]tietoevrysqlc.Exercise, error) {
-	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	ctx, cancel := context.WithTimeout(ctx, DataTimeout)
 	defer cancel()
 	return tietoevrysqlc.New(s.db).GetExercisesByUser(ctx, userID)
 }
 
 func (s *ExercisesStore) GetExerciseHRZones(ctx context.Context, id uuid.UUID) ([]tietoevrysqlc.ExerciseHrZone, error) {
+	ctx, cancel := context.WithTimeout(ctx, DataTimeout)
+	defer cancel()
 	return tietoevrysqlc.New(s.db).GetExerciseHRZones(ctx, id)
 }
 
 func (s *ExercisesStore) GetExerciseSamples(ctx context.Context, id uuid.UUID) ([]tietoevrysqlc.ExerciseSample, error) {
+	ctx, cancel := context.WithTimeout(ctx, DataTimeout)
+	defer cancel()
 	return tietoevrysqlc.New(s.db).GetExerciseSamples(ctx, id)
 }
 
 func (s *ExercisesStore) GetExerciseSections(ctx context.Context, id uuid.UUID) ([]tietoevrysqlc.ExerciseSection, error) {
+	ctx, cancel := context.WithTimeout(ctx, DataTimeout)
+	defer cancel()
 	return tietoevrysqlc.New(s.db).GetExerciseSections(ctx, id)
 }

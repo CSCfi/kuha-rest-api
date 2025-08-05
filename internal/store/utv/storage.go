@@ -10,6 +10,8 @@ import (
 	"github.com/google/uuid"
 )
 
+const DataTimeout = 30 * time.Second
+
 // LatestDataEntry struct to hold latest data entry
 type LatestDataEntry struct {
 	Device string

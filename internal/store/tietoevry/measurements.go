@@ -68,7 +68,7 @@ func (s *MeasurementsStore) ValidateUsersExist(ctx context.Context, userIDs []uu
 }
 
 func (s *MeasurementsStore) InsertMeasurementsBulk(ctx context.Context, measurements []tietoevrysqlc.InsertMeasurementParams) error {
-	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	ctx, cancel := context.WithTimeout(ctx, DataTimeout)
 	defer cancel()
 
 	tx, err := s.db.BeginTx(ctx, nil)
@@ -88,7 +88,7 @@ func (s *MeasurementsStore) InsertMeasurementsBulk(ctx context.Context, measurem
 }
 
 func (s *MeasurementsStore) GetMeasurementsByUser(ctx context.Context, userID uuid.UUID) ([]tietoevrysqlc.Measurement, error) {
-	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	ctx, cancel := context.WithTimeout(ctx, DataTimeout)
 	defer cancel()
 
 	q := tietoevrysqlc.New(s.db)

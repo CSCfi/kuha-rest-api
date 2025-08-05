@@ -5,7 +5,6 @@ import (
 	"database/sql"
 
 	fissqlc "github.com/DeRuina/KUHA-REST-API/internal/db/fis"
-	"github.com/DeRuina/KUHA-REST-API/internal/utils"
 )
 
 // CompetitorsStore struct
@@ -21,7 +20,7 @@ type GetBySectorResponse struct {
 }
 
 func (s *CompetitorsStore) GetAthletesBySector(ctx context.Context, sectorCode string) ([]GetBySectorResponse, error) {
-	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	ctx, cancel := context.WithTimeout(ctx, DataTimeout)
 	defer cancel()
 
 	queries := fissqlc.New(s.db)
@@ -47,7 +46,7 @@ func (s *CompetitorsStore) GetAthletesBySector(ctx context.Context, sectorCode s
 
 // GetNationsBySector
 func (s *CompetitorsStore) GetNationsBySector(ctx context.Context, sectorCode string) ([]string, error) {
-	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	ctx, cancel := context.WithTimeout(ctx, DataTimeout)
 	defer cancel()
 
 	queries := fissqlc.New(s.db)
