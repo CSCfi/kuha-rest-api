@@ -358,7 +358,8 @@ WHERE user_id = $1
   AND data ? $2
   AND ($3::date IS NULL OR summary_date >= $3)
   AND ($4::date IS NULL OR summary_date <= $4)
-ORDER BY summary_date DESC;
+ORDER BY summary_date DESC
+LIMIT $5 OFFSET $6;
 
 -- name: GetDataByTypePolar :many
 SELECT summary_date, (data -> $2::text)::jsonb AS data
@@ -367,7 +368,8 @@ WHERE user_id = $1
   AND data ? $2
   AND ($3::date IS NULL OR summary_date >= $3)
   AND ($4::date IS NULL OR summary_date <= $4)
-ORDER BY summary_date DESC;
+ORDER BY summary_date DESC
+LIMIT $5 OFFSET $6;
 
 -- name: GetDataByTypeSuunto :many
 SELECT summary_date, (data -> $2::text)::jsonb AS data
@@ -376,7 +378,8 @@ WHERE user_id = $1
   AND data ? $2
   AND ($3::date IS NULL OR summary_date >= $3)
   AND ($4::date IS NULL OR summary_date <= $4)
-ORDER BY summary_date DESC;
+ORDER BY summary_date DESC
+LIMIT $5 OFFSET $6;
 
 -- name: GetDataByTypeGarmin :many
 SELECT summary_date, (data -> $2::text)::jsonb AS data
@@ -385,7 +388,8 @@ WHERE user_id = $1
   AND data ? $2
   AND ($3::date IS NULL OR summary_date >= $3)
   AND ($4::date IS NULL OR summary_date <= $4)
-ORDER BY summary_date DESC;
+ORDER BY summary_date DESC
+LIMIT $5 OFFSET $6;
 
 -- name: GetPolarStatus :one
 WITH input AS (

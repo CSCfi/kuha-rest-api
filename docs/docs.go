@@ -1372,7 +1372,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Returns all entries of a specific data type for a user, across all wearable devices, optionally filtered by date range.",
+                "description": "Returns all entries of a specific data type for a user, across all wearable devices, optionally filtered by date range, paginated by limit (default 3) and offset.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1408,6 +1408,18 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Filter data before this date (YYYY-MM-DD)",
                         "name": "before_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit the number of results returned (default: 3, max: 10)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset for pagination (default: 0)",
+                        "name": "offset",
                         "in": "query"
                     }
                 ],
@@ -2610,7 +2622,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Returns latest entries of a specific type for a user, optionally filtered by device and limited in number",
+                "description": "Returns latest entries of a specific type for a user, optionally filtered by device and limited in number (defaults to 1).",
                 "consumes": [
                     "application/json"
                 ],

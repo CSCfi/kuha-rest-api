@@ -27,7 +27,7 @@ type OuraData interface {
 	InsertData(ctx context.Context, userID uuid.UUID, date time.Time, data json.RawMessage) error
 	DeleteAllData(ctx context.Context, userID uuid.UUID) (int64, error)
 	GetLatestByType(ctx context.Context, userID uuid.UUID, typ string, limit int32) ([]LatestDataEntry, error)
-	GetAllByType(ctx context.Context, userID uuid.UUID, typ string, after, before *time.Time) ([]LatestDataEntry, error)
+	GetAllByType(ctx context.Context, userID uuid.UUID, typ string, after, before *time.Time, limit, offset int32) ([]LatestDataEntry, error)
 }
 
 // OuraToken interface
@@ -48,7 +48,7 @@ type PolarData interface {
 	InsertData(ctx context.Context, userID uuid.UUID, date time.Time, data json.RawMessage) error
 	DeleteAllData(ctx context.Context, userID uuid.UUID) (int64, error)
 	GetLatestByType(ctx context.Context, userID uuid.UUID, typ string, limit int32) ([]LatestDataEntry, error)
-	GetAllByType(ctx context.Context, userID uuid.UUID, typ string, after, before *time.Time) ([]LatestDataEntry, error)
+	GetAllByType(ctx context.Context, userID uuid.UUID, typ string, after, before *time.Time, limit, offset int32) ([]LatestDataEntry, error)
 }
 
 // PolarToken interface
@@ -69,7 +69,7 @@ type SuuntoData interface {
 	InsertData(ctx context.Context, userID uuid.UUID, date time.Time, data json.RawMessage) error
 	DeleteAllData(ctx context.Context, userID uuid.UUID) (int64, error)
 	GetLatestByType(ctx context.Context, userID uuid.UUID, typ string, limit int32) ([]LatestDataEntry, error)
-	GetAllByType(ctx context.Context, userID uuid.UUID, typ string, after, before *time.Time) ([]LatestDataEntry, error)
+	GetAllByType(ctx context.Context, userID uuid.UUID, typ string, after, before *time.Time, limit, offset int32) ([]LatestDataEntry, error)
 }
 
 // SuuntoToken interface
@@ -90,7 +90,7 @@ type GarminData interface {
 	InsertData(ctx context.Context, userID uuid.UUID, date time.Time, data json.RawMessage) error
 	DeleteAllData(ctx context.Context, userID uuid.UUID) (int64, error)
 	GetLatestByType(ctx context.Context, userID uuid.UUID, typ string, limit int32) ([]LatestDataEntry, error)
-	GetAllByType(ctx context.Context, userID uuid.UUID, typ string, after, before *time.Time) ([]LatestDataEntry, error)
+	GetAllByType(ctx context.Context, userID uuid.UUID, typ string, after, before *time.Time, limit, offset int32) ([]LatestDataEntry, error)
 }
 
 // GarminToken interface

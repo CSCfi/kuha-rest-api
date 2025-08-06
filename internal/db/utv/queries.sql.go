@@ -1463,6 +1463,7 @@ WHERE user_id = $1
   AND ($3::date IS NULL OR summary_date >= $3)
   AND ($4::date IS NULL OR summary_date <= $4)
 ORDER BY summary_date DESC
+LIMIT $5 OFFSET $6
 `
 
 type GetDataByTypeGarminParams struct {
@@ -1470,6 +1471,8 @@ type GetDataByTypeGarminParams struct {
 	Type       string
 	AfterDate  sql.NullTime
 	BeforeDate sql.NullTime
+	Limit      int32
+	Offset     int32
 }
 
 type GetDataByTypeGarminRow struct {
@@ -1483,6 +1486,8 @@ func (q *Queries) GetDataByTypeGarmin(ctx context.Context, arg GetDataByTypeGarm
 		arg.Type,
 		arg.AfterDate,
 		arg.BeforeDate,
+		arg.Limit,
+		arg.Offset,
 	)
 	if err != nil {
 		return nil, err
@@ -1513,6 +1518,7 @@ WHERE user_id = $1
   AND ($3::date IS NULL OR summary_date >= $3)
   AND ($4::date IS NULL OR summary_date <= $4)
 ORDER BY summary_date DESC
+LIMIT $5 OFFSET $6
 `
 
 type GetDataByTypeOuraParams struct {
@@ -1520,6 +1526,8 @@ type GetDataByTypeOuraParams struct {
 	Type       string
 	AfterDate  sql.NullTime
 	BeforeDate sql.NullTime
+	Limit      int32
+	Offset     int32
 }
 
 type GetDataByTypeOuraRow struct {
@@ -1533,6 +1541,8 @@ func (q *Queries) GetDataByTypeOura(ctx context.Context, arg GetDataByTypeOuraPa
 		arg.Type,
 		arg.AfterDate,
 		arg.BeforeDate,
+		arg.Limit,
+		arg.Offset,
 	)
 	if err != nil {
 		return nil, err
@@ -1563,6 +1573,7 @@ WHERE user_id = $1
   AND ($3::date IS NULL OR summary_date >= $3)
   AND ($4::date IS NULL OR summary_date <= $4)
 ORDER BY summary_date DESC
+LIMIT $5 OFFSET $6
 `
 
 type GetDataByTypePolarParams struct {
@@ -1570,6 +1581,8 @@ type GetDataByTypePolarParams struct {
 	Type       string
 	AfterDate  sql.NullTime
 	BeforeDate sql.NullTime
+	Limit      int32
+	Offset     int32
 }
 
 type GetDataByTypePolarRow struct {
@@ -1583,6 +1596,8 @@ func (q *Queries) GetDataByTypePolar(ctx context.Context, arg GetDataByTypePolar
 		arg.Type,
 		arg.AfterDate,
 		arg.BeforeDate,
+		arg.Limit,
+		arg.Offset,
 	)
 	if err != nil {
 		return nil, err
@@ -1613,6 +1628,7 @@ WHERE user_id = $1
   AND ($3::date IS NULL OR summary_date >= $3)
   AND ($4::date IS NULL OR summary_date <= $4)
 ORDER BY summary_date DESC
+LIMIT $5 OFFSET $6
 `
 
 type GetDataByTypeSuuntoParams struct {
@@ -1620,6 +1636,8 @@ type GetDataByTypeSuuntoParams struct {
 	Type       string
 	AfterDate  sql.NullTime
 	BeforeDate sql.NullTime
+	Limit      int32
+	Offset     int32
 }
 
 type GetDataByTypeSuuntoRow struct {
@@ -1633,6 +1651,8 @@ func (q *Queries) GetDataByTypeSuunto(ctx context.Context, arg GetDataByTypeSuun
 		arg.Type,
 		arg.AfterDate,
 		arg.BeforeDate,
+		arg.Limit,
+		arg.Offset,
 	)
 	if err != nil {
 		return nil, err

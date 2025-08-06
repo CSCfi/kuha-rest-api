@@ -65,6 +65,10 @@ var (
 	ErrInvalidSource       = errors.New("invalid source. Please use one of the allowed devices")
 	ErrInvalidSportID      = errors.New("invalid sport_id format")
 	ErrInvalidnumericValue = errors.New("value must be numeric")
+	ErrInvalidLimit        = errors.New("invalid limit: must be in the documented range")
+	ErrInvalidOffset       = errors.New("invalid offset: must be a non-negative integer")
+	ErrMaxLimitExceeded    = errors.New("maximum value exceeded: please use a smaller value")
+	ErrMinLimitExceeded    = errors.New("minimum value not met: please use a larger value")
 
 	// Database constraint errors
 	ErrUserNotFound        = errors.New("user does not exist. Please create the user first")
@@ -184,6 +188,12 @@ func FormatValidationErrors(err error) map[string]string {
 			default:
 				errors[field] = ErrInvalidnumericValue.Error()
 			}
+
+		case "max":
+			errors[field] = ErrMaxLimitExceeded.Error()
+
+		case "min":
+			errors[field] = ErrMinLimitExceeded.Error()
 
 		default:
 			errors[field] = ErrInvalidValue.Error()

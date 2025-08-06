@@ -2474,7 +2474,8 @@ paths:
       consumes:
       - application/json
       description: Returns all entries of a specific data type for a user, across
-        all wearable devices, optionally filtered by date range.
+        all wearable devices, optionally filtered by date range, paginated by limit
+        (default 3) and offset.
       parameters:
       - description: User ID (UUID)
         in: query
@@ -2494,6 +2495,14 @@ paths:
         in: query
         name: before_date
         type: string
+      - description: 'Limit the number of results returned (default: 3, max: 10)'
+        in: query
+        name: limit
+        type: integer
+      - description: 'Offset for pagination (default: 0)'
+        in: query
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
@@ -3281,7 +3290,7 @@ paths:
       consumes:
       - application/json
       description: Returns latest entries of a specific type for a user, optionally
-        filtered by device and limited in number
+        filtered by device and limited in number (defaults to 1).
       parameters:
       - description: User ID (UUID)
         in: query

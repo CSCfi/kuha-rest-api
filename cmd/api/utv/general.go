@@ -28,6 +28,8 @@ type AllByTypeInput struct {
 	Type       string `form:"type" validate:"required,key"`
 	AfterDate  string `form:"after_date" validate:"omitempty,datetime=2006-01-02"`
 	BeforeDate string `form:"before_date" validate:"omitempty,datetime=2006-01-02"`
+	Limit      int32  `form:"limit" validate:"omitempty,min=1,max=10"`
+	Offset     int32  `form:"offset" validate:"omitempty,min=0"`
 }
 
 // store and cache interfaces
@@ -81,7 +83,7 @@ func NewGeneralDataHandler(
 // GetLatestData godoc
 //
 //	@Summary		Get latest data by type
-//	@Description	Returns latest entries of a specific type for a user, optionally filtered by device and limited in number
+//	@Description	Returns latest entries of a specific type for a user, optionally filtered by device and limited in number (defaults to 1).
 //	@Tags			UTV - General
 //	@Accept			json
 //	@Produce		json
@@ -115,11 +117,13 @@ func (h *GeneralDataHandler) GetLatestData(w http.ResponseWriter, r *http.Reques
 		Type:   r.URL.Query().Get("type"),
 		Device: r.URL.Query().Get("device"),
 	}
-	limitStr := r.URL.Query().Get("limit")
-	if limitStr != "" {
-		if parsedLimit, err := strconv.Atoi(limitStr); err == nil {
-			params.Limit = int32(parsedLimit)
+	if val := r.URL.Query().Get("limit"); val != "" {
+		parsed, err := strconv.Atoi(val)
+		if err != nil {
+			utils.BadRequestResponse(w, r, fmt.Errorf("limit must be a number"))
+			return
 		}
+		params.Limit = int32(parsed)
 	}
 	if params.Limit == 0 {
 		params.Limit = 1 // default
@@ -194,7 +198,7 @@ func (h *GeneralDataHandler) GetLatestData(w http.ResponseWriter, r *http.Reques
 // GetAllByType godoc
 //
 //	@Summary		Get all data by type
-//	@Description	Returns all entries of a specific data type for a user, across all wearable devices, optionally filtered by date range.
+//	@Description	Returns all entries of a specific data type for a user, across all wearable devices, optionally filtered by date range, paginated by limit (default 3) and offset.
 //	@Tags			UTV - General
 //	@Accept			json
 //	@Produce		json
@@ -202,6 +206,9 @@ func (h *GeneralDataHandler) GetLatestData(w http.ResponseWriter, r *http.Reques
 //	@Param			type		query	string						true	"Data type (e.g., 'sleep', 'activity')"
 //	@Param			after_date	query	string						false	"Filter data after this date (YYYY-MM-DD)"
 //	@Param			before_date	query	string						false	"Filter data before this date (YYYY-MM-DD)"
+//	@Param			limit		query	int							false	"Limit the number of results returned (default: 3, max: 10)"
+//	@Param			offset		query	int							false	"Offset for pagination (default: 0)"
+//
 //	@Success		200			{array}	swagger.LatestDataResponse	"List of data entries across devices"
 //	@Success		204			"No Content: No data available"
 //	@Failure		400			{object}	swagger.ValidationErrorResponse
@@ -218,7 +225,7 @@ func (h *GeneralDataHandler) GetAllByType(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err := utils.ValidateParams(r, []string{"user_id", "type", "after_date", "before_date"})
+	err := utils.ValidateParams(r, []string{"user_id", "type", "after_date", "before_date", "limit", "offset"})
 	if err != nil {
 		utils.BadRequestResponse(w, r, err)
 		return
@@ -229,6 +236,28 @@ func (h *GeneralDataHandler) GetAllByType(w http.ResponseWriter, r *http.Request
 		Type:       r.URL.Query().Get("type"),
 		AfterDate:  r.URL.Query().Get("after_date"),
 		BeforeDate: r.URL.Query().Get("before_date"),
+	}
+
+	if val := r.URL.Query().Get("limit"); val != "" {
+		parsed, err := strconv.Atoi(val)
+		if err != nil {
+			utils.BadRequestResponse(w, r, fmt.Errorf("limit must be a number"))
+			return
+		}
+		params.Limit = int32(parsed)
+	}
+	if params.Limit == 0 {
+		params.Limit = 3 // default
+	}
+
+	// Parse optional offset
+	if val := r.URL.Query().Get("offset"); val != "" {
+		parsed, err := strconv.Atoi(val)
+		if err != nil {
+			utils.BadRequestResponse(w, r, fmt.Errorf("offset must be a number"))
+			return
+		}
+		params.Offset = int32(parsed)
 	}
 
 	if err := utils.GetValidator().Struct(params); err != nil {
@@ -260,7 +289,7 @@ func (h *GeneralDataHandler) GetAllByType(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	cacheKey := fmt.Sprintf("utv:all:%s:%s:after:%s:before:%s", userID, params.Type, after, before)
+	cacheKey := fmt.Sprintf("utv:all:%s:%s:after:%s:before:%s,limit:%d,offset:%d", userID, params.Type, after, before, params.Limit, params.Offset)
 
 	if h.cache != nil {
 		if cached, err := h.cache.Get(r.Context(), cacheKey); err == nil && cached != "" {
@@ -271,11 +300,11 @@ func (h *GeneralDataHandler) GetAllByType(w http.ResponseWriter, r *http.Request
 
 	var results []LatestDataResponse
 
-	// Helper to query one device
+	// Helper to query one device with pagination
 	fetch := func(name string, store interface {
-		GetAllByType(ctx context.Context, userID uuid.UUID, typ string, after, before *time.Time) ([]utv.LatestDataEntry, error)
+		GetAllByType(ctx context.Context, userID uuid.UUID, typ string, after, before *time.Time, limit, offset int32) ([]utv.LatestDataEntry, error)
 	}) {
-		data, err := store.GetAllByType(r.Context(), userID, params.Type, after, before)
+		data, err := store.GetAllByType(r.Context(), userID, params.Type, after, before, params.Limit, params.Offset)
 		if err != nil {
 			return
 		}

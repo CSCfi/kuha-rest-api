@@ -205,7 +205,7 @@ func (s *OuraDataStore) GetLatestByType(ctx context.Context, userID uuid.UUID, t
 }
 
 // GetAllByType
-func (s *OuraDataStore) GetAllByType(ctx context.Context, userID uuid.UUID, typ string, after, before *time.Time) ([]LatestDataEntry, error) {
+func (s *OuraDataStore) GetAllByType(ctx context.Context, userID uuid.UUID, typ string, after, before *time.Time, limit, offset int32) ([]LatestDataEntry, error) {
 	ctx, cancel := context.WithTimeout(ctx, DataTimeout)
 	defer cancel()
 
@@ -216,6 +216,8 @@ func (s *OuraDataStore) GetAllByType(ctx context.Context, userID uuid.UUID, typ 
 		Type:       typ,
 		AfterDate:  utils.NullTimeIfEmpty(after),
 		BeforeDate: utils.NullTimeIfEmpty(before),
+		Limit:      limit,
+		Offset:     offset,
 	}
 
 	rows, err := queries.GetDataByTypeOura(ctx, arg)
