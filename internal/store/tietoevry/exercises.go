@@ -22,12 +22,6 @@ type ExercisesStore struct {
 	db *sql.DB
 }
 
-func NewExercisesStore(db *sql.DB) *ExercisesStore {
-	return &ExercisesStore{
-		db: db,
-	}
-}
-
 func (s *ExercisesStore) ValidateUsersExist(ctx context.Context, userIDs []uuid.UUID) error {
 	if len(userIDs) == 0 {
 		return nil

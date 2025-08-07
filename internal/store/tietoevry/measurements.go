@@ -15,10 +15,6 @@ type MeasurementsStore struct {
 	db *sql.DB
 }
 
-func NewMeasurementsStore(db *sql.DB) *MeasurementsStore {
-	return &MeasurementsStore{db: db}
-}
-
 func (s *MeasurementsStore) ValidateUsersExist(ctx context.Context, userIDs []uuid.UUID) error {
 	if len(userIDs) == 0 {
 		return nil

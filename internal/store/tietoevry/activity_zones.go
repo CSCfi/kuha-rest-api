@@ -15,10 +15,6 @@ type ActivityZonesStore struct {
 	db *sql.DB
 }
 
-func NewActivityZonesStore(db *sql.DB) *ActivityZonesStore {
-	return &ActivityZonesStore{db: db}
-}
-
 func (s *ActivityZonesStore) ValidateUsersExist(ctx context.Context, userIDs []uuid.UUID) error {
 	if len(userIDs) == 0 {
 		return nil

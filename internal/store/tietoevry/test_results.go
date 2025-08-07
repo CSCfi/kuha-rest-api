@@ -15,10 +15,6 @@ type TestResultsStore struct {
 	db *sql.DB
 }
 
-func NewTestResultsStore(db *sql.DB) *TestResultsStore {
-	return &TestResultsStore{db: db}
-}
-
 func (s *TestResultsStore) ValidateUsersExist(ctx context.Context, userIDs []uuid.UUID) error {
 	if len(userIDs) == 0 {
 		return nil

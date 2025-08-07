@@ -15,10 +15,6 @@ type SymptomsStore struct {
 	db *sql.DB
 }
 
-func NewSymptomsStore(db *sql.DB) *SymptomsStore {
-	return &SymptomsStore{db: db}
-}
-
 func (s *SymptomsStore) ValidateUsersExist(ctx context.Context, userIDs []uuid.UUID) error {
 	if len(userIDs) == 0 {
 		return nil
