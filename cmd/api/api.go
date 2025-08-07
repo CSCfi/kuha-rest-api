@@ -26,6 +26,7 @@ import (
 
 	authapi "github.com/DeRuina/KUHA-REST-API/cmd/api/auth"
 	fisapi "github.com/DeRuina/KUHA-REST-API/cmd/api/fis"
+	klabapi "github.com/DeRuina/KUHA-REST-API/cmd/api/klab"
 	tietoevryapi "github.com/DeRuina/KUHA-REST-API/cmd/api/tietoevry"
 	utvapi "github.com/DeRuina/KUHA-REST-API/cmd/api/utv"
 )
@@ -182,6 +183,21 @@ func (app *api) mount() http.Handler {
 				r.Route("/tietoevry", func(r chi.Router) {
 					r.Handle("/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 						utils.ServiceUnavailableDBResponse(w, r, "Tietoevry")
+					}))
+				})
+			}
+
+			// KLAB routes
+			if app.store.KLAB != nil {
+				r.Route("/klab", func(r chi.Router) {
+					userDataHandler := klabapi.NewUserDataHandler(app.store.KLAB.Users(), app.cacheStorage)
+					r.Get("/customers", userDataHandler.GetCustomers)
+				})
+			} else {
+				logger.Logger.Warn("klab routes disabled: database not connected")
+				r.Route("/klab", func(r chi.Router) {
+					r.Handle("/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+						utils.ServiceUnavailableDBResponse(w, r, "klab")
 					}))
 				})
 			}

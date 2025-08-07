@@ -292,6 +292,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/klab/customers": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a list of all Sportti IDs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "KLAB - User"
+                ],
+                "summary": "Get customers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UserDataKlabResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/tietoevry/activity-zones": {
             "get": {
                 "security": [
@@ -7158,6 +7210,22 @@ const docTemplate = `{
             "properties": {
                 "data": {
                     "$ref": "#/definitions/swagger.UserDataDetails"
+                }
+            }
+        },
+        "swagger.UserDataKlabResponse": {
+            "type": "object",
+            "properties": {
+                "sportti_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "12345",
+                        "67890",
+                        "54321"
+                    ]
                 }
             }
         },
