@@ -29,7 +29,7 @@ func goTypeToFriendlyType(goType string) string {
 }
 
 func ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
-	maxBytes := 1_048_578 // 1MB
+	const maxBytes = 10 * 1024 * 1024 // 20 MB
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 
 	decoder := json.NewDecoder(r.Body)
