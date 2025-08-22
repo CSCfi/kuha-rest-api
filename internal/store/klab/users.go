@@ -19,3 +19,11 @@ func (s *UsersStore) GetAllSporttiIDs(ctx context.Context) ([]string, error) {
 	queries := klabsqlc.New(s.db)
 	return queries.GetAllSporttiIDs(ctx)
 }
+
+func (s *UsersStore) GetCustomerByID(ctx context.Context, idcustomer int32) (klabsqlc.Customer, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	queries := klabsqlc.New(s.db)
+	return queries.GetCustomerByID(ctx, idcustomer)
+}

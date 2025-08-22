@@ -388,6 +388,79 @@
                 }
             }
         },
+        "/klab/user": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve a single KLAB customer by idcustomer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "KLAB - User"
+                ],
+                "summary": "Get customer by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Customer ID (idcustomer)",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UserKlabResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/tietoevry/activity-zones": {
             "get": {
                 "security": [
@@ -5628,6 +5701,183 @@
                 }
             }
         },
+        "swagger.KlabCustomerResponse": {
+            "type": "object",
+            "properties": {
+                "add1": {
+                    "type": "integer"
+                },
+                "add10": {
+                    "type": "string"
+                },
+                "add20": {
+                    "type": "string"
+                },
+                "addinfo": {
+                    "type": "string"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "allow_anonymous_data": {
+                    "type": "boolean"
+                },
+                "allow_to_cloud": {
+                    "type": "integer"
+                },
+                "allow_to_save": {
+                    "type": "integer"
+                },
+                "allow_to_sprintai": {
+                    "type": "integer"
+                },
+                "athlete": {
+                    "type": "integer"
+                },
+                "company": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "integer"
+                },
+                "created_date": {
+                    "description": "timestamp (RFC3339)",
+                    "type": "string"
+                },
+                "date_modified": {
+                    "description": "double precision",
+                    "type": "number"
+                },
+                "deleted": {
+                    "description": "smallint -\u003e int32 in JSON",
+                    "type": "integer"
+                },
+                "dob": {
+                    "description": "date (YYYY-MM-DD)",
+                    "type": "string",
+                    "example": "1999-05-19"
+                },
+                "dob_day": {
+                    "type": "integer",
+                    "example": 9
+                },
+                "dob_month": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "dob_year": {
+                    "type": "integer",
+                    "example": 1999
+                },
+                "education": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "faxno": {
+                    "type": "string"
+                },
+                "firstname": {
+                    "type": "string",
+                    "example": "name"
+                },
+                "flag2": {
+                    "type": "integer"
+                },
+                "height_cm": {
+                    "type": "number"
+                },
+                "idcustomer": {
+                    "type": "integer",
+                    "example": 5233
+                },
+                "idgroups": {
+                    "type": "integer",
+                    "example": 2340
+                },
+                "idsport": {
+                    "type": "integer"
+                },
+                "lastname": {
+                    "type": "string",
+                    "example": "lastname"
+                },
+                "locked": {
+                    "description": "smallint -\u003e int32",
+                    "type": "integer"
+                },
+                "medication": {
+                    "type": "string"
+                },
+                "mod_by": {
+                    "type": "integer"
+                },
+                "mod_date": {
+                    "description": "timestamp (RFC3339)",
+                    "type": "string"
+                },
+                "modded": {
+                    "description": "smallint -\u003e int32 in JSON",
+                    "type": "integer"
+                },
+                "occupation": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "phone_home": {
+                    "type": "string"
+                },
+                "phone_mobile": {
+                    "type": "string"
+                },
+                "phone_work": {
+                    "type": "string"
+                },
+                "pid_number": {
+                    "type": "string"
+                },
+                "readonly": {
+                    "type": "integer"
+                },
+                "recom_testlevel": {
+                    "type": "integer"
+                },
+                "sex": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "sportti_id": {
+                    "description": "varchar(64)",
+                    "type": "string"
+                },
+                "stat_sent": {
+                    "description": "date (YYYY-MM-DD)",
+                    "type": "string"
+                },
+                "team_name": {
+                    "type": "string"
+                },
+                "tosprintai_from": {
+                    "description": "date (YYYY-MM-DD)",
+                    "type": "string"
+                },
+                "updatemode": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "warnings": {
+                    "type": "integer"
+                },
+                "weight_kg": {
+                    "type": "number"
+                }
+            }
+        },
         "swagger.KlabStatusResponse": {
             "type": "object",
             "properties": {
@@ -7303,6 +7553,17 @@
                 "user_id": {
                     "type": "string",
                     "example": "dcabe48a-3578-4743-93ba-001409c82a82"
+                }
+            }
+        },
+        "swagger.UserKlabResponse": {
+            "type": "object",
+            "properties": {
+                "customer": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.KlabCustomerResponse"
+                    }
                 }
             }
         },

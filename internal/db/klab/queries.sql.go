@@ -8,6 +8,8 @@ package klabsqlc
 import (
 	"context"
 	"database/sql"
+
+	"github.com/lib/pq"
 )
 
 const getAllSporttiIDs = `-- name: GetAllSporttiIDs :many
@@ -37,134 +39,497 @@ func (q *Queries) GetAllSporttiIDs(ctx context.Context) ([]string, error) {
 	return items, nil
 }
 
-const insertCustomer = `-- name: InsertCustomer :exec
-INSERT INTO customer (
-    idcustomer, firstname, lastname, idgroups, dob, sex, dob_year, dob_month, dob_day,
-    pid_number, company, occupation, education, address, phone_home, phone_work, phone_mobile,
-    faxno, email, username, password, readonly, warnings, allow_to_save, allow_to_cloud, flag2,
-    idsport, medication, addinfo, team_name, add1, athlete, add10, add20, updatemode, weight_kg,
-    height_cm, date_modified, recom_testlevel, created_by, mod_by, mod_date, deleted,
-    created_date, modded, allow_anonymous_data, locked, allow_to_sprintai, tosprintai_from,
-    stat_sent, sportti_id
-) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9,
-    $10, $11, $12, $13, $14, $15, $16, $17,
-    $18, $19, $20, $21, $22, $23, $24, $25, $26,
-    $27, $28, $29, $30, $31, $32, $33, $34, $35, $36,
-    $37, $38, $39, $40, $41, $42, $43, $44,
-    $45, $46, $47, $48, $49, $50, $51
-)
+const getCustomerByID = `-- name: GetCustomerByID :one
+SELECT idcustomer, firstname, lastname, idgroups, dob, sex, dob_year, dob_month, dob_day, pid_number, company, occupation, education, address, phone_home, phone_work, phone_mobile, faxno, email, username, password, readonly, warnings, allow_to_save, allow_to_cloud, flag2, idsport, medication, addinfo, team_name, add1, athlete, add10, add20, updatemode, weight_kg, height_cm, date_modified, recom_testlevel, created_by, mod_by, mod_date, deleted, created_date, modded, allow_anonymous_data, locked, allow_to_sprintai, tosprintai_from, stat_sent, sportti_id FROM customer
+WHERE idcustomer = $1
 `
 
-type InsertCustomerParams struct {
-	Idcustomer         int32
-	Firstname          string
-	Lastname           string
-	Idgroups           sql.NullInt32
-	Dob                sql.NullTime
-	Sex                sql.NullInt32
-	DobYear            sql.NullInt32
-	DobMonth           sql.NullInt32
-	DobDay             sql.NullInt32
-	PidNumber          sql.NullString
-	Company            sql.NullString
-	Occupation         sql.NullString
-	Education          sql.NullString
-	Address            sql.NullString
-	PhoneHome          sql.NullString
-	PhoneWork          sql.NullString
-	PhoneMobile        sql.NullString
-	Faxno              sql.NullString
-	Email              sql.NullString
-	Username           sql.NullString
-	Password           sql.NullString
-	Readonly           sql.NullInt32
-	Warnings           sql.NullInt32
-	AllowToSave        sql.NullInt32
-	AllowToCloud       sql.NullInt32
-	Flag2              sql.NullInt32
-	Idsport            sql.NullInt32
-	Medication         sql.NullString
-	Addinfo            sql.NullString
-	TeamName           sql.NullString
-	Add1               sql.NullInt32
-	Athlete            sql.NullInt32
-	Add10              sql.NullString
-	Add20              sql.NullString
-	Updatemode         sql.NullInt32
-	WeightKg           sql.NullFloat64
-	HeightCm           sql.NullFloat64
-	DateModified       sql.NullFloat64
-	RecomTestlevel     sql.NullInt32
-	CreatedBy          sql.NullInt64
-	ModBy              sql.NullInt64
-	ModDate            sql.NullTime
-	Deleted            sql.NullInt16
-	CreatedDate        sql.NullTime
-	Modded             sql.NullInt16
-	AllowAnonymousData sql.NullBool
-	Locked             sql.NullInt16
-	AllowToSprintai    sql.NullInt32
-	TosprintaiFrom     sql.NullTime
-	StatSent           sql.NullTime
-	SporttiID          sql.NullString
+func (q *Queries) GetCustomerByID(ctx context.Context, idcustomer int32) (Customer, error) {
+	row := q.queryRow(ctx, q.getCustomerByIDStmt, getCustomerByID, idcustomer)
+	var i Customer
+	err := row.Scan(
+		&i.Idcustomer,
+		&i.Firstname,
+		&i.Lastname,
+		&i.Idgroups,
+		&i.Dob,
+		&i.Sex,
+		&i.DobYear,
+		&i.DobMonth,
+		&i.DobDay,
+		&i.PidNumber,
+		&i.Company,
+		&i.Occupation,
+		&i.Education,
+		&i.Address,
+		&i.PhoneHome,
+		&i.PhoneWork,
+		&i.PhoneMobile,
+		&i.Faxno,
+		&i.Email,
+		&i.Username,
+		&i.Password,
+		&i.Readonly,
+		&i.Warnings,
+		&i.AllowToSave,
+		&i.AllowToCloud,
+		&i.Flag2,
+		&i.Idsport,
+		&i.Medication,
+		&i.Addinfo,
+		&i.TeamName,
+		&i.Add1,
+		&i.Athlete,
+		&i.Add10,
+		&i.Add20,
+		&i.Updatemode,
+		&i.WeightKg,
+		&i.HeightCm,
+		&i.DateModified,
+		&i.RecomTestlevel,
+		&i.CreatedBy,
+		&i.ModBy,
+		&i.ModDate,
+		&i.Deleted,
+		&i.CreatedDate,
+		&i.Modded,
+		&i.AllowAnonymousData,
+		&i.Locked,
+		&i.AllowToSprintai,
+		&i.TosprintaiFrom,
+		&i.StatSent,
+		&i.SporttiID,
+	)
+	return i, err
 }
 
-func (q *Queries) InsertCustomer(ctx context.Context, arg InsertCustomerParams) error {
-	_, err := q.exec(ctx, q.insertCustomerStmt, insertCustomer,
-		arg.Idcustomer,
-		arg.Firstname,
-		arg.Lastname,
-		arg.Idgroups,
-		arg.Dob,
-		arg.Sex,
-		arg.DobYear,
-		arg.DobMonth,
-		arg.DobDay,
-		arg.PidNumber,
-		arg.Company,
-		arg.Occupation,
-		arg.Education,
-		arg.Address,
-		arg.PhoneHome,
-		arg.PhoneWork,
-		arg.PhoneMobile,
-		arg.Faxno,
-		arg.Email,
-		arg.Username,
-		arg.Password,
-		arg.Readonly,
-		arg.Warnings,
-		arg.AllowToSave,
-		arg.AllowToCloud,
-		arg.Flag2,
-		arg.Idsport,
-		arg.Medication,
-		arg.Addinfo,
-		arg.TeamName,
-		arg.Add1,
-		arg.Athlete,
-		arg.Add10,
-		arg.Add20,
-		arg.Updatemode,
-		arg.WeightKg,
-		arg.HeightCm,
-		arg.DateModified,
-		arg.RecomTestlevel,
-		arg.CreatedBy,
-		arg.ModBy,
-		arg.ModDate,
-		arg.Deleted,
-		arg.CreatedDate,
-		arg.Modded,
-		arg.AllowAnonymousData,
-		arg.Locked,
-		arg.AllowToSprintai,
-		arg.TosprintaiFrom,
-		arg.StatSent,
-		arg.SporttiID,
-	)
-	return err
+const getDirRawDataByMeasurementIDs = `-- name: GetDirRawDataByMeasurementIDs :many
+SELECT iddirrawdata, idmeasurement, rawdata, columndata, info, unitsdata, created_by, mod_by, mod_date, deleted, created_date, modded
+FROM dirrawdata
+WHERE idmeasurement = ANY($1::int[])
+`
+
+func (q *Queries) GetDirRawDataByMeasurementIDs(ctx context.Context, dollar_1 []int32) ([]Dirrawdatum, error) {
+	rows, err := q.query(ctx, q.getDirRawDataByMeasurementIDsStmt, getDirRawDataByMeasurementIDs, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Dirrawdatum
+	for rows.Next() {
+		var i Dirrawdatum
+		if err := rows.Scan(
+			&i.Iddirrawdata,
+			&i.Idmeasurement,
+			&i.Rawdata,
+			&i.Columndata,
+			&i.Info,
+			&i.Unitsdata,
+			&i.CreatedBy,
+			&i.ModBy,
+			&i.ModDate,
+			&i.Deleted,
+			&i.CreatedDate,
+			&i.Modded,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getDirReportsByMeasurementIDs = `-- name: GetDirReportsByMeasurementIDs :many
+SELECT iddirreport, page_instructions, idmeasurement, template_rec, librec_name, created_by, mod_by, mod_date, deleted, created_date, modded
+FROM dirreport
+WHERE idmeasurement = ANY($1::int[])
+`
+
+func (q *Queries) GetDirReportsByMeasurementIDs(ctx context.Context, dollar_1 []int32) ([]Dirreport, error) {
+	rows, err := q.query(ctx, q.getDirReportsByMeasurementIDsStmt, getDirReportsByMeasurementIDs, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Dirreport
+	for rows.Next() {
+		var i Dirreport
+		if err := rows.Scan(
+			&i.Iddirreport,
+			&i.PageInstructions,
+			&i.Idmeasurement,
+			&i.TemplateRec,
+			&i.LibrecName,
+			&i.CreatedBy,
+			&i.ModBy,
+			&i.ModDate,
+			&i.Deleted,
+			&i.CreatedDate,
+			&i.Modded,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getDirResultsByMeasurementIDs = `-- name: GetDirResultsByMeasurementIDs :many
+SELECT iddirresults, idmeasurement, max_vo2mlkgmin, max_vo2mlmin, max_vo2, max_hr, max_speed, max_pace, max_p, max_pkg, max_angle, max_lac, max_add1, max_add2, max_add3, lac_ank_vo2mlkgmin, lac_ank_vo2mlmin, lac_ank_vo2, lac_ank_vo2pr, lac_ank_hr, lac_ank_speed, lac_ank_pace, lac_ank_p, lac_ank_pkg, lac_ank_angle, lac_ank_lac, lac_ank_add1, lac_ank_add2, lac_ank_add3, lac_aerk_vo2mlkgmin, lac_aerk_vo2mlmin, lac_aerk_vo2, lac_aerk_vo2pr, lac_aerk_hr, lac_aerk_speed, lac_aerk_pace, lac_aerk_p, lac_aerk_pkg, lac_aerk_angle, lac_aerk_lac, lac_aerk_add1, lac_aerk_add2, lac_aerk_add3, vent_ank_vo2mlkgmin, vent_ank_vo2mlmin, vent_ank_vo2, vent_ank_vo2pr, vent_ank_hr, vent_ank_speed, vent_ank_pace, vent_ank_p, vent_ank_pkg, vent_ank_angle, vent_ank_lac, vent_ank_add1, vent_ank_add2, vent_ank_add3, vent_aerk_vo2mlkgmin, vent_aerk_vo2mlmin, vent_aerk_vo2, vent_aerk_vo2pr, vent_aerk_hr, vent_aerk_speed, vent_aerk_pace, vent_aerk_p, vent_aerk_pkg, vent_aerk_angle, vent_aerk_lac, vent_aerk_add1, vent_aerk_add2, vent_aerk_add3, created_by, mod_by, mod_date, deleted, created_date, modded
+FROM dirresults
+WHERE idmeasurement = ANY($1::int[])
+`
+
+func (q *Queries) GetDirResultsByMeasurementIDs(ctx context.Context, dollar_1 []int32) ([]Dirresult, error) {
+	rows, err := q.query(ctx, q.getDirResultsByMeasurementIDsStmt, getDirResultsByMeasurementIDs, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Dirresult
+	for rows.Next() {
+		var i Dirresult
+		if err := rows.Scan(
+			&i.Iddirresults,
+			&i.Idmeasurement,
+			&i.MaxVo2mlkgmin,
+			&i.MaxVo2mlmin,
+			&i.MaxVo2,
+			&i.MaxHr,
+			&i.MaxSpeed,
+			&i.MaxPace,
+			&i.MaxP,
+			&i.MaxPkg,
+			&i.MaxAngle,
+			&i.MaxLac,
+			&i.MaxAdd1,
+			&i.MaxAdd2,
+			&i.MaxAdd3,
+			&i.LacAnkVo2mlkgmin,
+			&i.LacAnkVo2mlmin,
+			&i.LacAnkVo2,
+			&i.LacAnkVo2pr,
+			&i.LacAnkHr,
+			&i.LacAnkSpeed,
+			&i.LacAnkPace,
+			&i.LacAnkP,
+			&i.LacAnkPkg,
+			&i.LacAnkAngle,
+			&i.LacAnkLac,
+			&i.LacAnkAdd1,
+			&i.LacAnkAdd2,
+			&i.LacAnkAdd3,
+			&i.LacAerkVo2mlkgmin,
+			&i.LacAerkVo2mlmin,
+			&i.LacAerkVo2,
+			&i.LacAerkVo2pr,
+			&i.LacAerkHr,
+			&i.LacAerkSpeed,
+			&i.LacAerkPace,
+			&i.LacAerkP,
+			&i.LacAerkPkg,
+			&i.LacAerkAngle,
+			&i.LacAerkLac,
+			&i.LacAerkAdd1,
+			&i.LacAerkAdd2,
+			&i.LacAerkAdd3,
+			&i.VentAnkVo2mlkgmin,
+			&i.VentAnkVo2mlmin,
+			&i.VentAnkVo2,
+			&i.VentAnkVo2pr,
+			&i.VentAnkHr,
+			&i.VentAnkSpeed,
+			&i.VentAnkPace,
+			&i.VentAnkP,
+			&i.VentAnkPkg,
+			&i.VentAnkAngle,
+			&i.VentAnkLac,
+			&i.VentAnkAdd1,
+			&i.VentAnkAdd2,
+			&i.VentAnkAdd3,
+			&i.VentAerkVo2mlkgmin,
+			&i.VentAerkVo2mlmin,
+			&i.VentAerkVo2,
+			&i.VentAerkVo2pr,
+			&i.VentAerkHr,
+			&i.VentAerkSpeed,
+			&i.VentAerkPace,
+			&i.VentAerkP,
+			&i.VentAerkPkg,
+			&i.VentAerkAngle,
+			&i.VentAerkLac,
+			&i.VentAerkAdd1,
+			&i.VentAerkAdd2,
+			&i.VentAerkAdd3,
+			&i.CreatedBy,
+			&i.ModBy,
+			&i.ModDate,
+			&i.Deleted,
+			&i.CreatedDate,
+			&i.Modded,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getDirTestStepsByMeasurementIDs = `-- name: GetDirTestStepsByMeasurementIDs :many
+SELECT iddirteststeps, idmeasurement, stepno, ana_time, timestop, speed, pace, angle, elev, vo2calc, t_tot, t_ex, fico2, fio2, feco2, feo2, vde, vco2, vo2, bf, ve, petco2, peto2, vo2kg, re, hr, la, rer, ve_stpd, veo2, veco2, tv, ee_ae, la_vo2, o2pulse, vde_tv, va, o2sa, rpe, bp_sys, bp_dia, own1, own2, own3, own4, own5, step_is_rest, step_is_30max, step_is_60max, step_is_rec, calc_start, calc_end, comments, timestart, duration, eco, p, wkg, vo2_30s, vo2_pr, step_is_last, deleted, created_by, mod_by, mod_date, created_date, modded, own6, own7, own8, own9, own10, to2, tco2
+FROM dirteststeps
+WHERE idmeasurement = ANY($1::int[])
+ORDER BY idmeasurement, stepno
+`
+
+func (q *Queries) GetDirTestStepsByMeasurementIDs(ctx context.Context, dollar_1 []int32) ([]Dirteststep, error) {
+	rows, err := q.query(ctx, q.getDirTestStepsByMeasurementIDsStmt, getDirTestStepsByMeasurementIDs, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Dirteststep
+	for rows.Next() {
+		var i Dirteststep
+		if err := rows.Scan(
+			&i.Iddirteststeps,
+			&i.Idmeasurement,
+			&i.Stepno,
+			&i.AnaTime,
+			&i.Timestop,
+			&i.Speed,
+			&i.Pace,
+			&i.Angle,
+			&i.Elev,
+			&i.Vo2calc,
+			&i.TTot,
+			&i.TEx,
+			&i.Fico2,
+			&i.Fio2,
+			&i.Feco2,
+			&i.Feo2,
+			&i.Vde,
+			&i.Vco2,
+			&i.Vo2,
+			&i.Bf,
+			&i.Ve,
+			&i.Petco2,
+			&i.Peto2,
+			&i.Vo2kg,
+			&i.Re,
+			&i.Hr,
+			&i.La,
+			&i.Rer,
+			&i.VeStpd,
+			&i.Veo2,
+			&i.Veco2,
+			&i.Tv,
+			&i.EeAe,
+			&i.LaVo2,
+			&i.O2pulse,
+			&i.VdeTv,
+			&i.Va,
+			&i.O2sa,
+			&i.Rpe,
+			&i.BpSys,
+			&i.BpDia,
+			&i.Own1,
+			&i.Own2,
+			&i.Own3,
+			&i.Own4,
+			&i.Own5,
+			&i.StepIsRest,
+			&i.StepIs30max,
+			&i.StepIs60max,
+			&i.StepIsRec,
+			&i.CalcStart,
+			&i.CalcEnd,
+			&i.Comments,
+			&i.Timestart,
+			&i.Duration,
+			&i.Eco,
+			&i.P,
+			&i.Wkg,
+			&i.Vo230s,
+			&i.Vo2Pr,
+			&i.StepIsLast,
+			&i.Deleted,
+			&i.CreatedBy,
+			&i.ModBy,
+			&i.ModDate,
+			&i.CreatedDate,
+			&i.Modded,
+			&i.Own6,
+			&i.Own7,
+			&i.Own8,
+			&i.Own9,
+			&i.Own10,
+			&i.To2,
+			&i.Tco2,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getDirTestsByMeasurementIDs = `-- name: GetDirTestsByMeasurementIDs :many
+SELECT iddirtest, idmeasurement, meascols, weightkg, heightcm, bmi, fat_pr, fat_p1, fat_p2, fat_p3, fat_p4, fat_style, fat_equip, fvc, fev1, air_press, air_temp, air_humid, testprotocol, air_press_unit, settingslist, lt1_x, lt1_y, lt2_x, lt2_y, vt1_x, vt2_x, vt1_y, vt2_y, lt1_calc_x, lt1_calc_y, lt2_calc_x, lt2_calc_y, protocolmodel, testtype, protocolxval, steptime, w_rest, created_by, mod_by, mod_date, deleted, created_date, modded, norawdata
+FROM dirtest
+WHERE idmeasurement = ANY($1::int[])
+`
+
+func (q *Queries) GetDirTestsByMeasurementIDs(ctx context.Context, dollar_1 []int32) ([]Dirtest, error) {
+	rows, err := q.query(ctx, q.getDirTestsByMeasurementIDsStmt, getDirTestsByMeasurementIDs, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Dirtest
+	for rows.Next() {
+		var i Dirtest
+		if err := rows.Scan(
+			&i.Iddirtest,
+			&i.Idmeasurement,
+			&i.Meascols,
+			&i.Weightkg,
+			&i.Heightcm,
+			&i.Bmi,
+			&i.FatPr,
+			&i.FatP1,
+			&i.FatP2,
+			&i.FatP3,
+			&i.FatP4,
+			&i.FatStyle,
+			&i.FatEquip,
+			&i.Fvc,
+			&i.Fev1,
+			&i.AirPress,
+			&i.AirTemp,
+			&i.AirHumid,
+			&i.Testprotocol,
+			&i.AirPressUnit,
+			&i.Settingslist,
+			&i.Lt1X,
+			&i.Lt1Y,
+			&i.Lt2X,
+			&i.Lt2Y,
+			&i.Vt1X,
+			&i.Vt2X,
+			&i.Vt1Y,
+			&i.Vt2Y,
+			&i.Lt1CalcX,
+			&i.Lt1CalcY,
+			&i.Lt2CalcX,
+			&i.Lt2CalcY,
+			&i.Protocolmodel,
+			&i.Testtype,
+			&i.Protocolxval,
+			&i.Steptime,
+			&i.WRest,
+			&i.CreatedBy,
+			&i.ModBy,
+			&i.ModDate,
+			&i.Deleted,
+			&i.CreatedDate,
+			&i.Modded,
+			&i.Norawdata,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getMeasurementsByCustomer = `-- name: GetMeasurementsByCustomer :many
+SELECT idmeasurement, measname, idcustomer, tablename, idpatterndef, do_year, do_month, do_day, do_hour, do_min, sessionno, info, measurements, groupnotes, cbcharts, cbcomments, created_by, mod_by, mod_date, deleted, created_date, modded, test_location, keywords, tester_name, modder_name, meastype, sent_to_sprintai
+FROM measurement_list
+WHERE idcustomer = $1
+ORDER BY idmeasurement
+`
+
+func (q *Queries) GetMeasurementsByCustomer(ctx context.Context, idcustomer int32) ([]MeasurementList, error) {
+	rows, err := q.query(ctx, q.getMeasurementsByCustomerStmt, getMeasurementsByCustomer, idcustomer)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []MeasurementList
+	for rows.Next() {
+		var i MeasurementList
+		if err := rows.Scan(
+			&i.Idmeasurement,
+			&i.Measname,
+			&i.Idcustomer,
+			&i.Tablename,
+			&i.Idpatterndef,
+			&i.DoYear,
+			&i.DoMonth,
+			&i.DoDay,
+			&i.DoHour,
+			&i.DoMin,
+			&i.Sessionno,
+			&i.Info,
+			&i.Measurements,
+			&i.Groupnotes,
+			&i.Cbcharts,
+			&i.Cbcomments,
+			&i.CreatedBy,
+			&i.ModBy,
+			&i.ModDate,
+			&i.Deleted,
+			&i.CreatedDate,
+			&i.Modded,
+			&i.TestLocation,
+			&i.Keywords,
+			&i.TesterName,
+			&i.ModderName,
+			&i.Meastype,
+			&i.SentToSprintai,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const insertDirRawData = `-- name: InsertDirRawData :exec
@@ -175,6 +540,7 @@ INSERT INTO dirrawdata (
     $1, $2, $3, $4, $5, $6,
     $7, $8, $9, $10, $11, $12
 )
+ON CONFLICT (iddirrawdata) DO NOTHING
 `
 
 type InsertDirRawDataParams struct {
@@ -218,6 +584,7 @@ INSERT INTO dirreport (
     $1, $2, $3, $4, $5,
     $6, $7, $8, $9, $10, $11
 )
+ON CONFLICT (iddirreport) DO NOTHING
 `
 
 type InsertDirReportParams struct {
@@ -282,11 +649,13 @@ INSERT INTO dirresults (
     $44, $45, $46, $47,
     $48, $49, $50, $51, $52,
     $53, $54, $55, $56, $57,
-    $58, $59, $60, $61,
-    $62, $63, $64, $65, $66,
-    $67, $68, $69, $70, $71,
-    $72, $73, $74, $75, $76, $77
+    $58, $59, $60,
+    $61, $62, $63, $64, $65, $66,
+    $67, $68, $69, $70, $71, $72,
+    $73, $74, $75,
+    $76, $77
 )
+ON CONFLICT (iddirresults) DO NOTHING
 `
 
 type InsertDirResultsParams struct {
@@ -470,6 +839,7 @@ INSERT INTO dirtest (
     $36, $37, $38, $39, $40, $41, $42,
     $43, $44, $45
 )
+ON CONFLICT (iddirtest) DO NOTHING
 `
 
 type InsertDirTestParams struct {
@@ -595,6 +965,7 @@ INSERT INTO dirteststeps (
     $64, $65, $66, $67, $68, $69, $70, $71, $72,
     $73, $74
 )
+ON CONFLICT (iddirteststeps) DO NOTHING
 `
 
 type InsertDirTestStepParams struct {
@@ -770,6 +1141,7 @@ INSERT INTO measurement_list (
     $23, $24, $25, $26, $27,
     $28
 )
+ON CONFLICT (idmeasurement) DO NOTHING
 `
 
 type InsertMeasurementParams struct {
@@ -833,6 +1205,188 @@ func (q *Queries) InsertMeasurement(ctx context.Context, arg InsertMeasurementPa
 		arg.ModderName,
 		arg.Meastype,
 		arg.SentToSprintai,
+	)
+	return err
+}
+
+const upsertCustomer = `-- name: UpsertCustomer :exec
+INSERT INTO customer (
+    idcustomer, firstname, lastname, idgroups, dob, sex, dob_year, dob_month, dob_day,
+    pid_number, company, occupation, education, address, phone_home, phone_work, phone_mobile,
+    faxno, email, username, password, readonly, warnings, allow_to_save, allow_to_cloud, flag2,
+    idsport, medication, addinfo, team_name, add1, athlete, add10, add20, updatemode, weight_kg,
+    height_cm, date_modified, recom_testlevel, created_by, mod_by, mod_date, deleted,
+    created_date, modded, allow_anonymous_data, locked, allow_to_sprintai, tosprintai_from,
+    stat_sent, sportti_id
+) VALUES (
+    $1, $2, $3, $4, $5, $6, $7, $8, $9,
+    $10, $11, $12, $13, $14, $15, $16, $17,
+    $18, $19, $20, $21, $22, $23, $24, $25, $26,
+    $27, $28, $29, $30, $31, $32, $33, $34, $35, $36,
+    $37, $38, $39, $40, $41, $42, $43, $44,
+    $45, $46, $47, $48, $49, $50, $51
+)
+ON CONFLICT (idcustomer) DO UPDATE SET
+    firstname = EXCLUDED.firstname,
+    lastname = EXCLUDED.lastname,
+    idgroups = EXCLUDED.idgroups,
+    dob = EXCLUDED.dob,
+    sex = EXCLUDED.sex,
+    dob_year = EXCLUDED.dob_year,
+    dob_month = EXCLUDED.dob_month,
+    dob_day = EXCLUDED.dob_day,
+    pid_number = EXCLUDED.pid_number,
+    company = EXCLUDED.company,
+    occupation = EXCLUDED.occupation,
+    education = EXCLUDED.education,
+    address = EXCLUDED.address,
+    phone_home = EXCLUDED.phone_home,
+    phone_work = EXCLUDED.phone_work,
+    phone_mobile = EXCLUDED.phone_mobile,
+    faxno = EXCLUDED.faxno,
+    email = EXCLUDED.email,
+    username = EXCLUDED.username,
+    password = EXCLUDED.password,
+    readonly = EXCLUDED.readonly,
+    warnings = EXCLUDED.warnings,
+    allow_to_save = EXCLUDED.allow_to_save,
+    allow_to_cloud = EXCLUDED.allow_to_cloud,
+    flag2 = EXCLUDED.flag2,
+    idsport = EXCLUDED.idsport,
+    medication = EXCLUDED.medication,
+    addinfo = EXCLUDED.addinfo,
+    team_name = EXCLUDED.team_name,
+    add1 = EXCLUDED.add1,
+    athlete = EXCLUDED.athlete,
+    add10 = EXCLUDED.add10,
+    add20 = EXCLUDED.add20,
+    updatemode = EXCLUDED.updatemode,
+    weight_kg = EXCLUDED.weight_kg,
+    height_cm = EXCLUDED.height_cm,
+    date_modified = EXCLUDED.date_modified,
+    recom_testlevel = EXCLUDED.recom_testlevel,
+    created_by = EXCLUDED.created_by,
+    mod_by = EXCLUDED.mod_by,
+    mod_date = EXCLUDED.mod_date,
+    deleted = EXCLUDED.deleted,
+    created_date = EXCLUDED.created_date,
+    modded = EXCLUDED.modded,
+    allow_anonymous_data = EXCLUDED.allow_anonymous_data,
+    locked = EXCLUDED.locked,
+    allow_to_sprintai = EXCLUDED.allow_to_sprintai,
+    tosprintai_from = EXCLUDED.tosprintai_from,
+    stat_sent = EXCLUDED.stat_sent,
+    sportti_id = EXCLUDED.sportti_id
+`
+
+type UpsertCustomerParams struct {
+	Idcustomer         int32
+	Firstname          string
+	Lastname           string
+	Idgroups           sql.NullInt32
+	Dob                sql.NullTime
+	Sex                sql.NullInt32
+	DobYear            sql.NullInt32
+	DobMonth           sql.NullInt32
+	DobDay             sql.NullInt32
+	PidNumber          sql.NullString
+	Company            sql.NullString
+	Occupation         sql.NullString
+	Education          sql.NullString
+	Address            sql.NullString
+	PhoneHome          sql.NullString
+	PhoneWork          sql.NullString
+	PhoneMobile        sql.NullString
+	Faxno              sql.NullString
+	Email              sql.NullString
+	Username           sql.NullString
+	Password           sql.NullString
+	Readonly           sql.NullInt32
+	Warnings           sql.NullInt32
+	AllowToSave        sql.NullInt32
+	AllowToCloud       sql.NullInt32
+	Flag2              sql.NullInt32
+	Idsport            sql.NullInt32
+	Medication         sql.NullString
+	Addinfo            sql.NullString
+	TeamName           sql.NullString
+	Add1               sql.NullInt32
+	Athlete            sql.NullInt32
+	Add10              sql.NullString
+	Add20              sql.NullString
+	Updatemode         sql.NullInt32
+	WeightKg           sql.NullFloat64
+	HeightCm           sql.NullFloat64
+	DateModified       sql.NullFloat64
+	RecomTestlevel     sql.NullInt32
+	CreatedBy          sql.NullInt64
+	ModBy              sql.NullInt64
+	ModDate            sql.NullTime
+	Deleted            sql.NullInt16
+	CreatedDate        sql.NullTime
+	Modded             sql.NullInt16
+	AllowAnonymousData sql.NullBool
+	Locked             sql.NullInt16
+	AllowToSprintai    sql.NullInt32
+	TosprintaiFrom     sql.NullTime
+	StatSent           sql.NullTime
+	SporttiID          sql.NullString
+}
+
+// Prefer updating customer metadata if it already exists.
+func (q *Queries) UpsertCustomer(ctx context.Context, arg UpsertCustomerParams) error {
+	_, err := q.exec(ctx, q.upsertCustomerStmt, upsertCustomer,
+		arg.Idcustomer,
+		arg.Firstname,
+		arg.Lastname,
+		arg.Idgroups,
+		arg.Dob,
+		arg.Sex,
+		arg.DobYear,
+		arg.DobMonth,
+		arg.DobDay,
+		arg.PidNumber,
+		arg.Company,
+		arg.Occupation,
+		arg.Education,
+		arg.Address,
+		arg.PhoneHome,
+		arg.PhoneWork,
+		arg.PhoneMobile,
+		arg.Faxno,
+		arg.Email,
+		arg.Username,
+		arg.Password,
+		arg.Readonly,
+		arg.Warnings,
+		arg.AllowToSave,
+		arg.AllowToCloud,
+		arg.Flag2,
+		arg.Idsport,
+		arg.Medication,
+		arg.Addinfo,
+		arg.TeamName,
+		arg.Add1,
+		arg.Athlete,
+		arg.Add10,
+		arg.Add20,
+		arg.Updatemode,
+		arg.WeightKg,
+		arg.HeightCm,
+		arg.DateModified,
+		arg.RecomTestlevel,
+		arg.CreatedBy,
+		arg.ModBy,
+		arg.ModDate,
+		arg.Deleted,
+		arg.CreatedDate,
+		arg.Modded,
+		arg.AllowAnonymousData,
+		arg.Locked,
+		arg.AllowToSprintai,
+		arg.TosprintaiFrom,
+		arg.StatSent,
+		arg.SporttiID,
 	)
 	return err
 }

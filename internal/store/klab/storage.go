@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"time"
+
+	klabsqlc "github.com/DeRuina/KUHA-REST-API/internal/db/klab"
 )
 
 const DataTimeout = 30 * time.Second
@@ -11,10 +13,12 @@ const DataTimeout = 30 * time.Second
 // Interfaces
 type Users interface {
 	GetAllSporttiIDs(ctx context.Context) ([]string, error)
+	GetCustomerByID(ctx context.Context, idcustomer int32) (klabsqlc.Customer, error)
 }
 
 type Data interface {
-	InsertKlabDataBulk(ctx context.Context, data []KlabDataPayload) error
+	InsertKlabDataBulk(ctx context.Context, payloads []KlabDataPayload) error
+	GetDataByCustomerIDNoCustomer(ctx context.Context, idcustomer int32) (*KlabDataNoCustomer, error)
 }
 
 // kLABStorage

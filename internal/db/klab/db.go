@@ -27,8 +27,26 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getAllSporttiIDsStmt, err = db.PrepareContext(ctx, getAllSporttiIDs); err != nil {
 		return nil, fmt.Errorf("error preparing query GetAllSporttiIDs: %w", err)
 	}
-	if q.insertCustomerStmt, err = db.PrepareContext(ctx, insertCustomer); err != nil {
-		return nil, fmt.Errorf("error preparing query InsertCustomer: %w", err)
+	if q.getCustomerByIDStmt, err = db.PrepareContext(ctx, getCustomerByID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetCustomerByID: %w", err)
+	}
+	if q.getDirRawDataByMeasurementIDsStmt, err = db.PrepareContext(ctx, getDirRawDataByMeasurementIDs); err != nil {
+		return nil, fmt.Errorf("error preparing query GetDirRawDataByMeasurementIDs: %w", err)
+	}
+	if q.getDirReportsByMeasurementIDsStmt, err = db.PrepareContext(ctx, getDirReportsByMeasurementIDs); err != nil {
+		return nil, fmt.Errorf("error preparing query GetDirReportsByMeasurementIDs: %w", err)
+	}
+	if q.getDirResultsByMeasurementIDsStmt, err = db.PrepareContext(ctx, getDirResultsByMeasurementIDs); err != nil {
+		return nil, fmt.Errorf("error preparing query GetDirResultsByMeasurementIDs: %w", err)
+	}
+	if q.getDirTestStepsByMeasurementIDsStmt, err = db.PrepareContext(ctx, getDirTestStepsByMeasurementIDs); err != nil {
+		return nil, fmt.Errorf("error preparing query GetDirTestStepsByMeasurementIDs: %w", err)
+	}
+	if q.getDirTestsByMeasurementIDsStmt, err = db.PrepareContext(ctx, getDirTestsByMeasurementIDs); err != nil {
+		return nil, fmt.Errorf("error preparing query GetDirTestsByMeasurementIDs: %w", err)
+	}
+	if q.getMeasurementsByCustomerStmt, err = db.PrepareContext(ctx, getMeasurementsByCustomer); err != nil {
+		return nil, fmt.Errorf("error preparing query GetMeasurementsByCustomer: %w", err)
 	}
 	if q.insertDirRawDataStmt, err = db.PrepareContext(ctx, insertDirRawData); err != nil {
 		return nil, fmt.Errorf("error preparing query InsertDirRawData: %w", err)
@@ -48,6 +66,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.insertMeasurementStmt, err = db.PrepareContext(ctx, insertMeasurement); err != nil {
 		return nil, fmt.Errorf("error preparing query InsertMeasurement: %w", err)
 	}
+	if q.upsertCustomerStmt, err = db.PrepareContext(ctx, upsertCustomer); err != nil {
+		return nil, fmt.Errorf("error preparing query UpsertCustomer: %w", err)
+	}
 	return &q, nil
 }
 
@@ -58,9 +79,39 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getAllSporttiIDsStmt: %w", cerr)
 		}
 	}
-	if q.insertCustomerStmt != nil {
-		if cerr := q.insertCustomerStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing insertCustomerStmt: %w", cerr)
+	if q.getCustomerByIDStmt != nil {
+		if cerr := q.getCustomerByIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getCustomerByIDStmt: %w", cerr)
+		}
+	}
+	if q.getDirRawDataByMeasurementIDsStmt != nil {
+		if cerr := q.getDirRawDataByMeasurementIDsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getDirRawDataByMeasurementIDsStmt: %w", cerr)
+		}
+	}
+	if q.getDirReportsByMeasurementIDsStmt != nil {
+		if cerr := q.getDirReportsByMeasurementIDsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getDirReportsByMeasurementIDsStmt: %w", cerr)
+		}
+	}
+	if q.getDirResultsByMeasurementIDsStmt != nil {
+		if cerr := q.getDirResultsByMeasurementIDsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getDirResultsByMeasurementIDsStmt: %w", cerr)
+		}
+	}
+	if q.getDirTestStepsByMeasurementIDsStmt != nil {
+		if cerr := q.getDirTestStepsByMeasurementIDsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getDirTestStepsByMeasurementIDsStmt: %w", cerr)
+		}
+	}
+	if q.getDirTestsByMeasurementIDsStmt != nil {
+		if cerr := q.getDirTestsByMeasurementIDsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getDirTestsByMeasurementIDsStmt: %w", cerr)
+		}
+	}
+	if q.getMeasurementsByCustomerStmt != nil {
+		if cerr := q.getMeasurementsByCustomerStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getMeasurementsByCustomerStmt: %w", cerr)
 		}
 	}
 	if q.insertDirRawDataStmt != nil {
@@ -91,6 +142,11 @@ func (q *Queries) Close() error {
 	if q.insertMeasurementStmt != nil {
 		if cerr := q.insertMeasurementStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing insertMeasurementStmt: %w", cerr)
+		}
+	}
+	if q.upsertCustomerStmt != nil {
+		if cerr := q.upsertCustomerStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing upsertCustomerStmt: %w", cerr)
 		}
 	}
 	return err
@@ -130,29 +186,43 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db                    DBTX
-	tx                    *sql.Tx
-	getAllSporttiIDsStmt  *sql.Stmt
-	insertCustomerStmt    *sql.Stmt
-	insertDirRawDataStmt  *sql.Stmt
-	insertDirReportStmt   *sql.Stmt
-	insertDirResultsStmt  *sql.Stmt
-	insertDirTestStmt     *sql.Stmt
-	insertDirTestStepStmt *sql.Stmt
-	insertMeasurementStmt *sql.Stmt
+	db                                  DBTX
+	tx                                  *sql.Tx
+	getAllSporttiIDsStmt                *sql.Stmt
+	getCustomerByIDStmt                 *sql.Stmt
+	getDirRawDataByMeasurementIDsStmt   *sql.Stmt
+	getDirReportsByMeasurementIDsStmt   *sql.Stmt
+	getDirResultsByMeasurementIDsStmt   *sql.Stmt
+	getDirTestStepsByMeasurementIDsStmt *sql.Stmt
+	getDirTestsByMeasurementIDsStmt     *sql.Stmt
+	getMeasurementsByCustomerStmt       *sql.Stmt
+	insertDirRawDataStmt                *sql.Stmt
+	insertDirReportStmt                 *sql.Stmt
+	insertDirResultsStmt                *sql.Stmt
+	insertDirTestStmt                   *sql.Stmt
+	insertDirTestStepStmt               *sql.Stmt
+	insertMeasurementStmt               *sql.Stmt
+	upsertCustomerStmt                  *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:                    tx,
-		tx:                    tx,
-		getAllSporttiIDsStmt:  q.getAllSporttiIDsStmt,
-		insertCustomerStmt:    q.insertCustomerStmt,
-		insertDirRawDataStmt:  q.insertDirRawDataStmt,
-		insertDirReportStmt:   q.insertDirReportStmt,
-		insertDirResultsStmt:  q.insertDirResultsStmt,
-		insertDirTestStmt:     q.insertDirTestStmt,
-		insertDirTestStepStmt: q.insertDirTestStepStmt,
-		insertMeasurementStmt: q.insertMeasurementStmt,
+		db:                                  tx,
+		tx:                                  tx,
+		getAllSporttiIDsStmt:                q.getAllSporttiIDsStmt,
+		getCustomerByIDStmt:                 q.getCustomerByIDStmt,
+		getDirRawDataByMeasurementIDsStmt:   q.getDirRawDataByMeasurementIDsStmt,
+		getDirReportsByMeasurementIDsStmt:   q.getDirReportsByMeasurementIDsStmt,
+		getDirResultsByMeasurementIDsStmt:   q.getDirResultsByMeasurementIDsStmt,
+		getDirTestStepsByMeasurementIDsStmt: q.getDirTestStepsByMeasurementIDsStmt,
+		getDirTestsByMeasurementIDsStmt:     q.getDirTestsByMeasurementIDsStmt,
+		getMeasurementsByCustomerStmt:       q.getMeasurementsByCustomerStmt,
+		insertDirRawDataStmt:                q.insertDirRawDataStmt,
+		insertDirReportStmt:                 q.insertDirReportStmt,
+		insertDirResultsStmt:                q.insertDirResultsStmt,
+		insertDirTestStmt:                   q.insertDirTestStmt,
+		insertDirTestStepStmt:               q.insertDirTestStepStmt,
+		insertMeasurementStmt:               q.insertMeasurementStmt,
+		upsertCustomerStmt:                  q.upsertCustomerStmt,
 	}
 }

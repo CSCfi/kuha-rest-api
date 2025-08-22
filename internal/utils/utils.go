@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -282,4 +283,39 @@ func BoolPtrOrNil(b sql.NullBool) *bool {
 // RawMessageToString converts json.RawMessage to string (for non-nullable fields)
 func RawMessageToString(rm json.RawMessage) string {
 	return string(rm)
+}
+
+// Int64PtrOrNil converts sql.NullInt64 to *int64
+func Int64PtrOrNil(i sql.NullInt64) *int64 {
+	if i.Valid {
+		return &i.Int64
+	}
+	return nil
+}
+
+// Int16AsInt32PtrOrNil converts sql.NullInt16 to *int32 (friendlier JSON type)
+func Int16AsInt32PtrOrNil(i sql.NullInt16) *int32 {
+	if i.Valid {
+		v := int32(i.Int16)
+		return &v
+	}
+	return nil
+}
+
+// FormatTimestampPtr formats sql.NullTime to *string (RFC3339)
+func FormatTimestampPtr(t sql.NullTime) *string {
+	if !t.Valid {
+		return nil
+	}
+	s := t.Time.Format(time.RFC3339)
+	return &s
+}
+
+// ParsePositiveInt32 parses a decimal string into a positive int32.
+func ParsePositiveInt32(s string) (int32, error) {
+	v, err := strconv.ParseInt(s, 10, 32)
+	if err != nil || v <= 0 {
+		return 0, ErrInvalidParameter
+	}
+	return int32(v), nil
 }

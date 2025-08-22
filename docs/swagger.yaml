@@ -462,6 +462,130 @@ definitions:
           $ref: '#/definitions/swagger.UnprocessableEntityError'
         type: array
     type: object
+  swagger.KlabCustomerResponse:
+    properties:
+      add1:
+        type: integer
+      add10:
+        type: string
+      add20:
+        type: string
+      addinfo:
+        type: string
+      address:
+        type: string
+      allow_anonymous_data:
+        type: boolean
+      allow_to_cloud:
+        type: integer
+      allow_to_save:
+        type: integer
+      allow_to_sprintai:
+        type: integer
+      athlete:
+        type: integer
+      company:
+        type: string
+      created_by:
+        type: integer
+      created_date:
+        description: timestamp (RFC3339)
+        type: string
+      date_modified:
+        description: double precision
+        type: number
+      deleted:
+        description: smallint -> int32 in JSON
+        type: integer
+      dob:
+        description: date (YYYY-MM-DD)
+        example: "1999-05-19"
+        type: string
+      dob_day:
+        example: 9
+        type: integer
+      dob_month:
+        example: 5
+        type: integer
+      dob_year:
+        example: 1999
+        type: integer
+      education:
+        type: string
+      email:
+        type: string
+      faxno:
+        type: string
+      firstname:
+        example: name
+        type: string
+      flag2:
+        type: integer
+      height_cm:
+        type: number
+      idcustomer:
+        example: 5233
+        type: integer
+      idgroups:
+        example: 2340
+        type: integer
+      idsport:
+        type: integer
+      lastname:
+        example: lastname
+        type: string
+      locked:
+        description: smallint -> int32
+        type: integer
+      medication:
+        type: string
+      mod_by:
+        type: integer
+      mod_date:
+        description: timestamp (RFC3339)
+        type: string
+      modded:
+        description: smallint -> int32 in JSON
+        type: integer
+      occupation:
+        type: string
+      password:
+        type: string
+      phone_home:
+        type: string
+      phone_mobile:
+        type: string
+      phone_work:
+        type: string
+      pid_number:
+        type: string
+      readonly:
+        type: integer
+      recom_testlevel:
+        type: integer
+      sex:
+        example: 0
+        type: integer
+      sportti_id:
+        description: varchar(64)
+        type: string
+      stat_sent:
+        description: date (YYYY-MM-DD)
+        type: string
+      team_name:
+        type: string
+      tosprintai_from:
+        description: date (YYYY-MM-DD)
+        type: string
+      updatemode:
+        type: integer
+      username:
+        type: string
+      warnings:
+        type: integer
+      weight_kg:
+        type: number
+    type: object
   swagger.KlabStatusResponse:
     properties:
       connected:
@@ -1641,6 +1765,13 @@ definitions:
         example: dcabe48a-3578-4743-93ba-001409c82a82
         type: string
     type: object
+  swagger.UserKlabResponse:
+    properties:
+      customer:
+        items:
+          $ref: '#/definitions/swagger.KlabCustomerResponse'
+        type: array
+    type: object
   swagger.ValidationError:
     properties:
       parameter name:
@@ -1903,6 +2034,53 @@ paths:
       security:
       - BearerAuth: []
       summary: Get all Sportti IDs
+      tags:
+      - KLAB - User
+  /klab/user:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a single KLAB customer by idcustomer
+      parameters:
+      - description: Customer ID (idcustomer)
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.UserKlabResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Get customer by ID
       tags:
       - KLAB - User
   /tietoevry/activity-zones:

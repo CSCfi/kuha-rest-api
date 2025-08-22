@@ -2,7 +2,8 @@
 SELECT sportti_id FROM sportti_id_list;
 
 
--- name: InsertCustomer :exec
+-- Prefer updating customer metadata if it already exists.
+-- name: UpsertCustomer :exec
 INSERT INTO customer (
     idcustomer, firstname, lastname, idgroups, dob, sex, dob_year, dob_month, dob_day,
     pid_number, company, occupation, education, address, phone_home, phone_work, phone_mobile,
@@ -18,7 +19,58 @@ INSERT INTO customer (
     $27, $28, $29, $30, $31, $32, $33, $34, $35, $36,
     $37, $38, $39, $40, $41, $42, $43, $44,
     $45, $46, $47, $48, $49, $50, $51
-);
+)
+ON CONFLICT (idcustomer) DO UPDATE SET
+    firstname = EXCLUDED.firstname,
+    lastname = EXCLUDED.lastname,
+    idgroups = EXCLUDED.idgroups,
+    dob = EXCLUDED.dob,
+    sex = EXCLUDED.sex,
+    dob_year = EXCLUDED.dob_year,
+    dob_month = EXCLUDED.dob_month,
+    dob_day = EXCLUDED.dob_day,
+    pid_number = EXCLUDED.pid_number,
+    company = EXCLUDED.company,
+    occupation = EXCLUDED.occupation,
+    education = EXCLUDED.education,
+    address = EXCLUDED.address,
+    phone_home = EXCLUDED.phone_home,
+    phone_work = EXCLUDED.phone_work,
+    phone_mobile = EXCLUDED.phone_mobile,
+    faxno = EXCLUDED.faxno,
+    email = EXCLUDED.email,
+    username = EXCLUDED.username,
+    password = EXCLUDED.password,
+    readonly = EXCLUDED.readonly,
+    warnings = EXCLUDED.warnings,
+    allow_to_save = EXCLUDED.allow_to_save,
+    allow_to_cloud = EXCLUDED.allow_to_cloud,
+    flag2 = EXCLUDED.flag2,
+    idsport = EXCLUDED.idsport,
+    medication = EXCLUDED.medication,
+    addinfo = EXCLUDED.addinfo,
+    team_name = EXCLUDED.team_name,
+    add1 = EXCLUDED.add1,
+    athlete = EXCLUDED.athlete,
+    add10 = EXCLUDED.add10,
+    add20 = EXCLUDED.add20,
+    updatemode = EXCLUDED.updatemode,
+    weight_kg = EXCLUDED.weight_kg,
+    height_cm = EXCLUDED.height_cm,
+    date_modified = EXCLUDED.date_modified,
+    recom_testlevel = EXCLUDED.recom_testlevel,
+    created_by = EXCLUDED.created_by,
+    mod_by = EXCLUDED.mod_by,
+    mod_date = EXCLUDED.mod_date,
+    deleted = EXCLUDED.deleted,
+    created_date = EXCLUDED.created_date,
+    modded = EXCLUDED.modded,
+    allow_anonymous_data = EXCLUDED.allow_anonymous_data,
+    locked = EXCLUDED.locked,
+    allow_to_sprintai = EXCLUDED.allow_to_sprintai,
+    tosprintai_from = EXCLUDED.tosprintai_from,
+    stat_sent = EXCLUDED.stat_sent,
+    sportti_id = EXCLUDED.sportti_id;
 
 
 -- name: InsertMeasurement :exec
@@ -36,7 +88,8 @@ INSERT INTO measurement_list (
     $17, $18, $19, $20, $21, $22,
     $23, $24, $25, $26, $27,
     $28
-);
+)
+ON CONFLICT (idmeasurement) DO NOTHING;
 
 
 -- name: InsertDirTest :exec
@@ -56,7 +109,8 @@ INSERT INTO dirtest (
     $30, $31, $32, $33, $34, $35,
     $36, $37, $38, $39, $40, $41, $42,
     $43, $44, $45
-);
+)
+ON CONFLICT (iddirtest) DO NOTHING;
 
 
 -- name: InsertDirTestStep :exec
@@ -82,17 +136,8 @@ INSERT INTO dirteststeps (
     $59, $60, $61, $62, $63,
     $64, $65, $66, $67, $68, $69, $70, $71, $72,
     $73, $74
-);
-
-
--- name: InsertDirReport :exec
-INSERT INTO dirreport (
-    iddirreport, page_instructions, idmeasurement, template_rec, librec_name,
-    created_by, mod_by, mod_date, deleted, created_date, modded
-) VALUES (
-    $1, $2, $3, $4, $5,
-    $6, $7, $8, $9, $10, $11
-);
+)
+ON CONFLICT (iddirteststeps) DO NOTHING;
 
 
 -- name: InsertDirRawData :exec
@@ -102,7 +147,19 @@ INSERT INTO dirrawdata (
 ) VALUES (
     $1, $2, $3, $4, $5, $6,
     $7, $8, $9, $10, $11, $12
-);
+)
+ON CONFLICT (iddirrawdata) DO NOTHING;
+
+
+-- name: InsertDirReport :exec
+INSERT INTO dirreport (
+    iddirreport, page_instructions, idmeasurement, template_rec, librec_name,
+    created_by, mod_by, mod_date, deleted, created_date, modded
+) VALUES (
+    $1, $2, $3, $4, $5,
+    $6, $7, $8, $9, $10, $11
+)
+ON CONFLICT (iddirreport) DO NOTHING;
 
 
 -- name: InsertDirResults :exec
@@ -136,8 +193,46 @@ INSERT INTO dirresults (
     $44, $45, $46, $47,
     $48, $49, $50, $51, $52,
     $53, $54, $55, $56, $57,
-    $58, $59, $60, $61,
-    $62, $63, $64, $65, $66,
-    $67, $68, $69, $70, $71,
-    $72, $73, $74, $75, $76, $77
-);
+    $58, $59, $60,
+    $61, $62, $63, $64, $65, $66,
+    $67, $68, $69, $70, $71, $72,
+    $73, $74, $75,
+    $76, $77
+)
+ON CONFLICT (iddirresults) DO NOTHING;
+
+-- name: GetCustomerByID :one
+SELECT * FROM customer
+WHERE idcustomer = $1;
+
+-- name: GetMeasurementsByCustomer :many
+SELECT *
+FROM measurement_list
+WHERE idcustomer = $1
+ORDER BY idmeasurement;
+
+-- name: GetDirTestsByMeasurementIDs :many
+SELECT *
+FROM dirtest
+WHERE idmeasurement = ANY($1::int[]);
+
+-- name: GetDirTestStepsByMeasurementIDs :many
+SELECT *
+FROM dirteststeps
+WHERE idmeasurement = ANY($1::int[])
+ORDER BY idmeasurement, stepno;
+
+-- name: GetDirReportsByMeasurementIDs :many
+SELECT *
+FROM dirreport
+WHERE idmeasurement = ANY($1::int[]);
+
+-- name: GetDirRawDataByMeasurementIDs :many
+SELECT *
+FROM dirrawdata
+WHERE idmeasurement = ANY($1::int[]);
+
+-- name: GetDirResultsByMeasurementIDs :many
+SELECT *
+FROM dirresults
+WHERE idmeasurement = ANY($1::int[]);

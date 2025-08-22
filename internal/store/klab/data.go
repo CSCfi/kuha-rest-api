@@ -12,7 +12,7 @@ type DataStore struct {
 }
 
 type KlabDataPayload struct {
-	Customer     []klabsqlc.InsertCustomerParams
+	Customers    []klabsqlc.UpsertCustomerParams
 	Measurements []klabsqlc.InsertMeasurementParams
 	DirTests     []klabsqlc.InsertDirTestParams
 	DirTestSteps []klabsqlc.InsertDirTestStepParams
@@ -21,7 +21,17 @@ type KlabDataPayload struct {
 	DirResults   []klabsqlc.InsertDirResultsParams
 }
 
-func (s *DataStore) InsertKlabDataBulk(ctx context.Context, data []KlabDataPayload) error {
+type KlabDataNoCustomer struct {
+	CustomerID   int32
+	Measurements []klabsqlc.MeasurementList
+	DirTests     []klabsqlc.Dirtest
+	DirTestSteps []klabsqlc.Dirteststep
+	DirReports   []klabsqlc.Dirreport
+	DirRawData   []klabsqlc.Dirrawdatum
+	DirResults   []klabsqlc.Dirresult
+}
+
+func (s *DataStore) InsertKlabDataBulk(ctx context.Context, payloads []KlabDataPayload) error {
 	ctx, cancel := context.WithTimeout(ctx, DataTimeout)
 	defer cancel()
 
@@ -33,56 +43,103 @@ func (s *DataStore) InsertKlabDataBulk(ctx context.Context, data []KlabDataPaylo
 
 	q := klabsqlc.New(tx)
 
-	for _, item := range data {
-		// Insert all customers
-		for _, c := range item.Customer {
-			if err := q.InsertCustomer(ctx, c); err != nil {
+	for _, b := range payloads {
+		// 1) Customers
+		for _, c := range b.Customers {
+			if err := q.UpsertCustomer(ctx, c); err != nil {
 				return err
 			}
 		}
 
-		// Insert measurements
-		for _, m := range item.Measurements {
+		// 2) Measurements
+		for _, m := range b.Measurements {
 			if err := q.InsertMeasurement(ctx, m); err != nil {
 				return err
 			}
 		}
 
-		// Insert dirtests
-		for _, t := range item.DirTests {
+		// 3) Child tables
+		for _, t := range b.DirTests {
 			if err := q.InsertDirTest(ctx, t); err != nil {
 				return err
 			}
 		}
-
-		// Insert dirteststeps
-		for _, step := range item.DirTestSteps {
-			if err := q.InsertDirTestStep(ctx, step); err != nil {
+		for _, st := range b.DirTestSteps {
+			if err := q.InsertDirTestStep(ctx, st); err != nil {
 				return err
 			}
 		}
-
-		// Insert dirrawdata
-		for _, raw := range item.DirRawData {
-			if err := q.InsertDirRawData(ctx, raw); err != nil {
+		for _, rd := range b.DirRawData {
+			if err := q.InsertDirRawData(ctx, rd); err != nil {
 				return err
 			}
 		}
-
-		// Insert dirreports
-		for _, rep := range item.DirReports {
-			if err := q.InsertDirReport(ctx, rep); err != nil {
+		for _, rp := range b.DirReports {
+			if err := q.InsertDirReport(ctx, rp); err != nil {
 				return err
 			}
 		}
-
-		// Insert dirresults
-		for _, res := range item.DirResults {
-			if err := q.InsertDirResults(ctx, res); err != nil {
+		for _, rs := range b.DirResults {
+			if err := q.InsertDirResults(ctx, rs); err != nil {
 				return err
 			}
 		}
 	}
 
 	return tx.Commit()
+}
+
+func (s *DataStore) GetDataByCustomerIDNoCustomer(ctx context.Context, idcustomer int32) (*KlabDataNoCustomer, error) {
+	ctx, cancel := context.WithTimeout(ctx, DataTimeout)
+	defer cancel()
+
+	q := klabsqlc.New(s.db)
+
+	// Get all measurements for the customer
+	meas, err := q.GetMeasurementsByCustomer(ctx, idcustomer)
+	if err != nil {
+		return nil, err
+	}
+
+	// Collect measurement IDs for bulk fetches
+	mids := make([]int32, 0, len(meas))
+	for _, m := range meas {
+		mids = append(mids, m.Idmeasurement)
+	}
+
+	var (
+		tests   []klabsqlc.Dirtest
+		steps   []klabsqlc.Dirteststep
+		reps    []klabsqlc.Dirreport
+		raws    []klabsqlc.Dirrawdatum
+		results []klabsqlc.Dirresult
+	)
+
+	if len(mids) > 0 {
+		if tests, err = q.GetDirTestsByMeasurementIDs(ctx, mids); err != nil {
+			return nil, err
+		}
+		if steps, err = q.GetDirTestStepsByMeasurementIDs(ctx, mids); err != nil {
+			return nil, err
+		}
+		if reps, err = q.GetDirReportsByMeasurementIDs(ctx, mids); err != nil {
+			return nil, err
+		}
+		if raws, err = q.GetDirRawDataByMeasurementIDs(ctx, mids); err != nil {
+			return nil, err
+		}
+		if results, err = q.GetDirResultsByMeasurementIDs(ctx, mids); err != nil {
+			return nil, err
+		}
+	}
+
+	return &KlabDataNoCustomer{
+		CustomerID:   idcustomer,
+		Measurements: meas,
+		DirTests:     tests,
+		DirTestSteps: steps,
+		DirReports:   reps,
+		DirRawData:   raws,
+		DirResults:   results,
+	}, nil
 }
