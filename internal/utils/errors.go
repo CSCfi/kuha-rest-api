@@ -65,6 +65,7 @@ var (
 	ErrInvalidSource       = errors.New("invalid source. Please use one of the allowed devices")
 	ErrInvalidSportID      = errors.New("invalid sport_id format")
 	ErrInvalidnumericValue = errors.New("value must be numeric")
+	ErrInvalidIDNumeric    = errors.New("id must be numeric")
 	ErrInvalidLimit        = errors.New("invalid limit: must be in the documented range")
 	ErrInvalidOffset       = errors.New("invalid offset: must be a non-negative integer")
 	ErrMaxLimitExceeded    = errors.New("maximum value exceeded: please use a smaller value")
@@ -185,6 +186,8 @@ func FormatValidationErrors(err error) map[string]string {
 			switch field {
 			case "SportID":
 				errors["sport_id"] = ErrInvalidSportID.Error()
+			case "ID":
+				errors["id"] = ErrInvalidIDNumeric.Error()
 			default:
 				errors[field] = ErrInvalidnumericValue.Error()
 			}
