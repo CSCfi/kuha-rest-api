@@ -410,6 +410,11 @@ type TokensForUpdateParams struct {
 	Hours  int    `form:"hours" validate:"required,min=1,max=8760"` // up to 1 year
 }
 
+type UserDataResponse struct {
+	UserID string      `json:"user_id"`
+	Data   interface{} `json:"data"`
+}
+
 // GetTokensForUpdate godoc
 //
 //	@Summary		Get tokens for update
@@ -470,7 +475,11 @@ func (h *GeneralDataHandler) GetTokensForUpdate(w http.ResponseWriter, r *http.R
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
-		utils.WriteJSON(w, http.StatusOK, tokens)
+		resp := make([]UserDataResponse, 0, len(tokens))
+		for _, t := range tokens {
+			resp = append(resp, UserDataResponse{UserID: t.UserID.String(), Data: t.Data})
+		}
+		utils.WriteJSON(w, http.StatusOK, resp)
 
 	case "oura":
 		tokens, err := h.ouraToken.GetTokensForUpdate(r.Context(), cutoff)
@@ -482,7 +491,11 @@ func (h *GeneralDataHandler) GetTokensForUpdate(w http.ResponseWriter, r *http.R
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
-		utils.WriteJSON(w, http.StatusOK, tokens)
+		resp := make([]UserDataResponse, 0, len(tokens))
+		for _, t := range tokens {
+			resp = append(resp, UserDataResponse{UserID: t.UserID.String(), Data: t.Data})
+		}
+		utils.WriteJSON(w, http.StatusOK, resp)
 
 	case "suunto":
 		tokens, err := h.suuntoToken.GetTokensForUpdate(r.Context(), cutoff)
@@ -494,7 +507,11 @@ func (h *GeneralDataHandler) GetTokensForUpdate(w http.ResponseWriter, r *http.R
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
-		utils.WriteJSON(w, http.StatusOK, tokens)
+		resp := make([]UserDataResponse, 0, len(tokens))
+		for _, t := range tokens {
+			resp = append(resp, UserDataResponse{UserID: t.UserID.String(), Data: t.Data})
+		}
+		utils.WriteJSON(w, http.StatusOK, resp)
 
 	case "garmin":
 		tokens, err := h.garminToken.GetTokensForUpdate(r.Context(), cutoff)
@@ -506,7 +523,11 @@ func (h *GeneralDataHandler) GetTokensForUpdate(w http.ResponseWriter, r *http.R
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
-		utils.WriteJSON(w, http.StatusOK, tokens)
+		resp := make([]UserDataResponse, 0, len(tokens))
+		for _, t := range tokens {
+			resp = append(resp, UserDataResponse{UserID: t.UserID.String(), Data: t.Data})
+		}
+		utils.WriteJSON(w, http.StatusOK, resp)
 
 	default:
 		utils.BadRequestResponse(w, r, fmt.Errorf("invalid source: must be one of polar, oura, suunto, garmin"))
@@ -578,7 +599,11 @@ func (h *GeneralDataHandler) GetDataForUpdate(w http.ResponseWriter, r *http.Req
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
-		utils.WriteJSON(w, http.StatusOK, data)
+		resp := make([]UserDataResponse, 0, len(data))
+		for _, t := range data {
+			resp = append(resp, UserDataResponse{UserID: t.UserID.String(), Data: t.Data})
+		}
+		utils.WriteJSON(w, http.StatusOK, resp)
 
 	case "oura":
 		data, err := h.ouraToken.GetDataForUpdate(r.Context(), cutoff)
@@ -590,7 +615,11 @@ func (h *GeneralDataHandler) GetDataForUpdate(w http.ResponseWriter, r *http.Req
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
-		utils.WriteJSON(w, http.StatusOK, data)
+		resp := make([]UserDataResponse, 0, len(data))
+		for _, t := range data {
+			resp = append(resp, UserDataResponse{UserID: t.UserID.String(), Data: t.Data})
+		}
+		utils.WriteJSON(w, http.StatusOK, resp)
 
 	case "suunto":
 		data, err := h.suuntoToken.GetDataForUpdate(r.Context(), cutoff)
@@ -602,7 +631,11 @@ func (h *GeneralDataHandler) GetDataForUpdate(w http.ResponseWriter, r *http.Req
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
-		utils.WriteJSON(w, http.StatusOK, data)
+		resp := make([]UserDataResponse, 0, len(data))
+		for _, t := range data {
+			resp = append(resp, UserDataResponse{UserID: t.UserID.String(), Data: t.Data})
+		}
+		utils.WriteJSON(w, http.StatusOK, resp)
 
 	case "garmin":
 		data, err := h.garminToken.GetDataForUpdate(r.Context(), cutoff)
@@ -614,7 +647,11 @@ func (h *GeneralDataHandler) GetDataForUpdate(w http.ResponseWriter, r *http.Req
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
-		utils.WriteJSON(w, http.StatusOK, data)
+		resp := make([]UserDataResponse, 0, len(data))
+		for _, t := range data {
+			resp = append(resp, UserDataResponse{UserID: t.UserID.String(), Data: t.Data})
+		}
+		utils.WriteJSON(w, http.StatusOK, resp)
 
 	default:
 		utils.BadRequestResponse(w, r, fmt.Errorf("invalid source: must be one of polar, oura, suunto, garmin"))

@@ -878,7 +878,7 @@ definitions:
     type: object
   swagger.PolarTokenInput:
     properties:
-      details:
+      data:
         $ref: '#/definitions/swagger.PolarTokenDetails'
       user_id:
         example: 208e2ffb-ac68-4980-a8a6-b7e0136e0798

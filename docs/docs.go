@@ -6312,7 +6312,7 @@ const docTemplate = `{
         "swagger.PolarTokenInput": {
             "type": "object",
             "properties": {
-                "details": {
+                "data": {
                     "$ref": "#/definitions/swagger.PolarTokenDetails"
                 },
                 "user_id": {

@@ -245,8 +245,8 @@ type PolarTokenDetails struct {
 }
 
 type PolarTokenInput struct {
-	UserID  string            `json:"user_id" example:"208e2ffb-ac68-4980-a8a6-b7e0136e0798"`
-	Details PolarTokenDetails `json:"details"`
+	UserID string            `json:"user_id" example:"208e2ffb-ac68-4980-a8a6-b7e0136e0798"`
+	Data   PolarTokenDetails `json:"data"`
 }
 
 type PolarStatusResponse struct {
