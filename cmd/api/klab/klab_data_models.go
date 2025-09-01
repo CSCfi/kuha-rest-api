@@ -14,8 +14,8 @@ type KlabCustomerInput struct {
 	FirstName          *string  `json:"FirstName" validate:"required"`
 	LastName           *string  `json:"LastName" validate:"required"`
 	IdGroups           *int32   `json:"idGroups"`
-	DOB                *string  `json:"DOB"` // YYYY-MM-DD
-	SEX                *int32   `json:"SEX"` // integer
+	DOB                *string  `json:"DOB"`
+	SEX                *int32   `json:"SEX"`
 	DobYear            *int32   `json:"dob_year"`
 	DobMonth           *int32   `json:"dob_month"`
 	DobDay             *int32   `json:"dob_day"`
@@ -47,19 +47,19 @@ type KlabCustomerInput struct {
 	Updatemode         *int32   `json:"updatemode"`
 	WeightKg           *float64 `json:"weight_kg"`
 	HeightCm           *float64 `json:"height_cm"`
-	DateModified       *float64 `json:"date_modified"` // double precision
+	DateModified       *float64 `json:"date_modified"`
 	RecomTestlevel     *int32   `json:"recom_testlevel"`
 	CreatedBy          *int64   `json:"created_by"`
 	ModBy              *int64   `json:"mod_by"`
-	ModDate            *string  `json:"mod_date"`     // RFC3339
-	Deleted            *int32   `json:"deleted"`      // smallint
-	CreatedDate        *string  `json:"created_date"` // RFC3339
-	Modded             *int32   `json:"modded"`       // smallint
+	ModDate            *string  `json:"mod_date"`
+	Deleted            *int32   `json:"deleted"`
+	CreatedDate        *string  `json:"created_date"`
+	Modded             *int32   `json:"modded"`
 	AllowAnonymousData *bool    `json:"allow_anonymous_data"`
-	Locked             *int32   `json:"locked"` // smallint
+	Locked             *int32   `json:"locked"`
 	AllowToSprintai    *int32   `json:"allow_to_sprintai"`
-	TosprintaiFrom     *string  `json:"tosprintai_from"` // YYYY-MM-DD
-	StatSent           *string  `json:"stat_sent"`       // YYYY-MM-DD
+	TosprintaiFrom     *string  `json:"tosprintai_from"`
+	StatSent           *string  `json:"stat_sent"`
 	SporttiID          *string  `json:"sportti_id" validate:"required"`
 }
 
@@ -69,11 +69,11 @@ type KlabMeasurementInput struct {
 	IdCustomer     *int32  `json:"idCustomer"`
 	TableName      *string `json:"tableName"`
 	IdPatternDef   *string `json:"idpatterndef"`
-	DoYear         *int32  `json:"do_year"`  // smallint
-	DoMonth        *int32  `json:"do_month"` // smallint
-	DoDay          *int32  `json:"do_day"`   // smallint
-	DoHour         *int32  `json:"do_hour"`  // smallint
-	DoMin          *int32  `json:"do_min"`   // smallint
+	DoYear         *int32  `json:"do_year"`
+	DoMonth        *int32  `json:"do_month"`
+	DoDay          *int32  `json:"do_day"`
+	DoHour         *int32  `json:"do_hour"`
+	DoMin          *int32  `json:"do_min"`
 	SessionNo      *int32  `json:"sessionno"`
 	Info           *string `json:"info"`
 	Measurements   *string `json:"measurements"`
@@ -82,16 +82,16 @@ type KlabMeasurementInput struct {
 	CbComments     *string `json:"cbcomments"`
 	CreatedBy      *int64  `json:"created_by"`
 	ModBy          *int64  `json:"mod_by"`
-	ModDate        *string `json:"mod_date"`     // RFC3339
-	Deleted        *int32  `json:"deleted"`      // smallint
-	CreatedDate    *string `json:"created_date"` // RFC3339
-	Modded         *int32  `json:"modded"`       // smallint
+	ModDate        *string `json:"mod_date"`
+	Deleted        *int32  `json:"deleted"`
+	CreatedDate    *string `json:"created_date"`
+	Modded         *int32  `json:"modded"`
 	TestLocation   *string `json:"test_location"`
 	Keywords       *string `json:"keywords"`
 	TesterName     *string `json:"tester_name"`
 	ModderName     *string `json:"modder_name"`
 	MeasType       *int32  `json:"meastype"`
-	SentToSprintAI *string `json:"sent_to_sprintai"` // RFC3339
+	SentToSprintAI *string `json:"sent_to_sprintai"`
 }
 
 type KlabDirTestInput struct {
@@ -128,18 +128,18 @@ type KlabDirTestInput struct {
 	Lt1CalcY      *float64 `json:"lt1_calc_y"`
 	Lt2CalcX      *float64 `json:"lt2_calc_x"`
 	Lt2CalcY      *float64 `json:"lt2_calc_y"`
-	ProtocolModel *int32   `json:"protocolmodel"` // smallint
-	TestType      *int32   `json:"testtype"`      // smallint
-	ProtocolXVal  *int32   `json:"protocolxval"`  // smallint
+	ProtocolModel *int32   `json:"protocolmodel"`
+	TestType      *int32   `json:"testtype"`
+	ProtocolXVal  *int32   `json:"protocolxval"`
 	StepTime      *int32   `json:"steptime"`
-	WRest         *int32   `json:"w_rest"` // smallint
+	WRest         *int32   `json:"w_rest"`
 	CreatedBy     *int64   `json:"created_by"`
 	ModBy         *int64   `json:"mod_by"`
-	ModDate       *string  `json:"mod_date"`     // RFC3339
-	Deleted       *int32   `json:"deleted"`      // smallint
-	CreatedDate   *string  `json:"created_date"` // RFC3339
-	Modded        *int32   `json:"modded"`       // smallint
-	NoRawData     *int32   `json:"norawdata"`    // smallint
+	ModDate       *string  `json:"mod_date"`
+	Deleted       *int32   `json:"deleted"`
+	CreatedDate   *string  `json:"created_date"`
+	Modded        *int32   `json:"modded"`
+	NoRawData     *int32   `json:"norawdata"`
 }
 
 type KlabDirTestStepInput struct {
@@ -204,12 +204,12 @@ type KlabDirTestStepInput struct {
 	Vo230s         *float64 `json:"vo2_30s"`
 	Vo2Pr          *float64 `json:"vo2_pr"`
 	StepIsLast     *int32   `json:"step_is_last"`
-	Deleted        *int32   `json:"deleted"` // smallint
+	Deleted        *int32   `json:"deleted"`
 	CreatedBy      *int64   `json:"created_by"`
 	ModBy          *int64   `json:"mod_by"`
-	ModDate        *string  `json:"mod_date"`     // RFC3339
-	CreatedDate    *string  `json:"created_date"` // RFC3339
-	Modded         *int32   `json:"modded"`       // smallint
+	ModDate        *string  `json:"mod_date"`
+	CreatedDate    *string  `json:"created_date"`
+	Modded         *int32   `json:"modded"`
 	Own6           *float64 `json:"own6"`
 	Own7           *float64 `json:"own7"`
 	Own8           *float64 `json:"own8"`
@@ -227,10 +227,10 @@ type KlabDirReportInput struct {
 	LibrecName    *string `json:"librec_name"`
 	CreatedBy     *int64  `json:"created_by"`
 	ModBy         *int64  `json:"mod_by"`
-	ModDate       *string `json:"mod_date"`     // RFC3339
-	Deleted       *int32  `json:"deleted"`      // smallint
-	CreatedDate   *string `json:"created_date"` // RFC3339
-	Modded        *int32  `json:"modded"`       // smallint
+	ModDate       *string `json:"mod_date"`
+	Deleted       *int32  `json:"deleted"`
+	CreatedDate   *string `json:"created_date"`
+	Modded        *int32  `json:"modded"`
 }
 
 type KlabDirRawDataInput struct {
@@ -242,10 +242,10 @@ type KlabDirRawDataInput struct {
 	UnitsData     *string `json:"unitsdata"`
 	CreatedBy     *int64  `json:"created_by"`
 	ModBy         *int64  `json:"mod_by"`
-	ModDate       *string `json:"mod_date"`     // RFC3339
-	Deleted       *int32  `json:"deleted"`      // smallint
-	CreatedDate   *string `json:"created_date"` // RFC3339
-	Modded        *int32  `json:"modded"`       // smallint
+	ModDate       *string `json:"mod_date"`
+	Deleted       *int32  `json:"deleted"`
+	CreatedDate   *string `json:"created_date"`
+	Modded        *int32  `json:"modded"`
 }
 
 type KlabDirResultsInput struct {
@@ -322,10 +322,10 @@ type KlabDirResultsInput struct {
 	VentAerkAdd3       *float64 `json:"vent_aerk_add3"`
 	CreatedBy          *int64   `json:"created_by"`
 	ModBy              *int64   `json:"mod_by"`
-	ModDate            *string  `json:"mod_date"`     // RFC3339
-	Deleted            *int32   `json:"deleted"`      // smallint
-	CreatedDate        *string  `json:"created_date"` // RFC3339
-	Modded             *int32   `json:"modded"`       // smallint
+	ModDate            *string  `json:"mod_date"`
+	Deleted            *int32   `json:"deleted"`
+	CreatedDate        *string  `json:"created_date"`
+	Modded             *int32   `json:"modded"`
 }
 
 // local helpers

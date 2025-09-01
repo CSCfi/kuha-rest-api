@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	klabsqlc "github.com/DeRuina/KUHA-REST-API/internal/db/klab"
+	"github.com/DeRuina/KUHA-REST-API/internal/utils"
 )
 
 type DataStore struct {
@@ -89,9 +90,23 @@ func (s *DataStore) InsertKlabDataBulk(ctx context.Context, payloads []KlabDataP
 	return tx.Commit()
 }
 
+func (s *DataStore) GetCustomerByID(ctx context.Context, idcustomer int32) (klabsqlc.Customer, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	queries := klabsqlc.New(s.db)
+	return queries.GetCustomerByID(ctx, idcustomer)
+}
+
 func (s *DataStore) GetDataByCustomerIDNoCustomer(ctx context.Context, idcustomer int32) (*KlabDataNoCustomerResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, DataTimeout)
 	defer cancel()
+
+	// Check if customer exists first
+	_, err := s.GetCustomerByID(ctx, idcustomer)
+	if err != nil {
+		return nil, err
+	}
 
 	q := klabsqlc.New(s.db)
 

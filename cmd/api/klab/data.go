@@ -89,7 +89,7 @@ func (h *KlabDataHandler) InsertKlabDataBulk(w http.ResponseWriter, r *http.Requ
 
 	// 1) customer rows
 	for _, c := range bundle.Customer {
-		arg, err := mapCustomerToParams(c, id) // forces/aligns idcustomer
+		arg, err := mapCustomerToParams(c, id)
 		if err != nil {
 			utils.BadRequestResponse(w, r, err)
 			return
@@ -186,10 +186,18 @@ func (h *KlabDataHandler) GetKlabData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	idStr := r.URL.Query().Get("id")
-	id, err := utils.ParsePositiveInt32(idStr)
+	params := KlabUserParams{
+		ID: r.URL.Query().Get("id"),
+	}
+
+	if err := utils.GetValidator().Struct(params); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	id, err := utils.ParsePositiveInt32(params.ID)
 	if err != nil {
-		utils.BadRequestResponse(w, r, utils.ErrInvalidParameter)
+		utils.BadRequestResponse(w, r, err)
 		return
 	}
 
