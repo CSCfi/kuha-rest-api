@@ -146,8 +146,7 @@ create table symptoms
     created_at      timestamp with time zone not null,
     updated_at      timestamp with time zone not null,
     raw_id          text,
-    original_id     uuid
-        references symptoms,
+    original_id     uuid,
     recovered       boolean,
     pain_index      integer,
     side            citext,
