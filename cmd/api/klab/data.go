@@ -225,13 +225,23 @@ func (h *KlabDataHandler) GetKlabData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := utils.ParsePositiveInt32(params.ID)
+	sporttiID, err := utils.ParseSporttiID(params.ID)
 	if err != nil {
 		utils.BadRequestResponse(w, r, err)
 		return
 	}
 
-	res, err := h.store.GetDataByCustomerIDNoCustomer(r.Context(), id)
+	idcustomer, err := h.store.GetCustomerIDBySporttiID(r.Context(), sporttiID)
+	if err == sql.ErrNoRows {
+		utils.NotFoundResponse(w, r, err)
+		return
+	}
+	if err != nil {
+		utils.InternalServerError(w, r, err)
+		return
+	}
+
+	res, err := h.store.GetDataByCustomerIDNoCustomer(r.Context(), idcustomer)
 	if err == sql.ErrNoRows {
 		utils.NotFoundResponse(w, r, err)
 		return

@@ -485,3 +485,8 @@ SELECT *
 FROM dirresults
 WHERE idmeasurement = ANY($1::int[])
 ORDER BY idmeasurement;
+
+-- name: GetCustomerIDBySporttiID :one
+SELECT idcustomer
+FROM customer
+WHERE sportti_id = $1;

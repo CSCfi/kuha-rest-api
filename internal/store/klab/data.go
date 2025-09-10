@@ -189,3 +189,11 @@ func (s *DataStore) GetDataByCustomerIDNoCustomer(ctx context.Context, idcustome
 		DirResults:   cleanResults,
 	}, nil
 }
+
+func (s *DataStore) GetCustomerIDBySporttiID(ctx context.Context, sporttiID string) (int32, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	q := klabsqlc.New(s.db)
+	return q.GetCustomerIDBySporttiID(ctx, sql.NullString{String: sporttiID, Valid: true})
+}
