@@ -494,11 +494,11 @@
                 "tags": [
                     "KLAB - Data"
                 ],
-                "summary": "Get kLab data by customer ID",
+                "summary": "Get kLab data by Sportti ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Customer ID",
+                        "description": "Sportti ID",
                         "name": "id",
                         "in": "query",
                         "required": true
@@ -6161,7 +6161,7 @@
                 },
                 "sportti_id": {
                     "type": "string",
-                    "example": "7842"
+                    "example": "27353728"
                 },
                 "stat_sent": {
                     "description": "YYYY-MM-DD",
@@ -6379,7 +6379,7 @@
                 "sportti_id": {
                     "description": "varchar(64)",
                     "type": "string",
-                    "example": "7842"
+                    "example": "27353728"
                 },
                 "stat_sent": {
                     "description": "date (YYYY-MM-DD)",
@@ -6416,7 +6416,7 @@
         "swagger.KlabDataBulkDoc": {
             "type": "object",
             "properties": {
-                "7842": {
+                "27353728": {
                     "$ref": "#/definitions/swagger.KlabDataBundle"
                 }
             }
@@ -6471,10 +6471,6 @@
         "swagger.KlabDataResponse": {
             "type": "object",
             "properties": {
-                "customer_id": {
-                    "type": "integer",
-                    "example": 7842
-                },
                 "dirrawdata": {
                     "type": "array",
                     "items": {
@@ -6510,6 +6506,10 @@
                     "items": {
                         "$ref": "#/definitions/swagger.KlabMeasurement"
                     }
+                },
+                "sportti_id": {
+                    "type": "integer",
+                    "example": 27353728
                 }
             }
         },

@@ -599,7 +599,7 @@ definitions:
         example: 3
         type: integer
       sportti_id:
-        example: "7842"
+        example: "27353728"
         type: string
       stat_sent:
         description: YYYY-MM-DD
@@ -764,7 +764,7 @@ definitions:
         type: integer
       sportti_id:
         description: varchar(64)
-        example: "7842"
+        example: "27353728"
         type: string
       stat_sent:
         description: date (YYYY-MM-DD)
@@ -792,7 +792,7 @@ definitions:
     type: object
   swagger.KlabDataBulkDoc:
     properties:
-      "7842":
+      "27353728":
         $ref: '#/definitions/swagger.KlabDataBundle'
     type: object
   swagger.KlabDataBundle:
@@ -828,9 +828,6 @@ definitions:
     type: object
   swagger.KlabDataResponse:
     properties:
-      customer_id:
-        example: 7842
-        type: integer
       dirrawdata:
         items:
           $ref: '#/definitions/swagger.KlabDirRawData'
@@ -855,6 +852,9 @@ definitions:
         items:
           $ref: '#/definitions/swagger.KlabMeasurement'
         type: array
+      sportti_id:
+        example: 27353728
+        type: integer
     type: object
   swagger.KlabDirRawData:
     properties:
@@ -3149,7 +3149,7 @@ paths:
       description: Returns measurement_list + all child tables for the given customer
         (no customer row)
       parameters:
-      - description: Customer ID
+      - description: Sportti ID
         in: query
         name: id
         required: true
@@ -3187,7 +3187,7 @@ paths:
             $ref: '#/definitions/swagger.ServiceUnavailableResponse'
       security:
       - BearerAuth: []
-      summary: Get kLab data by customer ID
+      summary: Get kLab data by Sportti ID
       tags:
       - KLAB - Data
     post:

@@ -56,7 +56,7 @@ type KlabCustomerResponse struct {
 	AllowToSprintai    *int32   `json:"allow_to_sprintai,omitempty" example:"1"`
 	TosprintaiFrom     *string  `json:"tosprintai_from,omitempty" example:"2024-08-01"` // date (YYYY-MM-DD)
 	StatSent           *string  `json:"stat_sent,omitempty" example:"2024-08-20"`       // date (YYYY-MM-DD)
-	SporttiID          *string  `json:"sportti_id,omitempty" example:"7842"`            // varchar(64)
+	SporttiID          *string  `json:"sportti_id,omitempty" example:"27353728"`        // varchar(64)
 }
 
 type UserKlabResponse struct {
@@ -114,7 +114,7 @@ type KlabCustomer struct {
 	AllowToSprintai    *int32   `json:"allow_to_sprintai,omitempty" example:"1"`
 	TosprintaiFrom     *string  `json:"tosprintai_from,omitempty" example:"2024-08-01"` // YYYY-MM-DD
 	StatSent           *string  `json:"stat_sent,omitempty" example:"2024-08-20"`       // YYYY-MM-DD
-	SporttiID          *string  `json:"sportti_id,omitempty" example:"7842"`
+	SporttiID          *string  `json:"sportti_id,omitempty" example:"27353728"`
 }
 
 type KlabMeasurement struct {
@@ -383,7 +383,7 @@ type KlabDirResults struct {
 }
 
 type KlabDataResponse struct {
-	CustomerID   int32             `json:"customer_id" example:"7842"`
+	SporttiID    int32             `json:"sportti_id" example:"27353728"`
 	Measurements []KlabMeasurement `json:"measurements"`
 	DirTest      []KlabDirTest     `json:"dirtest"`
 	DirTestSteps []KlabDirTestStep `json:"dirteststeps"`
@@ -394,7 +394,7 @@ type KlabDataResponse struct {
 
 // Updated to show multiple entries in arrays
 type KlabDataBulkDoc struct {
-	Customer7842 KlabDataBundle `json:"7842"`
+	Customer27353728 KlabDataBundle `json:"27353728"`
 }
 
 type KlabDataBundle struct {

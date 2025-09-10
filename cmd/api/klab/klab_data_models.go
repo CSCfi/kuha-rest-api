@@ -343,8 +343,8 @@ func nullInt16FromInt32Ptr(v *int32) sql.NullInt16 {
 }
 
 // Customer -> UpsertCustomerParams
-func mapCustomerToParams(in KlabCustomerInput, keyID int32) (klabsqlc.UpsertCustomerParams, error) {
-	id := keyID
+func mapCustomerToParams(in KlabCustomerInput, sporttiID string) (klabsqlc.UpsertCustomerParams, error) {
+	id := derefInt32(in.IdCustomer)
 
 	var (
 		dob, modDate, createdDate, toSprintFrom, statSent *time.Time
@@ -432,7 +432,7 @@ func mapCustomerToParams(in KlabCustomerInput, keyID int32) (klabsqlc.UpsertCust
 		AllowToSprintai:    utils.NullInt32Ptr(in.AllowToSprintai),
 		TosprintaiFrom:     utils.NullTimePtr(toSprintFrom),
 		StatSent:           utils.NullTimePtr(statSent),
-		SporttiID:          utils.NullStringPtr(in.SporttiID),
+		SporttiID:          utils.NullStringPtr(&sporttiID),
 	}, nil
 }
 

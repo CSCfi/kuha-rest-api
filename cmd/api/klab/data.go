@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/DeRuina/KUHA-REST-API/internal/auth/authz"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/cache"
@@ -74,7 +75,7 @@ func (h *KlabDataHandler) InsertKlabDataBulk(w http.ResponseWriter, r *http.Requ
 		break
 	}
 
-	id, err := utils.ParsePositiveInt32(keyStr)
+	sporttiID, err := utils.ParseSporttiID(keyStr)
 	if err != nil {
 		utils.BadRequestResponse(w, r, err)
 		return
@@ -85,11 +86,34 @@ func (h *KlabDataHandler) InsertKlabDataBulk(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	for i, c := range bundle.Customer {
+		if c.SporttiID == nil {
+			utils.BadRequestResponse(w, r, fmt.Errorf("customer[%d].sportti_id is required", i))
+			return
+		}
+		if strings.TrimSpace(*c.SporttiID) != sporttiID {
+			utils.BadRequestResponse(w, r, fmt.Errorf("customer[%d].sportti_id (%s) does not match root key (%s)", i, *c.SporttiID, sporttiID))
+			return
+		}
+	}
+
+	custID := derefInt32(bundle.Customer[0].IdCustomer)
+	if custID <= 0 {
+		utils.BadRequestResponse(w, r, fmt.Errorf("idCustomer must be a positive integer"))
+		return
+	}
+	for i, c := range bundle.Customer {
+		if c.IdCustomer == nil || *c.IdCustomer != custID {
+			utils.BadRequestResponse(w, r, fmt.Errorf("customer[%d].idCustomer must equal customer[0].idCustomer (%d)", i, custID))
+			return
+		}
+	}
+
 	var p klab.KlabDataPayload
 
 	// 1) customer rows
 	for _, c := range bundle.Customer {
-		arg, err := mapCustomerToParams(c, id)
+		arg, err := mapCustomerToParams(c, sporttiID)
 		if err != nil {
 			utils.BadRequestResponse(w, r, err)
 			return
@@ -99,7 +123,13 @@ func (h *KlabDataHandler) InsertKlabDataBulk(w http.ResponseWriter, r *http.Requ
 
 	// 2) measurement_list
 	for _, m := range bundle.MeasurementList {
-		m.IdCustomer = &id
+		if m.IdCustomer == nil {
+			m.IdCustomer = &custID
+		} else if *m.IdCustomer != custID {
+			utils.BadRequestResponse(w, r, err)
+			return
+		}
+
 		arg, err := mapMeasurementToParams(m)
 		if err != nil {
 			utils.BadRequestResponse(w, r, err)
@@ -160,12 +190,12 @@ func (h *KlabDataHandler) InsertKlabDataBulk(w http.ResponseWriter, r *http.Requ
 
 // GetKlabData godoc
 //
-//	@Summary		Get kLab data by customer ID
+//	@Summary		Get kLab data by Sportti ID
 //	@Description	Returns measurement_list + all child tables for the given customer (no customer row)
 //	@Tags			KLAB - Data
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	query		string	true	"Customer ID"
+//	@Param			id	query		string	true	"Sportti ID"
 //	@Success		200	{object}	swagger.KlabDataResponse
 //	@Failure		400	{object}	swagger.ValidationErrorResponse
 //	@Failure		401	{object}	swagger.UnauthorizedResponse

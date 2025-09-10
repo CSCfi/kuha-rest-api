@@ -502,11 +502,11 @@ const docTemplate = `{
                 "tags": [
                     "KLAB - Data"
                 ],
-                "summary": "Get kLab data by customer ID",
+                "summary": "Get kLab data by Sportti ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Customer ID",
+                        "description": "Sportti ID",
                         "name": "id",
                         "in": "query",
                         "required": true
@@ -6169,7 +6169,7 @@ const docTemplate = `{
                 },
                 "sportti_id": {
                     "type": "string",
-                    "example": "7842"
+                    "example": "27353728"
                 },
                 "stat_sent": {
                     "description": "YYYY-MM-DD",
@@ -6387,7 +6387,7 @@ const docTemplate = `{
                 "sportti_id": {
                     "description": "varchar(64)",
                     "type": "string",
-                    "example": "7842"
+                    "example": "27353728"
                 },
                 "stat_sent": {
                     "description": "date (YYYY-MM-DD)",
@@ -6424,7 +6424,7 @@ const docTemplate = `{
         "swagger.KlabDataBulkDoc": {
             "type": "object",
             "properties": {
-                "7842": {
+                "27353728": {
                     "$ref": "#/definitions/swagger.KlabDataBundle"
                 }
             }
@@ -6479,10 +6479,6 @@ const docTemplate = `{
         "swagger.KlabDataResponse": {
             "type": "object",
             "properties": {
-                "customer_id": {
-                    "type": "integer",
-                    "example": 7842
-                },
                 "dirrawdata": {
                     "type": "array",
                     "items": {
@@ -6518,6 +6514,10 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/swagger.KlabMeasurement"
                     }
+                },
+                "sportti_id": {
+                    "type": "integer",
+                    "example": 27353728
                 }
             }
         },

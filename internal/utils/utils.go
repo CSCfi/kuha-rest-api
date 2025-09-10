@@ -319,3 +319,15 @@ func ParsePositiveInt32(s string) (int32, error) {
 	}
 	return int32(v), nil
 }
+
+// ParseSporttiID trims and validates a numeric sportti_id.
+func ParseSporttiID(s string) (string, error) {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return "", ErrInvalidParameter
+	}
+	if _, err := strconv.ParseUint(s, 10, 64); err != nil {
+		return "", ErrInvalidParameter
+	}
+	return s, nil
+}
