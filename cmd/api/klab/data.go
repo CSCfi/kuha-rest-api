@@ -97,7 +97,7 @@ func (h *KlabDataHandler) InsertKlabDataBulk(w http.ResponseWriter, r *http.Requ
 		}
 	}
 
-	custID := derefInt32(bundle.Customer[0].IdCustomer)
+	custID := utils.DerefInt32(bundle.Customer[0].IdCustomer)
 	if custID <= 0 {
 		utils.BadRequestResponse(w, r, fmt.Errorf("idCustomer must be a positive integer"))
 		return

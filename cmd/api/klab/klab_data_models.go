@@ -1,7 +1,6 @@
 package klabapi
 
 import (
-	"database/sql"
 	"time"
 
 	klabsqlc "github.com/DeRuina/KUHA-REST-API/internal/db/klab"
@@ -328,23 +327,9 @@ type KlabDirResultsInput struct {
 	Modded             *int32   `json:"modded"`
 }
 
-// local helpers
-func nullInt64Ptr(v *int64) sql.NullInt64 {
-	if v == nil {
-		return sql.NullInt64{}
-	}
-	return sql.NullInt64{Int64: *v, Valid: true}
-}
-func nullInt16FromInt32Ptr(v *int32) sql.NullInt16 {
-	if v == nil {
-		return sql.NullInt16{}
-	}
-	return sql.NullInt16{Int16: int16(*v), Valid: true}
-}
-
 // Customer -> UpsertCustomerParams
 func mapCustomerToParams(in KlabCustomerInput, sporttiID string) (klabsqlc.UpsertCustomerParams, error) {
-	id := derefInt32(in.IdCustomer)
+	id := utils.DerefInt32(in.IdCustomer)
 
 	var (
 		dob, modDate, createdDate, toSprintFrom, statSent *time.Time
@@ -383,8 +368,8 @@ func mapCustomerToParams(in KlabCustomerInput, sporttiID string) (klabsqlc.Upser
 
 	return klabsqlc.UpsertCustomerParams{
 		Idcustomer:         id,
-		Firstname:          derefString(in.FirstName),
-		Lastname:           derefString(in.LastName),
+		Firstname:          utils.DerefString(in.FirstName),
+		Lastname:           utils.DerefString(in.LastName),
 		Idgroups:           utils.NullInt32Ptr(in.IdGroups),
 		Dob:                utils.NullTimePtr(dob),
 		Sex:                utils.NullInt32Ptr(in.SEX),
@@ -421,14 +406,14 @@ func mapCustomerToParams(in KlabCustomerInput, sporttiID string) (klabsqlc.Upser
 		HeightCm:           utils.NullFloat64Ptr(in.HeightCm),
 		DateModified:       utils.NullFloat64Ptr(in.DateModified),
 		RecomTestlevel:     utils.NullInt32Ptr(in.RecomTestlevel),
-		CreatedBy:          nullInt64Ptr(in.CreatedBy),
-		ModBy:              nullInt64Ptr(in.ModBy),
+		CreatedBy:          utils.NullInt64Ptr(in.CreatedBy),
+		ModBy:              utils.NullInt64Ptr(in.ModBy),
 		ModDate:            utils.NullTimePtr(modDate),
-		Deleted:            nullInt16FromInt32Ptr(in.Deleted),
+		Deleted:            utils.NullInt16FromInt32Ptr(in.Deleted),
 		CreatedDate:        utils.NullTimePtr(createdDate),
-		Modded:             nullInt16FromInt32Ptr(in.Modded),
+		Modded:             utils.NullInt16FromInt32Ptr(in.Modded),
 		AllowAnonymousData: utils.NullBoolPtr(in.AllowAnonymousData),
-		Locked:             nullInt16FromInt32Ptr(in.Locked),
+		Locked:             utils.NullInt16FromInt32Ptr(in.Locked),
 		AllowToSprintai:    utils.NullInt32Ptr(in.AllowToSprintai),
 		TosprintaiFrom:     utils.NullTimePtr(toSprintFrom),
 		StatSent:           utils.NullTimePtr(statSent),
@@ -462,28 +447,28 @@ func mapMeasurementToParams(in KlabMeasurementInput) (klabsqlc.InsertMeasurement
 	}
 
 	return klabsqlc.InsertMeasurementParams{
-		Idmeasurement:  derefInt32(in.IdMeasurement),
+		Idmeasurement:  utils.DerefInt32(in.IdMeasurement),
 		Measname:       utils.NullStringPtr(in.MeasName),
-		Idcustomer:     derefInt32(in.IdCustomer),
+		Idcustomer:     utils.DerefInt32(in.IdCustomer),
 		Tablename:      utils.NullStringPtr(in.TableName),
 		Idpatterndef:   utils.NullStringPtr(in.IdPatternDef),
-		DoYear:         nullInt16FromInt32Ptr(in.DoYear),
-		DoMonth:        nullInt16FromInt32Ptr(in.DoMonth),
-		DoDay:          nullInt16FromInt32Ptr(in.DoDay),
-		DoHour:         nullInt16FromInt32Ptr(in.DoHour),
-		DoMin:          nullInt16FromInt32Ptr(in.DoMin),
+		DoYear:         utils.NullInt16FromInt32Ptr(in.DoYear),
+		DoMonth:        utils.NullInt16FromInt32Ptr(in.DoMonth),
+		DoDay:          utils.NullInt16FromInt32Ptr(in.DoDay),
+		DoHour:         utils.NullInt16FromInt32Ptr(in.DoHour),
+		DoMin:          utils.NullInt16FromInt32Ptr(in.DoMin),
 		Sessionno:      utils.NullInt32Ptr(in.SessionNo),
 		Info:           utils.NullStringPtr(in.Info),
 		Measurements:   utils.NullStringPtr(in.Measurements),
 		Groupnotes:     utils.NullStringPtr(in.GroupNotes),
 		Cbcharts:       utils.NullStringPtr(in.CbCharts),
 		Cbcomments:     utils.NullStringPtr(in.CbComments),
-		CreatedBy:      nullInt64Ptr(in.CreatedBy),
-		ModBy:          nullInt64Ptr(in.ModBy),
+		CreatedBy:      utils.NullInt64Ptr(in.CreatedBy),
+		ModBy:          utils.NullInt64Ptr(in.ModBy),
 		ModDate:        utils.NullTimePtr(modDate),
-		Deleted:        nullInt16FromInt32Ptr(in.Deleted),
+		Deleted:        utils.NullInt16FromInt32Ptr(in.Deleted),
 		CreatedDate:    utils.NullTimePtr(createdDate),
-		Modded:         nullInt16FromInt32Ptr(in.Modded),
+		Modded:         utils.NullInt16FromInt32Ptr(in.Modded),
 		TestLocation:   utils.NullStringPtr(in.TestLocation),
 		Keywords:       utils.NullStringPtr(in.Keywords),
 		TesterName:     utils.NullStringPtr(in.TesterName),
@@ -513,8 +498,8 @@ func mapDirTestToParams(in KlabDirTestInput) (klabsqlc.InsertDirTestParams, erro
 	}
 
 	return klabsqlc.InsertDirTestParams{
-		Iddirtest:     derefInt32(in.IdDirTest),
-		Idmeasurement: derefInt32(in.IdMeasurement),
+		Iddirtest:     utils.DerefInt32(in.IdDirTest),
+		Idmeasurement: utils.DerefInt32(in.IdMeasurement),
 		Meascols:      utils.NullStringPtr(in.MeasCols),
 		Weightkg:      utils.NullFloat64Ptr(in.WeightKg),
 		Heightcm:      utils.NullFloat64Ptr(in.HeightCm),
@@ -546,18 +531,18 @@ func mapDirTestToParams(in KlabDirTestInput) (klabsqlc.InsertDirTestParams, erro
 		Lt1CalcY:      utils.NullFloat64Ptr(in.Lt1CalcY),
 		Lt2CalcX:      utils.NullFloat64Ptr(in.Lt2CalcX),
 		Lt2CalcY:      utils.NullFloat64Ptr(in.Lt2CalcY),
-		Protocolmodel: nullInt16FromInt32Ptr(in.ProtocolModel),
-		Testtype:      nullInt16FromInt32Ptr(in.TestType),
-		Protocolxval:  nullInt16FromInt32Ptr(in.ProtocolXVal),
+		Protocolmodel: utils.NullInt16FromInt32Ptr(in.ProtocolModel),
+		Testtype:      utils.NullInt16FromInt32Ptr(in.TestType),
+		Protocolxval:  utils.NullInt16FromInt32Ptr(in.ProtocolXVal),
 		Steptime:      utils.NullInt32Ptr(in.StepTime),
-		WRest:         nullInt16FromInt32Ptr(in.WRest),
-		CreatedBy:     nullInt64Ptr(in.CreatedBy),
-		ModBy:         nullInt64Ptr(in.ModBy),
+		WRest:         utils.NullInt16FromInt32Ptr(in.WRest),
+		CreatedBy:     utils.NullInt64Ptr(in.CreatedBy),
+		ModBy:         utils.NullInt64Ptr(in.ModBy),
 		ModDate:       utils.NullTimePtr(modDate),
-		Deleted:       nullInt16FromInt32Ptr(in.Deleted),
+		Deleted:       utils.NullInt16FromInt32Ptr(in.Deleted),
 		CreatedDate:   utils.NullTimePtr(createdDate),
-		Modded:        nullInt16FromInt32Ptr(in.Modded),
-		Norawdata:     nullInt16FromInt32Ptr(in.NoRawData),
+		Modded:        utils.NullInt16FromInt32Ptr(in.Modded),
+		Norawdata:     utils.NullInt16FromInt32Ptr(in.NoRawData),
 	}, nil
 }
 
@@ -581,8 +566,8 @@ func mapDirTestStepToParams(in KlabDirTestStepInput) (klabsqlc.InsertDirTestStep
 	}
 
 	return klabsqlc.InsertDirTestStepParams{
-		Iddirteststeps: derefInt32(in.Iddirteststeps),
-		Idmeasurement:  derefInt32(in.Idmeasurement),
+		Iddirteststeps: utils.DerefInt32(in.Iddirteststeps),
+		Idmeasurement:  utils.DerefInt32(in.Idmeasurement),
 		Stepno:         utils.NullInt32Ptr(in.Stepno),
 		AnaTime:        utils.NullInt32Ptr(in.AnaTime),
 		Timestop:       utils.NullFloat64Ptr(in.TimeStop),
@@ -642,12 +627,12 @@ func mapDirTestStepToParams(in KlabDirTestStepInput) (klabsqlc.InsertDirTestStep
 		Vo230s:         utils.NullFloat64Ptr(in.Vo230s),
 		Vo2Pr:          utils.NullFloat64Ptr(in.Vo2Pr),
 		StepIsLast:     utils.NullInt32Ptr(in.StepIsLast),
-		Deleted:        nullInt16FromInt32Ptr(in.Deleted),
-		CreatedBy:      nullInt64Ptr(in.CreatedBy),
-		ModBy:          nullInt64Ptr(in.ModBy),
+		Deleted:        utils.NullInt16FromInt32Ptr(in.Deleted),
+		CreatedBy:      utils.NullInt64Ptr(in.CreatedBy),
+		ModBy:          utils.NullInt64Ptr(in.ModBy),
 		ModDate:        utils.NullTimePtr(modDate),
 		CreatedDate:    utils.NullTimePtr(createdDate),
-		Modded:         nullInt16FromInt32Ptr(in.Modded),
+		Modded:         utils.NullInt16FromInt32Ptr(in.Modded),
 		Own6:           utils.NullFloat64Ptr(in.Own6),
 		Own7:           utils.NullFloat64Ptr(in.Own7),
 		Own8:           utils.NullFloat64Ptr(in.Own8),
@@ -678,17 +663,17 @@ func mapDirReportToParams(in KlabDirReportInput) (klabsqlc.InsertDirReportParams
 	}
 
 	return klabsqlc.InsertDirReportParams{
-		Iddirreport:      derefInt32(in.Iddirreport),
+		Iddirreport:      utils.DerefInt32(in.Iddirreport),
 		PageInstructions: utils.NullStringPtr(in.PageInstr),
-		Idmeasurement:    derefInt32(in.Idmeasurement),
+		Idmeasurement:    utils.DerefInt32(in.Idmeasurement),
 		TemplateRec:      utils.NullInt32Ptr(in.TemplateRec),
 		LibrecName:       utils.NullStringPtr(in.LibrecName),
-		CreatedBy:        nullInt64Ptr(in.CreatedBy),
-		ModBy:            nullInt64Ptr(in.ModBy),
+		CreatedBy:        utils.NullInt64Ptr(in.CreatedBy),
+		ModBy:            utils.NullInt64Ptr(in.ModBy),
 		ModDate:          utils.NullTimePtr(modDate),
-		Deleted:          nullInt16FromInt32Ptr(in.Deleted),
+		Deleted:          utils.NullInt16FromInt32Ptr(in.Deleted),
 		CreatedDate:      utils.NullTimePtr(createdDate),
-		Modded:           nullInt16FromInt32Ptr(in.Modded),
+		Modded:           utils.NullInt16FromInt32Ptr(in.Modded),
 	}, nil
 }
 
@@ -712,18 +697,18 @@ func mapDirRawDataToParams(in KlabDirRawDataInput) (klabsqlc.InsertDirRawDataPar
 	}
 
 	return klabsqlc.InsertDirRawDataParams{
-		Iddirrawdata:  derefInt32(in.IdDirRawData),
-		Idmeasurement: derefInt32(in.IdMeasurement),
+		Iddirrawdata:  utils.DerefInt32(in.IdDirRawData),
+		Idmeasurement: utils.DerefInt32(in.IdMeasurement),
 		Rawdata:       utils.NullStringPtr(in.RawData),
 		Columndata:    utils.NullStringPtr(in.ColumnData),
 		Info:          utils.NullStringPtr(in.Info),
 		Unitsdata:     utils.NullStringPtr(in.UnitsData),
-		CreatedBy:     nullInt64Ptr(in.CreatedBy),
-		ModBy:         nullInt64Ptr(in.ModBy),
+		CreatedBy:     utils.NullInt64Ptr(in.CreatedBy),
+		ModBy:         utils.NullInt64Ptr(in.ModBy),
 		ModDate:       utils.NullTimePtr(modDate),
-		Deleted:       nullInt16FromInt32Ptr(in.Deleted),
+		Deleted:       utils.NullInt16FromInt32Ptr(in.Deleted),
 		CreatedDate:   utils.NullTimePtr(createdDate),
-		Modded:        nullInt16FromInt32Ptr(in.Modded),
+		Modded:        utils.NullInt16FromInt32Ptr(in.Modded),
 	}, nil
 }
 
@@ -747,8 +732,8 @@ func mapDirResultsToParams(in KlabDirResultsInput) (klabsqlc.InsertDirResultsPar
 	}
 
 	return klabsqlc.InsertDirResultsParams{
-		Iddirresults:       derefInt32(in.Iddirresults),
-		Idmeasurement:      derefInt32(in.Idmeasurement),
+		Iddirresults:       utils.DerefInt32(in.Iddirresults),
+		Idmeasurement:      utils.DerefInt32(in.Idmeasurement),
 		MaxVo2mlkgmin:      utils.NullFloat64Ptr(in.MaxVo2mlkgmin),
 		MaxVo2mlmin:        utils.NullFloat64Ptr(in.MaxVo2mlmin),
 		MaxVo2:             utils.NullFloat64Ptr(in.MaxVo2),
@@ -818,24 +803,11 @@ func mapDirResultsToParams(in KlabDirResultsInput) (klabsqlc.InsertDirResultsPar
 		VentAerkAdd1:       utils.NullFloat64Ptr(in.VentAerkAdd1),
 		VentAerkAdd2:       utils.NullFloat64Ptr(in.VentAerkAdd2),
 		VentAerkAdd3:       utils.NullFloat64Ptr(in.VentAerkAdd3),
-		CreatedBy:          nullInt64Ptr(in.CreatedBy),
-		ModBy:              nullInt64Ptr(in.ModBy),
+		CreatedBy:          utils.NullInt64Ptr(in.CreatedBy),
+		ModBy:              utils.NullInt64Ptr(in.ModBy),
 		ModDate:            utils.NullTimePtr(modDate),
-		Deleted:            nullInt16FromInt32Ptr(in.Deleted),
+		Deleted:            utils.NullInt16FromInt32Ptr(in.Deleted),
 		CreatedDate:        utils.NullTimePtr(createdDate),
-		Modded:             nullInt16FromInt32Ptr(in.Modded),
+		Modded:             utils.NullInt16FromInt32Ptr(in.Modded),
 	}, nil
-}
-
-func derefString(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
-}
-func derefInt32(i *int32) int32 {
-	if i == nil {
-		return 0
-	}
-	return *i
 }

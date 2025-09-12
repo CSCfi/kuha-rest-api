@@ -336,3 +336,74 @@ func ParseSporttiID(s string) (string, error) {
 func NullInt32(v int32) sql.NullInt32 {
 	return sql.NullInt32{Int32: v, Valid: true}
 }
+
+// Convert to *float64 for friendlier JSON.
+func NullNumericToFloatPtr(ns sql.NullString) *float64 {
+	if !ns.Valid || ns.String == "" {
+		return nil
+	}
+	f, err := strconv.ParseFloat(ns.String, 64)
+	if err != nil {
+		return nil
+	}
+	return &f
+}
+
+// Converts *int64 to sql.NullInt64
+func NullInt64Ptr(v *int64) sql.NullInt64 {
+	if v == nil {
+		return sql.NullInt64{}
+	}
+	return sql.NullInt64{Int64: *v, Valid: true}
+}
+
+// Converts *int32 to sql.NullInt16
+func NullInt16FromInt32Ptr(v *int32) sql.NullInt16 {
+	if v == nil {
+		return sql.NullInt16{}
+	}
+	return sql.NullInt16{Int16: int16(*v), Valid: true}
+}
+
+// Safe deref helpers (defaulting to zero values)
+func DerefString(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+func DerefInt32(i *int32) int32 {
+	if i == nil {
+		return 0
+	}
+	return *i
+}
+
+// Converts *float64 to sql.NullString for NUMERIC columns
+// (complements NullNumericToFloatPtr)
+func NullNumericFromFloat64Ptr(f *float64) sql.NullString {
+	if f == nil {
+		return sql.NullString{}
+	}
+	return sql.NullString{
+		String: strconv.FormatFloat(*f, 'f', -1, 64),
+		Valid:  true,
+	}
+}
+
+// More flexible timestamp parser: RFC3339, "YYYY-MM-DD HH:MM:SS UTC", or no-zone (UTC)
+func ParseTimestampPtrFlexible(value *string) (*time.Time, error) {
+	if value == nil || *value == "" {
+		return nil, nil
+	}
+	if t, err := time.Parse(time.RFC3339, *value); err == nil {
+		return &t, nil
+	}
+	if t, err := time.Parse("2006-01-02 15:04:05 MST", *value); err == nil {
+		return &t, nil
+	}
+	if t, err := time.ParseInLocation("2006-01-02 15:04:05", *value, time.UTC); err == nil {
+		return &t, nil
+	}
+	return nil, ErrInvalidTimeStamp
+}
