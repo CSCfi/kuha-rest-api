@@ -26,6 +26,128 @@ definitions:
       refresh_token:
         type: string
     type: object
+  swagger.ArchDataResponse:
+    properties:
+      date_of_birth:
+        example: "1995-07-21"
+        type: string
+      first_name:
+        example: Jane
+        type: string
+      height:
+        example: 1.72
+        type: number
+      initials:
+        example: JD
+        type: string
+      last_name:
+        example: Doe
+        type: string
+      measurements:
+        items:
+          $ref: '#/definitions/swagger.ArchMeasurementResponse'
+        type: array
+      national_id:
+        example: "27353728"
+        type: string
+      weight:
+        example: 65.4
+        type: number
+    type: object
+  swagger.ArchDataUpsertRequest:
+    properties:
+      date_of_birth:
+        example: "1995-07-21"
+        type: string
+      first_name:
+        example: Jane
+        type: string
+      height:
+        example: 1.72
+        type: number
+      initials:
+        example: JD
+        type: string
+      last_name:
+        example: Doe
+        type: string
+      measurements:
+        items:
+          $ref: '#/definitions/swagger.ArchMeasurementUpsert'
+        type: array
+      national_id:
+        example: "27353728"
+        type: string
+      weight:
+        example: 65.4
+        type: number
+    type: object
+  swagger.ArchMeasurementResponse:
+    properties:
+      comment:
+        example: Felt strong today.
+        type: string
+      discipline:
+        example: Sprint 100m
+        type: string
+      measurement_group_id:
+        example: 2024010101
+        type: integer
+      measurement_id:
+        example: 42
+        type: integer
+      nb_segments:
+        example: 5
+        type: integer
+      place:
+        example: Helsinki
+        type: string
+      race_id:
+        example: 123
+        type: integer
+      session_name:
+        example: Morning session
+        type: string
+      start_time:
+        example: "2024-01-01T09:00:00Z"
+        type: string
+      stop_time:
+        example: "2024-01-01T09:15:00Z"
+        type: string
+    type: object
+  swagger.ArchMeasurementUpsert:
+    properties:
+      comment:
+        example: Felt strong today.
+        type: string
+      discipline:
+        example: Sprint 100m
+        type: string
+      measurement_group_id:
+        example: 2024010101
+        type: integer
+      measurement_id:
+        example: 42
+        type: integer
+      nb_segments:
+        example: 5
+        type: integer
+      place:
+        example: Helsinki
+        type: string
+      race_id:
+        example: 123
+        type: integer
+      session_name:
+        example: Morning session
+        type: string
+      start_time:
+        example: "2024-01-01T09:00:00Z"
+        type: string
+      stop_time:
+        example: "2024-01-01T09:15:00Z"
+        type: string
+    type: object
   swagger.ArchRaceReportUpsertRequest:
     properties:
       race_report:
@@ -2848,6 +2970,96 @@ info:
   termsOfService: https://csc.fi/en/security-privacy-data-policy-and-open-source-policy/privacy/
   title: KUHA REST API
 paths:
+  /archinisis/data:
+    get:
+      consumes:
+      - application/json
+      description: Returns athlete profile and measurements for the given sportti
+        id.
+      parameters:
+      - description: Sportti ID (national_id)
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.ArchDataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Archinisis data by Sportti ID
+      tags:
+      - ARCHINISIS - Data
+    post:
+      consumes:
+      - application/json
+      description: Inserts/updates athlete profile and related measurements in one
+        request.
+      parameters:
+      - description: athlete + measurements
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.ArchDataUpsertRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Data processed successfully
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Upsert Archinisis athlete + measurements
+      tags:
+      - ARCHINISIS - Data
   /archinisis/race-report:
     get:
       consumes:

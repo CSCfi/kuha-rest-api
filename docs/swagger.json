@@ -8,6 +8,143 @@
     },
     "basePath": "/v1",
     "paths": {
+        "/archinisis/data": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns athlete profile and measurements for the given sportti id.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ARCHINISIS - Data"
+                ],
+                "summary": "Get Archinisis data by Sportti ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Sportti ID (national_id)",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ArchDataResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Inserts/updates athlete profile and related measurements in one request.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ARCHINISIS - Data"
+                ],
+                "summary": "Upsert Archinisis athlete + measurements",
+                "parameters": [
+                    {
+                        "description": "athlete + measurements",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ArchDataUpsertRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Data processed successfully"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/archinisis/race-report": {
             "get": {
                 "security": [
@@ -5421,6 +5558,174 @@
                 },
                 "refresh_token": {
                     "type": "string"
+                }
+            }
+        },
+        "swagger.ArchDataResponse": {
+            "type": "object",
+            "properties": {
+                "date_of_birth": {
+                    "type": "string",
+                    "example": "1995-07-21"
+                },
+                "first_name": {
+                    "type": "string",
+                    "example": "Jane"
+                },
+                "height": {
+                    "type": "number",
+                    "example": 1.72
+                },
+                "initials": {
+                    "type": "string",
+                    "example": "JD"
+                },
+                "last_name": {
+                    "type": "string",
+                    "example": "Doe"
+                },
+                "measurements": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.ArchMeasurementResponse"
+                    }
+                },
+                "national_id": {
+                    "type": "string",
+                    "example": "27353728"
+                },
+                "weight": {
+                    "type": "number",
+                    "example": 65.4
+                }
+            }
+        },
+        "swagger.ArchDataUpsertRequest": {
+            "type": "object",
+            "properties": {
+                "date_of_birth": {
+                    "type": "string",
+                    "example": "1995-07-21"
+                },
+                "first_name": {
+                    "type": "string",
+                    "example": "Jane"
+                },
+                "height": {
+                    "type": "number",
+                    "example": 1.72
+                },
+                "initials": {
+                    "type": "string",
+                    "example": "JD"
+                },
+                "last_name": {
+                    "type": "string",
+                    "example": "Doe"
+                },
+                "measurements": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.ArchMeasurementUpsert"
+                    }
+                },
+                "national_id": {
+                    "type": "string",
+                    "example": "27353728"
+                },
+                "weight": {
+                    "type": "number",
+                    "example": 65.4
+                }
+            }
+        },
+        "swagger.ArchMeasurementResponse": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string",
+                    "example": "Felt strong today."
+                },
+                "discipline": {
+                    "type": "string",
+                    "example": "Sprint 100m"
+                },
+                "measurement_group_id": {
+                    "type": "integer",
+                    "example": 2024010101
+                },
+                "measurement_id": {
+                    "type": "integer",
+                    "example": 42
+                },
+                "nb_segments": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "place": {
+                    "type": "string",
+                    "example": "Helsinki"
+                },
+                "race_id": {
+                    "type": "integer",
+                    "example": 123
+                },
+                "session_name": {
+                    "type": "string",
+                    "example": "Morning session"
+                },
+                "start_time": {
+                    "type": "string",
+                    "example": "2024-01-01T09:00:00Z"
+                },
+                "stop_time": {
+                    "type": "string",
+                    "example": "2024-01-01T09:15:00Z"
+                }
+            }
+        },
+        "swagger.ArchMeasurementUpsert": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string",
+                    "example": "Felt strong today."
+                },
+                "discipline": {
+                    "type": "string",
+                    "example": "Sprint 100m"
+                },
+                "measurement_group_id": {
+                    "type": "integer",
+                    "example": 2024010101
+                },
+                "measurement_id": {
+                    "type": "integer",
+                    "example": 42
+                },
+                "nb_segments": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "place": {
+                    "type": "string",
+                    "example": "Helsinki"
+                },
+                "race_id": {
+                    "type": "integer",
+                    "example": 123
+                },
+                "session_name": {
+                    "type": "string",
+                    "example": "Morning session"
+                },
+                "start_time": {
+                    "type": "string",
+                    "example": "2024-01-01T09:00:00Z"
+                },
+                "stop_time": {
+                    "type": "string",
+                    "example": "2024-01-01T09:15:00Z"
                 }
             }
         },

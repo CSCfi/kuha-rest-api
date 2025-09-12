@@ -10,6 +10,87 @@ import (
 	"database/sql"
 )
 
+const getAthleteBySporttiID = `-- name: GetAthleteBySporttiID :one
+SELECT
+  national_id,
+  first_name,
+  last_name,
+  initials,
+  date_of_birth,
+  height,
+  weight
+FROM athlete
+WHERE national_id = $1
+`
+
+func (q *Queries) GetAthleteBySporttiID(ctx context.Context, nationalID string) (Athlete, error) {
+	row := q.queryRow(ctx, q.getAthleteBySporttiIDStmt, getAthleteBySporttiID, nationalID)
+	var i Athlete
+	err := row.Scan(
+		&i.NationalID,
+		&i.FirstName,
+		&i.LastName,
+		&i.Initials,
+		&i.DateOfBirth,
+		&i.Height,
+		&i.Weight,
+	)
+	return i, err
+}
+
+const getMeasurementsBySporttiID = `-- name: GetMeasurementsBySporttiID :many
+SELECT
+  measurement_group_id,
+  measurement_id,
+  national_id,
+  discipline,
+  session_name,
+  place,
+  race_id,
+  start_time,
+  stop_time,
+  nb_segments,
+  comment
+FROM measurement
+WHERE national_id = $1
+ORDER BY measurement_group_id ASC
+`
+
+func (q *Queries) GetMeasurementsBySporttiID(ctx context.Context, nationalID sql.NullString) ([]Measurement, error) {
+	rows, err := q.query(ctx, q.getMeasurementsBySporttiIDStmt, getMeasurementsBySporttiID, nationalID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Measurement
+	for rows.Next() {
+		var i Measurement
+		if err := rows.Scan(
+			&i.MeasurementGroupID,
+			&i.MeasurementID,
+			&i.NationalID,
+			&i.Discipline,
+			&i.SessionName,
+			&i.Place,
+			&i.RaceID,
+			&i.StartTime,
+			&i.StopTime,
+			&i.NbSegments,
+			&i.Comment,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getRaceReport = `-- name: GetRaceReport :one
 SELECT race_report
 FROM report
@@ -191,5 +272,16 @@ type UpsertRaceReportParams struct {
 
 func (q *Queries) UpsertRaceReport(ctx context.Context, arg UpsertRaceReportParams) error {
 	_, err := q.exec(ctx, q.upsertRaceReportStmt, upsertRaceReport, arg.SporttiID, arg.SessionID, arg.RaceReport)
+	return err
+}
+
+const upsertSporttiID = `-- name: UpsertSporttiID :exec
+INSERT INTO sportti_id_list (sportti_id)
+VALUES ($1)
+ON CONFLICT (sportti_id) DO NOTHING
+`
+
+func (q *Queries) UpsertSporttiID(ctx context.Context, sporttiID string) error {
+	_, err := q.exec(ctx, q.upsertSporttiIDStmt, upsertSporttiID, sporttiID)
 	return err
 }

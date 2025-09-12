@@ -24,6 +24,12 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
+	if q.getAthleteBySporttiIDStmt, err = db.PrepareContext(ctx, getAthleteBySporttiID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetAthleteBySporttiID: %w", err)
+	}
+	if q.getMeasurementsBySporttiIDStmt, err = db.PrepareContext(ctx, getMeasurementsBySporttiID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetMeasurementsBySporttiID: %w", err)
+	}
 	if q.getRaceReportStmt, err = db.PrepareContext(ctx, getRaceReport); err != nil {
 		return nil, fmt.Errorf("error preparing query GetRaceReport: %w", err)
 	}
@@ -42,11 +48,24 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.upsertRaceReportStmt, err = db.PrepareContext(ctx, upsertRaceReport); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertRaceReport: %w", err)
 	}
+	if q.upsertSporttiIDStmt, err = db.PrepareContext(ctx, upsertSporttiID); err != nil {
+		return nil, fmt.Errorf("error preparing query UpsertSporttiID: %w", err)
+	}
 	return &q, nil
 }
 
 func (q *Queries) Close() error {
 	var err error
+	if q.getAthleteBySporttiIDStmt != nil {
+		if cerr := q.getAthleteBySporttiIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getAthleteBySporttiIDStmt: %w", cerr)
+		}
+	}
+	if q.getMeasurementsBySporttiIDStmt != nil {
+		if cerr := q.getMeasurementsBySporttiIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getMeasurementsBySporttiIDStmt: %w", cerr)
+		}
+	}
 	if q.getRaceReportStmt != nil {
 		if cerr := q.getRaceReportStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getRaceReportStmt: %w", cerr)
@@ -75,6 +94,11 @@ func (q *Queries) Close() error {
 	if q.upsertRaceReportStmt != nil {
 		if cerr := q.upsertRaceReportStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing upsertRaceReportStmt: %w", cerr)
+		}
+	}
+	if q.upsertSporttiIDStmt != nil {
+		if cerr := q.upsertSporttiIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing upsertSporttiIDStmt: %w", cerr)
 		}
 	}
 	return err
@@ -116,23 +140,29 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 type Queries struct {
 	db                                     DBTX
 	tx                                     *sql.Tx
+	getAthleteBySporttiIDStmt              *sql.Stmt
+	getMeasurementsBySporttiIDStmt         *sql.Stmt
 	getRaceReportStmt                      *sql.Stmt
 	getRaceReportSessionIDsBySporttiIDStmt *sql.Stmt
 	getSporttiIDsStmt                      *sql.Stmt
 	upsertAthleteStmt                      *sql.Stmt
 	upsertMeasurementStmt                  *sql.Stmt
 	upsertRaceReportStmt                   *sql.Stmt
+	upsertSporttiIDStmt                    *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
 		db:                                     tx,
 		tx:                                     tx,
+		getAthleteBySporttiIDStmt:              q.getAthleteBySporttiIDStmt,
+		getMeasurementsBySporttiIDStmt:         q.getMeasurementsBySporttiIDStmt,
 		getRaceReportStmt:                      q.getRaceReportStmt,
 		getRaceReportSessionIDsBySporttiIDStmt: q.getRaceReportSessionIDsBySporttiIDStmt,
 		getSporttiIDsStmt:                      q.getSporttiIDsStmt,
 		upsertAthleteStmt:                      q.upsertAthleteStmt,
 		upsertMeasurementStmt:                  q.upsertMeasurementStmt,
 		upsertRaceReportStmt:                   q.upsertRaceReportStmt,
+		upsertSporttiIDStmt:                    q.upsertSporttiIDStmt,
 	}
 }

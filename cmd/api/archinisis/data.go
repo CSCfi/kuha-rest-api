@@ -193,3 +193,131 @@ func (h *DataHandler) PostRaceReport(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 }
+
+// PostArchData godoc
+//
+//	@Summary		Upsert Archinisis athlete + measurements
+//	@Description	Inserts/updates athlete profile and related measurements in one request.
+//	@Tags			ARCHINISIS - Data
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body	swagger.ArchDataUpsertRequest	true	"athlete + measurements"
+//	@Success		201		"Data processed successfully"
+//	@Failure		400		{object}	swagger.ValidationErrorResponse
+//	@Failure		401		{object}	swagger.UnauthorizedResponse
+//	@Failure		403		{object}	swagger.ForbiddenResponse
+//	@Failure		500		{object}	swagger.InternalServerErrorResponse
+//	@Failure		503		{object}	swagger.ServiceUnavailableResponse
+//	@Security		BearerAuth
+//	@Router			/archinisis/data [post]
+func (h *DataHandler) PostArchData(w http.ResponseWriter, r *http.Request) {
+	if !authz.Authorize(r) {
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
+		return
+	}
+
+	var in ArchDataUpsertInput
+	if err := utils.ReadJSON(w, r, &in); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	if err := utils.GetValidator().Struct(in); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	sid, err := utils.ParseSporttiID(in.NationalID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	ath, err := mapAthleteToParams(in, sid)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	measParams := make([]archsqlc.UpsertMeasurementParams, 0, len(in.Measurements))
+	for _, m := range in.Measurements {
+		mp, err := mapMeasurementToParams(m, sid)
+		if err != nil {
+			utils.BadRequestResponse(w, r, err)
+			return
+		}
+		measParams = append(measParams, mp)
+	}
+
+	payload := archinisis.ArchDataPayload{
+		Athlete:      ath,
+		Measurements: measParams,
+	}
+
+	if err := h.store.UpsertData(r.Context(), payload); err != nil {
+		utils.HandleDatabaseError(w, r, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}
+
+type archUserParams struct {
+	ID string `validate:"required,numeric"`
+}
+
+// GetArchData godoc
+//
+//	@Summary		Get Archinisis data by Sportti ID
+//	@Description	Returns athlete profile and measurements for the given sportti id.
+//	@Tags			ARCHINISIS - Data
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	query		string	true	"Sportti ID (national_id)"
+//	@Success		200	{object}	swagger.ArchDataResponse
+//	@Failure		400	{object}	swagger.ValidationErrorResponse
+//	@Failure		401	{object}	swagger.UnauthorizedResponse
+//	@Failure		403	{object}	swagger.ForbiddenResponse
+//	@Failure		404	{object}	swagger.NotFoundResponse
+//	@Failure		500	{object}	swagger.InternalServerErrorResponse
+//	@Failure		503	{object}	swagger.ServiceUnavailableResponse
+//	@Security		BearerAuth
+//	@Router			/archinisis/data [get]
+func (h *DataHandler) GetArchData(w http.ResponseWriter, r *http.Request) {
+	if !authz.Authorize(r) {
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
+		return
+	}
+
+	if err := utils.ValidateParams(r, []string{"id"}); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	params := archUserParams{
+		ID: r.URL.Query().Get("id"),
+	}
+
+	if err := utils.GetValidator().Struct(params); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	sid, err := utils.ParseSporttiID(params.ID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	res, err := h.store.GetDataBySporttiID(r.Context(), sid)
+	if err == sql.ErrNoRows {
+		utils.NotFoundResponse(w, r, err)
+		return
+	}
+	if err != nil {
+		utils.InternalServerError(w, r, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, res)
+}

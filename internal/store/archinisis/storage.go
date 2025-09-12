@@ -13,12 +13,15 @@ const DataTimeout = 30 * time.Second
 // Interfaces
 type Users interface {
 	GetAllSporttiIDs(ctx context.Context) ([]string, error)
+	UpsertSporttiID(ctx context.Context, sporttiID string) error
 }
 
 type Data interface {
 	GetRaceReportSessions(ctx context.Context, sporttiID string) ([]int32, error)
 	GetRaceReport(ctx context.Context, sporttiID string, sessionID int32) (string, error)
 	UpsertRaceReport(ctx context.Context, p archsqlc.UpsertRaceReportParams) error
+	UpsertData(ctx context.Context, payload ArchDataPayload) error
+	GetDataBySporttiID(ctx context.Context, sporttiID string) (*ArchDataResponse, error)
 }
 
 // ArchinisisStorage

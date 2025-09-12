@@ -210,6 +210,8 @@ func (app *api) mount() http.Handler {
 					r.Get("/race-report/sessions", dataHandler.GetRaceReportSessions)
 					r.Get("/race-report", dataHandler.GetRaceReportHTML)
 					r.Post("/race-report", dataHandler.PostRaceReport)
+					r.Post("/data", dataHandler.PostArchData)
+					r.Get("/data", dataHandler.GetArchData)
 				})
 			} else {
 				logger.Logger.Warn("archinisis routes disabled: database not connected")

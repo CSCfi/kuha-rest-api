@@ -52,3 +52,38 @@ ORDER BY session_id DESC;
 SELECT race_report
 FROM report
 WHERE sportti_id = $1 AND session_id = $2;
+
+-- name: GetAthleteBySporttiID :one
+SELECT
+  national_id,
+  first_name,
+  last_name,
+  initials,
+  date_of_birth,
+  height,
+  weight
+FROM athlete
+WHERE national_id = $1;
+
+-- name: GetMeasurementsBySporttiID :many
+SELECT
+  measurement_group_id,
+  measurement_id,
+  national_id,
+  discipline,
+  session_name,
+  place,
+  race_id,
+  start_time,
+  stop_time,
+  nb_segments,
+  comment
+FROM measurement
+WHERE national_id = $1
+ORDER BY measurement_group_id ASC;
+
+-- name: UpsertSporttiID :exec
+INSERT INTO sportti_id_list (sportti_id)
+VALUES ($1)
+ON CONFLICT (sportti_id) DO NOTHING;
+

@@ -19,3 +19,16 @@ func (s *UsersStore) GetAllSporttiIDs(ctx context.Context) ([]string, error) {
 	queries := archsqlc.New(s.db)
 	return queries.GetSporttiIDs(ctx)
 }
+
+func (s *UsersStore) UpsertSporttiID(ctx context.Context, sporttiID string) error {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	sid, err := utils.ParseSporttiID(sporttiID)
+	if err != nil {
+		return err
+	}
+
+	q := archsqlc.New(s.db)
+	return q.UpsertSporttiID(ctx, sid)
+}
