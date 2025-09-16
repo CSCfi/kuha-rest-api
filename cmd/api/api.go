@@ -291,6 +291,7 @@ func (app *api) mount() http.Handler {
 					klabTokenHandler := utvapi.NewKlabTokenHandler(app.store.UTV.KlabToken(), app.cacheStorage)
 					userDataHandler := utvapi.NewUserDataHandler(app.store.UTV.UserData(), app.cacheStorage)
 					coachtechHandler := utvapi.NewCoachtechDataHandler(app.store.UTV.Coachtech(), app.cacheStorage)
+					sourceCacheHandler := utvapi.NewSourceCacheHandler(app.store.UTV.SourceCache(), app.cacheStorage)
 
 					// General routes
 					r.Get("/latest", generalHandler.GetLatestData)
@@ -366,6 +367,12 @@ func (app *api) mount() http.Handler {
 						r.Post("/token", garminTokenHandler.UpsertToken)
 						r.Get("/token-exists", garminTokenHandler.TokenExists)
 						r.Get("/user-id-by-token", garminTokenHandler.GetUserIDByToken)
+					})
+
+					// Source cache routes
+					r.Route("/source_cache", func(r chi.Router) {
+						r.Get("/data-types", sourceCacheHandler.GetAllDataTypes)
+						r.Post("/data-types", sourceCacheHandler.UpsertDataTypes)
 					})
 				})
 			} else {

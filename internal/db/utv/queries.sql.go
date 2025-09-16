@@ -2358,3 +2358,62 @@ func (q *Queries) InsertCoachtechID(ctx context.Context, arg InsertCoachtechIDPa
 	_, err := q.exec(ctx, q.insertCoachtechIDStmt, insertCoachtechID, arg.UserID, arg.CoachtechID)
 	return err
 }
+
+const getSourceCacheAll = `-- name: GetSourceCacheAll :many
+SELECT source, data
+FROM source_cache
+ORDER BY source
+`
+
+func (q *Queries) GetSourceCacheAll(ctx context.Context) ([]SourceCache, error) {
+	rows, err := q.query(ctx, q.getSourceCacheAllStmt, getSourceCacheAll)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SourceCache
+	for rows.Next() {
+		var i SourceCache
+		if err := rows.Scan(&i.Source, &i.Data); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSourceCacheDataBySource = `-- name: GetSourceCacheDataBySource :one
+SELECT data
+FROM source_cache
+WHERE source = $1
+`
+
+func (q *Queries) GetSourceCacheDataBySource(ctx context.Context, source string) (json.RawMessage, error) {
+	row := q.queryRow(ctx, q.getSourceCacheDataBySourceStmt, getSourceCacheDataBySource, source)
+	var data json.RawMessage
+	err := row.Scan(&data)
+	return data, err
+}
+
+const upsertSourceCache = `-- name: UpsertSourceCache :exec
+INSERT INTO source_cache (source, data)
+VALUES ($1, $2::jsonb)
+ON CONFLICT (source)
+DO UPDATE SET data = EXCLUDED.data
+`
+
+type UpsertSourceCacheParams struct {
+	Source  string
+	Column2 json.RawMessage
+}
+
+func (q *Queries) UpsertSourceCache(ctx context.Context, arg UpsertSourceCacheParams) error {
+	_, err := q.exec(ctx, q.upsertSourceCacheStmt, upsertSourceCache, arg.Source, arg.Column2)
+	return err
+}

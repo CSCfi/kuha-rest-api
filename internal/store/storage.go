@@ -33,6 +33,7 @@ type UTV interface {
 	KlabToken() utv.KlabToken
 	Coachtech() utv.CoachtechData
 	UserData() utv.UserData
+	SourceCache() utv.SourceCache
 }
 
 type Auth interface {

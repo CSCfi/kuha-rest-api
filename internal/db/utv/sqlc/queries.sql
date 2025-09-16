@@ -598,3 +598,19 @@ INSERT INTO coachtech_data (coachtech_id, summary_date, test_id, data)
 VALUES ($1, $2, $3, $4)
 ON CONFLICT DO NOTHING;
 
+-- name: GetSourceCacheAll :many
+SELECT source, data
+FROM source_cache
+ORDER BY source;
+
+-- name: GetSourceCacheDataBySource :one
+SELECT data
+FROM source_cache
+WHERE source = $1;
+
+
+-- name: UpsertSourceCache :exec
+INSERT INTO source_cache (source, data)
+VALUES ($1, $2::jsonb)
+ON CONFLICT (source)
+DO UPDATE SET data = EXCLUDED.data;

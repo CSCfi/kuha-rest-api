@@ -128,6 +128,12 @@ type UserData interface {
 	GetUserDeviceStatus(ctx context.Context, userID uuid.UUID) (DeviceStatus, error)
 }
 
+type SourceCache interface {
+	GetAll(ctx context.Context) ([]utvsqlc.SourceCache, error)
+	GetBySource(ctx context.Context, source string) (json.RawMessage, error)
+	Upsert(ctx context.Context, source string, data json.RawMessage) error
+}
+
 // UTVStorage struct to hold table-specific storage
 type UTVStorage struct {
 	db          *sql.DB
@@ -142,6 +148,7 @@ type UTVStorage struct {
 	klabToken   KlabToken
 	coachtech   CoachtechData
 	userData    UserData
+	sourceCache SourceCache
 }
 
 // Ping method
@@ -194,6 +201,10 @@ func (s *UTVStorage) UserData() UserData {
 	return s.userData
 }
 
+func (s *UTVStorage) SourceCache() SourceCache {
+	return s.sourceCache
+}
+
 // Storage for UTV database tables
 func NewUTVStorage(db *sql.DB) *UTVStorage {
 	return &UTVStorage{
@@ -209,5 +220,6 @@ func NewUTVStorage(db *sql.DB) *UTVStorage {
 		klabToken:   &KlabTokenStore{db: db},
 		coachtech:   &CoachtechDataStore{db: db},
 		userData:    &UserDataStore{db: db},
+		sourceCache: &SourceCacheStore{db: db},
 	}
 }

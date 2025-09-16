@@ -2193,6 +2193,32 @@ definitions:
         example: long_sleep
         type: string
     type: object
+  swagger.SourceCacheSingleResponse:
+    properties:
+      data:
+        example:
+        - hr
+        - steps
+        items:
+          type: string
+        type: array
+      source:
+        example: garmin
+        type: string
+    type: object
+  swagger.SourceCacheUpsertInput:
+    properties:
+      data:
+        example:
+        - hr
+        - steps
+        items:
+          type: string
+        type: array
+      source:
+        example: garmin
+        type: string
+    type: object
   swagger.SuuntoData:
     properties:
       workout:
@@ -5903,6 +5929,91 @@ paths:
       summary: Get available types
       tags:
       - UTV - Polar
+  /utv/source_cache/data-types:
+    get:
+      consumes:
+      - application/json
+      description: Returns data types. If source is provided, returns only that source's
+        keys.
+      parameters:
+      - description: Source name (e.g., oura, garmin, polar, suunto)
+        in: query
+        name: source
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.SourceCacheSingleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Get data types (source_cache)
+      tags:
+      - UTV - Source_Cache
+    post:
+      consumes:
+      - application/json
+      description: Replaces the entire key list for the given source. One source per
+        request.
+      parameters:
+      - description: source + data array
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.SourceCacheUpsertInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Replace keys for a source (upsert)
+      tags:
+      - UTV - Source_Cache
   /utv/suunto/data:
     delete:
       consumes:

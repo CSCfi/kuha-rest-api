@@ -437,3 +437,18 @@ type DeviceStatusResponse struct {
 	Polar  DeviceInfoNotConnectedNoData `json:"polar"`
 	Suunto DeviceInfoConnectedWithData  `json:"suunto"`
 }
+
+type SourceCacheUpsertInput struct {
+	Source string   `json:"source" example:"garmin"`
+	Data   []string `json:"data" example:"hr,steps"`
+}
+
+type SourceCacheSingleResponse struct {
+	Source string   `json:"source" example:"garmin"`
+	Data   []string `json:"data" example:"hr,steps"`
+}
+
+type SourceCacheItem struct {
+	Source string   `json:"source" example:"garmin"`
+	Data   []string `json:"data" example:"hr,steps"`
+}
