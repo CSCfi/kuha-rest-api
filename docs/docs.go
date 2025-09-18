@@ -364,58 +364,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/archinisis/sport-ids": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns a list of all Sportti IDs",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "ARCHINISIS - User"
-                ],
-                "summary": "Get all Sportti IDs",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/swagger.UserDataArchinisisResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/swagger.ForbiddenResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
-                        }
-                    },
-                    "503": {
-                        "description": "Service Unavailable",
-                        "schema": {
-                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/auth/refresh": {
             "post": {
                 "description": "Authenticates the refresh token and returns a new JWT token",
@@ -800,58 +748,6 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/swagger.ValidationErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/swagger.ForbiddenResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
-                        }
-                    },
-                    "503": {
-                        "description": "Service Unavailable",
-                        "schema": {
-                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/klab/sport-ids": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Returns a list of all Sportti IDs",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "KLAB - User"
-                ],
-                "summary": "Get all Sportti IDs",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/swagger.UserDataKlabResponse"
                         }
                     },
                     "401": {
@@ -9958,22 +9854,6 @@ const docTemplate = `{
                 }
             }
         },
-        "swagger.UserDataArchinisisResponse": {
-            "type": "object",
-            "properties": {
-                "sportti_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "12345",
-                        "67890",
-                        "54321"
-                    ]
-                }
-            }
-        },
         "swagger.UserDataDetails": {
             "type": "object",
             "properties": {
@@ -10061,22 +9941,6 @@ const docTemplate = `{
             "properties": {
                 "data": {
                     "$ref": "#/definitions/swagger.UserDataDetails"
-                }
-            }
-        },
-        "swagger.UserDataKlabResponse": {
-            "type": "object",
-            "properties": {
-                "sportti_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "12345",
-                        "67890",
-                        "54321"
-                    ]
                 }
             }
         },

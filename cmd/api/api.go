@@ -200,11 +200,7 @@ func (app *api) mount() http.Handler {
 			if app.store.ARCHINISIS != nil {
 				r.Route("/archinisis", func(r chi.Router) {
 					// Register handlers
-					userDataHandler := archapi.NewUserDataHandler(app.store.ARCHINISIS.Users(), app.cacheStorage)
 					dataHandler := archapi.NewDataHandler(app.store.ARCHINISIS.Data(), app.cacheStorage)
-
-					// user routes
-					r.Get("/sport-ids", userDataHandler.GetSporttiIDs)
 
 					// data routes
 					r.Get("/race-report/sessions", dataHandler.GetRaceReportSessions)
@@ -230,7 +226,6 @@ func (app *api) mount() http.Handler {
 					klabDataHandler := klabapi.NewKlabDataHandler(app.store.KLAB.Data(), app.cacheStorage)
 
 					// user routes
-					r.Get("/sport-ids", userDataHandler.GetSporttiIDs)
 					r.Get("/user", userDataHandler.GetUser)
 
 					// data routes

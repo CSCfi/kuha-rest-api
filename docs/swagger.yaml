@@ -2906,17 +2906,6 @@ definitions:
         example: invalid date range
         type: string
     type: object
-  swagger.UserDataArchinisisResponse:
-    properties:
-      sportti_ids:
-        example:
-        - "12345"
-        - "67890"
-        - "54321"
-        items:
-          type: string
-        type: array
-    type: object
   swagger.UserDataDetails:
     properties:
       contact_info:
@@ -2981,17 +2970,6 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/swagger.UserDataDetails'
-    type: object
-  swagger.UserDataKlabResponse:
-    properties:
-      sportti_ids:
-        example:
-        - "12345"
-        - "67890"
-        - "54321"
-        items:
-          type: string
-        type: array
     type: object
   swagger.UserDataResponse:
     properties:
@@ -3259,39 +3237,6 @@ paths:
       summary: List race-report session IDs for a Sportti ID
       tags:
       - ARCHINISIS - Data
-  /archinisis/sport-ids:
-    get:
-      consumes:
-      - application/json
-      description: Returns a list of all Sportti IDs
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/swagger.UserDataArchinisisResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/swagger.UnauthorizedResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/swagger.ForbiddenResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/swagger.InternalServerErrorResponse'
-        "503":
-          description: Service Unavailable
-          schema:
-            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
-      security:
-      - BearerAuth: []
-      summary: Get all Sportti IDs
-      tags:
-      - ARCHINISIS - User
   /auth/refresh:
     post:
       consumes:
@@ -3561,39 +3506,6 @@ paths:
       summary: Upsert k-Lab data (one customer per request)
       tags:
       - KLAB - Data
-  /klab/sport-ids:
-    get:
-      consumes:
-      - application/json
-      description: Returns a list of all Sportti IDs
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/swagger.UserDataKlabResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/swagger.UnauthorizedResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/swagger.ForbiddenResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/swagger.InternalServerErrorResponse'
-        "503":
-          description: Service Unavailable
-          schema:
-            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
-      security:
-      - BearerAuth: []
-      summary: Get all Sportti IDs
-      tags:
-      - KLAB - User
   /klab/user:
     get:
       consumes:
