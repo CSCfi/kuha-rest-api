@@ -38,7 +38,3 @@ type Report struct {
 	SessionID  sql.NullInt32
 	RaceReport sql.NullString
 }
-
-type SporttiIDList struct {
-	SporttiID string
-}

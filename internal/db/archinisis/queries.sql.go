@@ -10,6 +10,19 @@ import (
 	"database/sql"
 )
 
+const deleteAthleteByNationalID = `-- name: DeleteAthleteByNationalID :one
+DELETE FROM athlete
+WHERE national_id = $1
+RETURNING national_id
+`
+
+func (q *Queries) DeleteAthleteByNationalID(ctx context.Context, nationalID string) (string, error) {
+	row := q.queryRow(ctx, q.deleteAthleteByNationalIDStmt, deleteAthleteByNationalID, nationalID)
+	var national_id string
+	err := row.Scan(&national_id)
+	return national_id, err
+}
+
 const getAthleteBySporttiID = `-- name: GetAthleteBySporttiID :one
 SELECT
   national_id,
@@ -139,35 +152,6 @@ func (q *Queries) GetRaceReportSessionIDsBySporttiID(ctx context.Context, sportt
 	return items, nil
 }
 
-const getSporttiIDs = `-- name: GetSporttiIDs :many
-SELECT sportti_id
-FROM sportti_id_list
-ORDER BY sportti_id
-`
-
-func (q *Queries) GetSporttiIDs(ctx context.Context) ([]string, error) {
-	rows, err := q.query(ctx, q.getSporttiIDsStmt, getSporttiIDs)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []string
-	for rows.Next() {
-		var sportti_id string
-		if err := rows.Scan(&sportti_id); err != nil {
-			return nil, err
-		}
-		items = append(items, sportti_id)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const upsertAthlete = `-- name: UpsertAthlete :exec
 INSERT INTO athlete (
   national_id, first_name, last_name, initials, date_of_birth, height, weight
@@ -272,16 +256,5 @@ type UpsertRaceReportParams struct {
 
 func (q *Queries) UpsertRaceReport(ctx context.Context, arg UpsertRaceReportParams) error {
 	_, err := q.exec(ctx, q.upsertRaceReportStmt, upsertRaceReport, arg.SporttiID, arg.SessionID, arg.RaceReport)
-	return err
-}
-
-const upsertSporttiID = `-- name: UpsertSporttiID :exec
-INSERT INTO sportti_id_list (sportti_id)
-VALUES ($1)
-ON CONFLICT (sportti_id) DO NOTHING
-`
-
-func (q *Queries) UpsertSporttiID(ctx context.Context, sporttiID string) error {
-	_, err := q.exec(ctx, q.upsertSporttiIDStmt, upsertSporttiID, sporttiID)
 	return err
 }

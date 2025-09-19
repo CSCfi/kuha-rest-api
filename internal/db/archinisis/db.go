@@ -24,6 +24,9 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
+	if q.deleteAthleteByNationalIDStmt, err = db.PrepareContext(ctx, deleteAthleteByNationalID); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteAthleteByNationalID: %w", err)
+	}
 	if q.getAthleteBySporttiIDStmt, err = db.PrepareContext(ctx, getAthleteBySporttiID); err != nil {
 		return nil, fmt.Errorf("error preparing query GetAthleteBySporttiID: %w", err)
 	}
@@ -36,9 +39,6 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getRaceReportSessionIDsBySporttiIDStmt, err = db.PrepareContext(ctx, getRaceReportSessionIDsBySporttiID); err != nil {
 		return nil, fmt.Errorf("error preparing query GetRaceReportSessionIDsBySporttiID: %w", err)
 	}
-	if q.getSporttiIDsStmt, err = db.PrepareContext(ctx, getSporttiIDs); err != nil {
-		return nil, fmt.Errorf("error preparing query GetSporttiIDs: %w", err)
-	}
 	if q.upsertAthleteStmt, err = db.PrepareContext(ctx, upsertAthlete); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertAthlete: %w", err)
 	}
@@ -48,14 +48,16 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.upsertRaceReportStmt, err = db.PrepareContext(ctx, upsertRaceReport); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertRaceReport: %w", err)
 	}
-	if q.upsertSporttiIDStmt, err = db.PrepareContext(ctx, upsertSporttiID); err != nil {
-		return nil, fmt.Errorf("error preparing query UpsertSporttiID: %w", err)
-	}
 	return &q, nil
 }
 
 func (q *Queries) Close() error {
 	var err error
+	if q.deleteAthleteByNationalIDStmt != nil {
+		if cerr := q.deleteAthleteByNationalIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteAthleteByNationalIDStmt: %w", cerr)
+		}
+	}
 	if q.getAthleteBySporttiIDStmt != nil {
 		if cerr := q.getAthleteBySporttiIDStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getAthleteBySporttiIDStmt: %w", cerr)
@@ -76,11 +78,6 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getRaceReportSessionIDsBySporttiIDStmt: %w", cerr)
 		}
 	}
-	if q.getSporttiIDsStmt != nil {
-		if cerr := q.getSporttiIDsStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing getSporttiIDsStmt: %w", cerr)
-		}
-	}
 	if q.upsertAthleteStmt != nil {
 		if cerr := q.upsertAthleteStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing upsertAthleteStmt: %w", cerr)
@@ -94,11 +91,6 @@ func (q *Queries) Close() error {
 	if q.upsertRaceReportStmt != nil {
 		if cerr := q.upsertRaceReportStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing upsertRaceReportStmt: %w", cerr)
-		}
-	}
-	if q.upsertSporttiIDStmt != nil {
-		if cerr := q.upsertSporttiIDStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing upsertSporttiIDStmt: %w", cerr)
 		}
 	}
 	return err
@@ -140,29 +132,27 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 type Queries struct {
 	db                                     DBTX
 	tx                                     *sql.Tx
+	deleteAthleteByNationalIDStmt          *sql.Stmt
 	getAthleteBySporttiIDStmt              *sql.Stmt
 	getMeasurementsBySporttiIDStmt         *sql.Stmt
 	getRaceReportStmt                      *sql.Stmt
 	getRaceReportSessionIDsBySporttiIDStmt *sql.Stmt
-	getSporttiIDsStmt                      *sql.Stmt
 	upsertAthleteStmt                      *sql.Stmt
 	upsertMeasurementStmt                  *sql.Stmt
 	upsertRaceReportStmt                   *sql.Stmt
-	upsertSporttiIDStmt                    *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
 		db:                                     tx,
 		tx:                                     tx,
+		deleteAthleteByNationalIDStmt:          q.deleteAthleteByNationalIDStmt,
 		getAthleteBySporttiIDStmt:              q.getAthleteBySporttiIDStmt,
 		getMeasurementsBySporttiIDStmt:         q.getMeasurementsBySporttiIDStmt,
 		getRaceReportStmt:                      q.getRaceReportStmt,
 		getRaceReportSessionIDsBySporttiIDStmt: q.getRaceReportSessionIDsBySporttiIDStmt,
-		getSporttiIDsStmt:                      q.getSporttiIDsStmt,
 		upsertAthleteStmt:                      q.upsertAthleteStmt,
 		upsertMeasurementStmt:                  q.upsertMeasurementStmt,
 		upsertRaceReportStmt:                   q.upsertRaceReportStmt,
-		upsertSporttiIDStmt:                    q.upsertSporttiIDStmt,
 	}
 }

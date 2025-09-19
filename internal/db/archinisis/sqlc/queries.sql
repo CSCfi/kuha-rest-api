@@ -1,8 +1,3 @@
--- name: GetSporttiIDs :many
-SELECT sportti_id
-FROM sportti_id_list
-ORDER BY sportti_id;
-
 -- name: UpsertAthlete :exec
 INSERT INTO athlete (
   national_id, first_name, last_name, initials, date_of_birth, height, weight
@@ -82,8 +77,7 @@ FROM measurement
 WHERE national_id = $1
 ORDER BY measurement_group_id ASC;
 
--- name: UpsertSporttiID :exec
-INSERT INTO sportti_id_list (sportti_id)
-VALUES ($1)
-ON CONFLICT (sportti_id) DO NOTHING;
-
+-- name: DeleteAthleteByNationalID :one
+DELETE FROM athlete
+WHERE national_id = $1
+RETURNING national_id;

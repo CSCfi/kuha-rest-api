@@ -12,8 +12,7 @@ const DataTimeout = 30 * time.Second
 
 // Interfaces
 type Users interface {
-	GetAllSporttiIDs(ctx context.Context) ([]string, error)
-	UpsertSporttiID(ctx context.Context, sporttiID string) error
+	DeleteUserBySporttiID(ctx context.Context, sporttiID string) (string, error)
 }
 
 type Data interface {

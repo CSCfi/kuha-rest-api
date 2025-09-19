@@ -118,17 +118,6 @@ ALTER SEQUENCE public.raportti_report_id_seq OWNED BY public.report.report_id;
 
 
 --
--- Name: sportti_id_list; Type: TABLE; Schema: public; Owner: archadmin
---
-
-CREATE TABLE public.sportti_id_list (
-    sportti_id character varying(64) NOT NULL
-);
-
-
-ALTER TABLE public.sportti_id_list OWNER TO archadmin;
-
---
 -- Name: measurement measurement_group_id; Type: DEFAULT; Schema: public; Owner: archadmin
 --
 
@@ -177,14 +166,6 @@ ALTER TABLE ONLY public.report
 
 ALTER TABLE ONLY public.report
     ADD CONSTRAINT raportti_session_id_key UNIQUE (session_id);
-
-
---
--- Name: sportti_id_list sportti_id_list_pkey; Type: CONSTRAINT; Schema: public; Owner: archadmin
---
-
-ALTER TABLE ONLY public.sportti_id_list
-    ADD CONSTRAINT sportti_id_list_pkey PRIMARY KEY (sportti_id);
 
 
 --
