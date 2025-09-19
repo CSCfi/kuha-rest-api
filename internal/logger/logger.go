@@ -14,17 +14,18 @@ import (
 )
 
 var Logger *zap.SugaredLogger
+var tj *timberjack.Logger
 
 // Initialize the global zap logger with timberjack for file rotation
 func Init(logDir string) {
 	_ = os.MkdirAll(logDir, os.ModePerm)
 
-	logFile := &timberjack.Logger{
+	tj = &timberjack.Logger{
 		Filename:         filepath.Join(logDir, "kuha.log"),
 		MaxSize:          100, // MB
 		MaxBackups:       7,
 		MaxAge:           30,
-		Compress:         false,
+		Compression:      "none",
 		LocalTime:        true,              // for naming
 		RotateAt:         []string{"23:59"}, // rotate daily at 23:59
 		BackupTimeFormat: "2006-01-02-15-04-05",
@@ -36,7 +37,7 @@ func Init(logDir string) {
 
 	fileCore := zapcore.NewCore(
 		zapcore.NewJSONEncoder(encoderCfg),
-		zapcore.AddSync(logFile),
+		zapcore.AddSync(tj),
 		zapcore.InfoLevel,
 	)
 
@@ -55,6 +56,9 @@ func Init(logDir string) {
 // Ensures logs are flushed before the application exits
 func Cleanup() {
 	_ = Logger.Sync()
+	if tj != nil {
+		_ = tj.Close()
+	}
 }
 
 type responseRecorder struct {
