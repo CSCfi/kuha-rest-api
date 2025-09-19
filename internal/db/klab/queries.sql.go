@@ -12,31 +12,22 @@ import (
 	"github.com/lib/pq"
 )
 
-const getAllSporttiIDs = `-- name: GetAllSporttiIDs :many
-SELECT sportti_id FROM sportti_id_list
+const deleteCustomerBySporttiID = `-- name: DeleteCustomerBySporttiID :one
+DELETE FROM customer
+WHERE sportti_id = $1
+RETURNING idcustomer, sportti_id
 `
 
-func (q *Queries) GetAllSporttiIDs(ctx context.Context) ([]string, error) {
-	rows, err := q.query(ctx, q.getAllSporttiIDsStmt, getAllSporttiIDs)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []string
-	for rows.Next() {
-		var sportti_id string
-		if err := rows.Scan(&sportti_id); err != nil {
-			return nil, err
-		}
-		items = append(items, sportti_id)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+type DeleteCustomerBySporttiIDRow struct {
+	Idcustomer int32
+	SporttiID  sql.NullString
+}
+
+func (q *Queries) DeleteCustomerBySporttiID(ctx context.Context, sporttiID sql.NullString) (DeleteCustomerBySporttiIDRow, error) {
+	row := q.queryRow(ctx, q.deleteCustomerBySporttiIDStmt, deleteCustomerBySporttiID, sporttiID)
+	var i DeleteCustomerBySporttiIDRow
+	err := row.Scan(&i.Idcustomer, &i.SporttiID)
+	return i, err
 }
 
 const getCustomerByID = `-- name: GetCustomerByID :one

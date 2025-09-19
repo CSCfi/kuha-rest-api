@@ -26,23 +26,6 @@ type KlabUserParams struct {
 	ID string `validate:"required,numeric"`
 }
 
-func (h *UserDataHandler) GetSporttiIDs(w http.ResponseWriter, r *http.Request) {
-	if !authz.Authorize(r) {
-		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
-		return
-	}
-
-	sporttiIDs, err := h.store.GetAllSporttiIDs(r.Context())
-	if err != nil {
-		utils.InternalServerError(w, r, err)
-		return
-	}
-
-	utils.WriteJSON(w, http.StatusOK, map[string]any{
-		"sportti_ids": sporttiIDs,
-	})
-}
-
 // GetUser godoc
 //
 //	@Summary		Get customer by Sportti ID
@@ -163,4 +146,63 @@ func (h *UserDataHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, map[string]any{
 		"customer": resp,
 	})
+}
+
+type SporttiIDParam struct {
+	SporttiID string `form:"sportti_id" validate:"required,numeric"`
+}
+
+// DeleteUser godoc
+//
+//	@Summary		Delete a customer (hard delete)
+//	@Description	Removes a KLab customer by sportti_id. Related measurement_list and dir* tables are removed via FK cascades.
+//	@Tags			KLAB - User
+//	@Accept			json
+//	@Produce		json
+//	@Param			sportti_id	query	string	true	"Sportti ID"
+//	@Success		200
+//	@Failure		400	{object}	swagger.ValidationErrorResponse
+//	@Failure		401	{object}	swagger.UnauthorizedResponse
+//	@Failure		403	{object}	swagger.ForbiddenResponse
+//	@Failure		404	{object}	swagger.NotFoundResponse
+//	@Failure		500	{object}	swagger.InternalServerErrorResponse
+//	@Failure		503	{object}	swagger.ServiceUnavailableResponse
+//	@Security		BearerAuth
+//	@Router			/klab/user [delete]
+func (h *UserDataHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	if !authz.Authorize(r) {
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
+		return
+	}
+
+	if err := utils.ValidateParams(r, []string{"sportti_id"}); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	params := SporttiIDParam{
+		SporttiID: r.URL.Query().Get("sportti_id"),
+	}
+	if err := utils.GetValidator().Struct(params); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	sid, err := utils.ParseSporttiID(params.SporttiID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	_, err = h.store.DeleteUserBySporttiID(r.Context(), sid)
+	if err == sql.ErrNoRows {
+		utils.NotFoundResponse(w, r, err)
+		return
+	}
+	if err != nil {
+		utils.InternalServerError(w, r, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

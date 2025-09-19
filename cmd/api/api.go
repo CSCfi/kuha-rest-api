@@ -231,6 +231,7 @@ func (app *api) mount() http.Handler {
 
 					// user routes
 					r.Get("/user", userDataHandler.GetUser)
+					r.Delete("/user", userDataHandler.DeleteUser)
 
 					// data routes
 					r.Post("/data", klabDataHandler.InsertKlabDataBulk)

@@ -326,7 +326,3 @@ type MeasurementList struct {
 	Meastype       sql.NullInt32
 	SentToSprintai sql.NullTime
 }
-
-type SporttiIDList struct {
-	SporttiID string
-}

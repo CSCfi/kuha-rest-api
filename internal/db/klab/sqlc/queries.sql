@@ -1,7 +1,3 @@
--- name: GetAllSporttiIDs :many
-SELECT sportti_id FROM sportti_id_list;
-
-
 -- Prefer updating customer metadata if it already exists.
 -- name: UpsertCustomer :exec
 INSERT INTO customer (
@@ -490,3 +486,8 @@ ORDER BY idmeasurement;
 SELECT idcustomer
 FROM customer
 WHERE sportti_id = $1;
+
+-- name: DeleteCustomerBySporttiID :one
+DELETE FROM customer
+WHERE sportti_id = $1
+RETURNING idcustomer, sportti_id;

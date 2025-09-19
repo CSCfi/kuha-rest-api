@@ -24,8 +24,8 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
-	if q.getAllSporttiIDsStmt, err = db.PrepareContext(ctx, getAllSporttiIDs); err != nil {
-		return nil, fmt.Errorf("error preparing query GetAllSporttiIDs: %w", err)
+	if q.deleteCustomerBySporttiIDStmt, err = db.PrepareContext(ctx, deleteCustomerBySporttiID); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteCustomerBySporttiID: %w", err)
 	}
 	if q.getCustomerByIDStmt, err = db.PrepareContext(ctx, getCustomerByID); err != nil {
 		return nil, fmt.Errorf("error preparing query GetCustomerByID: %w", err)
@@ -77,9 +77,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 
 func (q *Queries) Close() error {
 	var err error
-	if q.getAllSporttiIDsStmt != nil {
-		if cerr := q.getAllSporttiIDsStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing getAllSporttiIDsStmt: %w", cerr)
+	if q.deleteCustomerBySporttiIDStmt != nil {
+		if cerr := q.deleteCustomerBySporttiIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteCustomerBySporttiIDStmt: %w", cerr)
 		}
 	}
 	if q.getCustomerByIDStmt != nil {
@@ -196,7 +196,7 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 type Queries struct {
 	db                                  DBTX
 	tx                                  *sql.Tx
-	getAllSporttiIDsStmt                *sql.Stmt
+	deleteCustomerBySporttiIDStmt       *sql.Stmt
 	getCustomerByIDStmt                 *sql.Stmt
 	getCustomerIDBySporttiIDStmt        *sql.Stmt
 	getDirRawDataByMeasurementIDsStmt   *sql.Stmt
@@ -218,7 +218,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
 		db:                                  tx,
 		tx:                                  tx,
-		getAllSporttiIDsStmt:                q.getAllSporttiIDsStmt,
+		deleteCustomerBySporttiIDStmt:       q.deleteCustomerBySporttiIDStmt,
 		getCustomerByIDStmt:                 q.getCustomerByIDStmt,
 		getCustomerIDBySporttiIDStmt:        q.getCustomerIDBySporttiIDStmt,
 		getDirRawDataByMeasurementIDsStmt:   q.getDirRawDataByMeasurementIDsStmt,

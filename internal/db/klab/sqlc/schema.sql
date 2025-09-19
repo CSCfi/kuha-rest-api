@@ -544,17 +544,6 @@ ALTER SEQUENCE public.measurement_list_idmeasurement_seq OWNED BY public.measure
 
 
 --
--- Name: sportti_id_list; Type: TABLE; Schema: public; Owner: klabadmin
---
-
-CREATE TABLE public.sportti_id_list (
-    sportti_id character varying(64) NOT NULL
-);
-
-
-ALTER TABLE public.sportti_id_list OWNER TO klabadmin;
-
---
 -- Name: customer idcustomer; Type: DEFAULT; Schema: public; Owner: klabadmin
 --
 
@@ -665,14 +654,6 @@ ALTER TABLE ONLY public.dirteststeps
 
 ALTER TABLE ONLY public.measurement_list
     ADD CONSTRAINT measurement_list_pkey PRIMARY KEY (idmeasurement);
-
-
---
--- Name: sportti_id_list sportti_id_list_pkey; Type: CONSTRAINT; Schema: public; Owner: klabadmin
---
-
-ALTER TABLE ONLY public.sportti_id_list
-    ADD CONSTRAINT sportti_id_list_pkey PRIMARY KEY (sportti_id);
 
 
 --
