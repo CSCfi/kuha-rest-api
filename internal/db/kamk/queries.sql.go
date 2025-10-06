@@ -28,7 +28,7 @@ WHERE competitor_id = $1
 ORDER BY date_start DESC
 `
 
-func (q *Queries) GetActiveInjuriesByUser(ctx context.Context, competitorID sql.NullInt32) ([]Injury, error) {
+func (q *Queries) GetActiveInjuriesByUser(ctx context.Context, competitorID int32) ([]Injury, error) {
 	rows, err := q.query(ctx, q.getActiveInjuriesByUserStmt, getActiveInjuriesByUser, competitorID)
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ FROM public.injuries
 WHERE competitor_id = $1
 `
 
-func (q *Queries) GetMaxInjuryIDForUser(ctx context.Context, competitorID sql.NullInt32) (interface{}, error) {
+func (q *Queries) GetMaxInjuryIDForUser(ctx context.Context, competitorID int32) (interface{}, error) {
 	row := q.queryRow(ctx, q.getMaxInjuryIDForUserStmt, getMaxInjuryIDForUser, competitorID)
 	var id interface{}
 	err := row.Scan(&id)
@@ -127,8 +127,8 @@ INSERT INTO public.injuries (
 `
 
 type InsertInjuryParams struct {
-	CompetitorID sql.NullInt32
-	InjuryType   sql.NullInt32
+	CompetitorID int32
+	InjuryType   int32
 	Severity     sql.NullInt32
 	PainLevel    sql.NullInt32
 	Description  sql.NullString
@@ -238,7 +238,7 @@ WHERE injury_id = $1
 
 type MarkInjuryRecoveredByIDParams struct {
 	InjuryID     sql.NullInt32
-	CompetitorID sql.NullInt32
+	CompetitorID int32
 }
 
 func (q *Queries) MarkInjuryRecoveredByID(ctx context.Context, arg MarkInjuryRecoveredByIDParams) error {
