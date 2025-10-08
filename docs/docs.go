@@ -710,6 +710,273 @@ const docTemplate = `{
                 }
             }
         },
+        "/kamk/injury": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns active injuries (status=0) for a competitor",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "KAMK - Injuries"
+                ],
+                "summary": "List active injuries",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Competitor sportti_id",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.KamkInjuriesListResponse"
+                        }
+                    },
+                    "204": {
+                        "description": "No Content: no injuries"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new injury row (status=0, date_start=NOW()) for a competitor",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "KAMK - Injuries"
+                ],
+                "summary": "Create injury",
+                "parameters": [
+                    {
+                        "description": "Injury payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.KamkAddInjuryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created: Injury stored (no content in response body)"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/kamk/injury-id": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the current maximum injury_id for a competitor (0 if none exist)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "KAMK - Injuries"
+                ],
+                "summary": "Get next injury id helper",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Competitor sportti_id",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.KamkMaxInjuryIDResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/kamk/injury-recovered": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets status=1 and date_end=NOW() for an injury recovery",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "KAMK - Injuries"
+                ],
+                "summary": "Mark injury recovered",
+                "parameters": [
+                    {
+                        "description": "Recovery payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.KamkMarkRecoveredRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK: Marked recovered"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/klab/data": {
             "get": {
                 "security": [
@@ -6823,6 +7090,117 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/swagger.UnprocessableEntityError"
                     }
+                }
+            }
+        },
+        "swagger.KamkAddInjuryRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string",
+                    "example": "Left ankle sprain during training"
+                },
+                "injury_id": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "injury_type": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "meta": {
+                    "type": "string",
+                    "example": "phase=preseason"
+                },
+                "pain_level": {
+                    "type": "integer",
+                    "example": 7
+                },
+                "severity": {
+                    "type": "integer",
+                    "example": 3
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "27353728"
+                }
+            }
+        },
+        "swagger.KamkInjuriesListResponse": {
+            "type": "object",
+            "properties": {
+                "injuries": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.KamkInjuryItem"
+                    }
+                }
+            }
+        },
+        "swagger.KamkInjuryItem": {
+            "type": "object",
+            "properties": {
+                "competitor_id": {
+                    "type": "integer",
+                    "example": 27353728
+                },
+                "date_end": {
+                    "type": "string",
+                    "example": "2025-01-17T12:00:00Z"
+                },
+                "date_start": {
+                    "type": "string",
+                    "example": "2025-01-10T09:30:00Z"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Left ankle sprain during training"
+                },
+                "injury_id": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "injury_type": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "meta": {
+                    "type": "string",
+                    "example": "phase=preseason"
+                },
+                "pain_level": {
+                    "type": "integer",
+                    "example": 7
+                },
+                "severity": {
+                    "type": "integer",
+                    "example": 3
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 0
+                }
+            }
+        },
+        "swagger.KamkMarkRecoveredRequest": {
+            "type": "object",
+            "properties": {
+                "injury_id": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "27353728"
+                }
+            }
+        },
+        "swagger.KamkMaxInjuryIDResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 3
                 }
             }
         },

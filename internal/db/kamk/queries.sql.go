@@ -63,14 +63,14 @@ func (q *Queries) GetActiveInjuriesByUser(ctx context.Context, competitorID int3
 }
 
 const getMaxInjuryIDForUser = `-- name: GetMaxInjuryIDForUser :one
-SELECT COALESCE(MAX(injury_id), 0) AS id
+SELECT COALESCE(MAX(injury_id), 0)::int4 AS id
 FROM public.injuries
 WHERE competitor_id = $1
 `
 
-func (q *Queries) GetMaxInjuryIDForUser(ctx context.Context, competitorID int32) (interface{}, error) {
+func (q *Queries) GetMaxInjuryIDForUser(ctx context.Context, competitorID int32) (int32, error) {
 	row := q.queryRow(ctx, q.getMaxInjuryIDForUserStmt, getMaxInjuryIDForUser, competitorID)
-	var id interface{}
+	var id int32
 	err := row.Scan(&id)
 	return id, err
 }

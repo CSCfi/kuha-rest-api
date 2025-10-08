@@ -27,6 +27,7 @@ import (
 	archapi "github.com/DeRuina/KUHA-REST-API/cmd/api/archinisis"
 	authapi "github.com/DeRuina/KUHA-REST-API/cmd/api/auth"
 	fisapi "github.com/DeRuina/KUHA-REST-API/cmd/api/fis"
+	kamkapi "github.com/DeRuina/KUHA-REST-API/cmd/api/kamk"
 	klabapi "github.com/DeRuina/KUHA-REST-API/cmd/api/klab"
 	tietoevryapi "github.com/DeRuina/KUHA-REST-API/cmd/api/tietoevry"
 	utvapi "github.com/DeRuina/KUHA-REST-API/cmd/api/utv"
@@ -196,6 +197,27 @@ func (app *api) mount() http.Handler {
 				})
 			}
 
+			// KAMK routes
+			if app.store.KAMK != nil {
+				r.Route("/kamk", func(r chi.Router) {
+					// Register handlers
+					injuriesHandler := kamkapi.NewInjuriesHandler(app.store.KAMK.Injuries(), app.cacheStorage)
+
+					// injury routes
+					r.Post("/injury", injuriesHandler.AddInjury)
+					r.Post("/injury-recovered", injuriesHandler.MarkRecovered)
+					r.Get("/injury", injuriesHandler.GetActive)
+					r.Get("/injury-id", injuriesHandler.GetMaxID)
+				})
+			} else {
+				logger.Logger.Warn("kamk routes disabled: database not connected")
+				r.Route("/kamk", func(r chi.Router) {
+					r.Handle("/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+						utils.ServiceUnavailableDBResponse(w, r, "kamk")
+					}))
+				})
+			}
+
 			// Archinisis routes
 			if app.store.ARCHINISIS != nil {
 				r.Route("/archinisis", func(r chi.Router) {
@@ -206,7 +228,7 @@ func (app *api) mount() http.Handler {
 					// data routes
 					r.Get("/race-report/sessions", dataHandler.GetRaceReportSessions)
 					r.Get("/race-report", dataHandler.GetRaceReportHTML)
-					r.Post("/race-report", dataHandler.PostRaceReport)
+					r.With(GzipDecompressionMiddleware()).Post("/race-report", dataHandler.PostRaceReport)
 					r.Post("/data", dataHandler.PostArchData)
 					r.Get("/data", dataHandler.GetArchData)
 

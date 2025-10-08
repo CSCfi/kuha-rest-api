@@ -437,3 +437,11 @@ func ParseTimestampPtrFlexible(value *string) (*time.Time, error) {
 	}
 	return nil, ErrInvalidTimeStamp
 }
+
+// TimePtrOrNil converts sql.NullTime to *time.Time
+func TimePtrOrNil(t sql.NullTime) *time.Time {
+	if t.Valid {
+		return &t.Time
+	}
+	return nil
+}

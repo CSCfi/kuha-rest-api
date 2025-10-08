@@ -205,6 +205,8 @@ func FormatValidationErrors(err error) map[string]string {
 				errors["id"] = ErrInvalidIDNumeric.Error()
 			case "NationalID":
 				errors["national_id"] = ErrInvalidIDNumeric.Error()
+			case "UserID":
+				errors["user_id"] = ErrInvalidIDNumeric.Error()
 			default:
 				errors[field] = ErrInvalidnumericValue.Error()
 			}

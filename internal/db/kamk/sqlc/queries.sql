@@ -30,9 +30,10 @@ WHERE competitor_id = $1
 ORDER BY date_start DESC;
 
 -- name: GetMaxInjuryIDForUser :one
-SELECT COALESCE(MAX(injury_id), 0) AS id
+SELECT COALESCE(MAX(injury_id), 0)::int4 AS id
 FROM public.injuries
 WHERE competitor_id = $1;
+
 
 -- name: InsertQuestionnaireV2 :exec
 INSERT INTO public.querys_v2 (

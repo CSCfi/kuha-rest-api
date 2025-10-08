@@ -56,6 +56,7 @@ type Tietoevry interface {
 
 type KAMK interface {
 	Ping(ctx context.Context) error
+	Injuries() kamk.Injuries
 }
 
 type Klab interface {
