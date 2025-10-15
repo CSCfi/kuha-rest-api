@@ -78,3 +78,11 @@ func (s *GarminTokenStore) GetDataForUpdate(ctx context.Context, cutoff time.Tim
 	queries := utvsqlc.New(s.db)
 	return queries.GetGarminDataForUpdate(ctx, cutoff)
 }
+
+func (s *GarminTokenStore) GetTokenJSON(ctx context.Context, userID uuid.UUID) (json.RawMessage, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	queries := utvsqlc.New(s.db)
+	return queries.GetGarminTokenJSON(ctx, userID)
+}

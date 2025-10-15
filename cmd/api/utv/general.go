@@ -2,6 +2,7 @@ package utvapi
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -661,4 +662,87 @@ func (h *GeneralDataHandler) GetDataForUpdate(w http.ResponseWriter, r *http.Req
 	default:
 		utils.BadRequestResponse(w, r, fmt.Errorf("invalid source: must be one of polar, oura, suunto, garmin"))
 	}
+}
+
+type TokenInput struct {
+	UserID string `form:"user_id" validate:"required,uuid4"`
+	Source string `form:"source" validate:"required,oneof=garmin oura polar suunto"`
+}
+
+// GetToken godoc
+//
+//	@Summary		Get wearable access token
+//	@Description	Returns token JSON for the given source. Shapes:
+//	@Description	- oura/suunto: {"access_token"}
+//	@Description	- polar: {"access_token", "x_user_id"}
+//	@Description	- garmin: {"access_token", "access_token_secret"}
+//	@Tags			UTV - General
+//	@Accept			json
+//	@Produce		json
+//	@Param			user_id	query		string	true	"User ID (UUID)"
+//	@Param			source	query		string	true	"Source (one of: 'garmin', 'oura', 'polar', 'suunto')"
+//	@Success		200		{object}	swagger.GarminTokenResponse
+//	@Success		204		"No Content: Token not found"
+//	@Failure		400		{object}	swagger.ValidationErrorResponse
+//	@Failure		401		{object}	swagger.UnauthorizedResponse
+//	@Failure		403		{object}	swagger.ForbiddenResponse
+//	@Failure		500		{object}	swagger.InternalServerErrorResponse
+//	@Security		BearerAuth
+//	@Router			/utv/token [get]
+func (h *GeneralDataHandler) GetToken(w http.ResponseWriter, r *http.Request) {
+	if !authz.Authorize(r) {
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
+		return
+	}
+
+	if err := utils.ValidateParams(r, []string{"user_id", "source"}); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	params := TokenInput{
+		UserID: r.URL.Query().Get("user_id"),
+		Source: r.URL.Query().Get("source"),
+	}
+	if err := utils.GetValidator().Struct(params); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	userID, err := utils.ParseUUID(params.UserID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	var token json.RawMessage
+
+	switch params.Source {
+	case "oura":
+		token, err = h.ouraToken.GetAccessTokenJSON(r.Context(), userID)
+	case "suunto":
+		token, err = h.suuntoToken.GetAccessTokenJSON(r.Context(), userID)
+	case "polar":
+		token, err = h.polarToken.GetTokenJSON(r.Context(), userID)
+	case "garmin":
+		token, err = h.garminToken.GetTokenJSON(r.Context(), userID)
+	default:
+		utils.BadRequestResponse(w, r, fmt.Errorf("invalid source: must be one of garmin, oura, polar, suunto"))
+		return
+	}
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		utils.InternalServerError(w, r, err)
+		return
+	}
+
+	resp := map[string]json.RawMessage{
+		"token": token,
+	}
+
+	utils.WriteJSON(w, http.StatusOK, resp)
 }

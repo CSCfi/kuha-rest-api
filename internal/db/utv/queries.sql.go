@@ -2513,3 +2513,65 @@ func (q *Queries) GetArchinisisSportIDs(ctx context.Context) ([]string, error) {
 	}
 	return items, nil
 }
+
+const getOuraAccessTokenJSON = `-- name: GetOuraAccessTokenJSON :one
+SELECT jsonb_build_object(
+  'access_token', data->>'access_token'
+) AS token
+FROM oura_tokens
+WHERE user_id = $1
+`
+
+func (q *Queries) GetOuraAccessTokenJSON(ctx context.Context, userID uuid.UUID) (json.RawMessage, error) {
+	row := q.queryRow(ctx, q.getOuraAccessTokenJSONStmt, getOuraAccessTokenJSON, userID)
+	var token json.RawMessage
+	err := row.Scan(&token)
+	return token, err
+}
+
+const getSuuntoAccessTokenJSON = `-- name: GetSuuntoAccessTokenJSON :one
+SELECT jsonb_build_object(
+  'access_token', data->>'access_token'
+) AS token
+FROM suunto_tokens
+WHERE user_id = $1
+`
+
+func (q *Queries) GetSuuntoAccessTokenJSON(ctx context.Context, userID uuid.UUID) (json.RawMessage, error) {
+	row := q.queryRow(ctx, q.getSuuntoAccessTokenJSONStmt, getSuuntoAccessTokenJSON, userID)
+	var token json.RawMessage
+	err := row.Scan(&token)
+	return token, err
+}
+
+const getPolarTokenJSON = `-- name: GetPolarTokenJSON :one
+SELECT jsonb_build_object(
+  'access_token', data->>'access_token',
+  'x_user_id',   data->>'x_user_id'   -- keep as string for safety
+) AS token
+FROM polar_tokens
+WHERE user_id = $1
+`
+
+func (q *Queries) GetPolarTokenJSON(ctx context.Context, userID uuid.UUID) (json.RawMessage, error) {
+	row := q.queryRow(ctx, q.getPolarTokenJSONStmt, getPolarTokenJSON, userID)
+	var token json.RawMessage
+	err := row.Scan(&token)
+	return token, err
+}
+
+const getGarminTokenJSON = `-- name: GetGarminTokenJSON :one
+SELECT jsonb_build_object(
+  'access_token',         data->>'access_token',
+  'access_token_secret',  data->>'access_token_secret'
+) AS token
+FROM garmin_tokens
+WHERE user_id = $1
+`
+
+func (q *Queries) GetGarminTokenJSON(ctx context.Context, userID uuid.UUID) (json.RawMessage, error) {
+	row := q.queryRow(ctx, q.getGarminTokenJSONStmt, getGarminTokenJSON, userID)
+	var token json.RawMessage
+	err := row.Scan(&token)
+	return token, err
+}

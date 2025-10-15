@@ -481,6 +481,15 @@ definitions:
         example: true
         type: boolean
     type: object
+  swagger.GarminToken:
+    properties:
+      access_token:
+        example: abc123token
+        type: string
+      access_token_secret:
+        example: shhh-keep-me-secret
+        type: string
+    type: object
   swagger.GarminTokenDetails:
     properties:
       access_token:
@@ -506,6 +515,11 @@ definitions:
       user_id:
         example: e19c1832-d7f3-4d65-90ea-33a3d7f6d6df
         type: string
+    type: object
+  swagger.GarminTokenResponse:
+    properties:
+      token:
+        $ref: '#/definitions/swagger.GarminToken'
     type: object
   swagger.GarminTypesResponse:
     properties:
@@ -6838,6 +6852,56 @@ paths:
       summary: Get available types
       tags:
       - UTV - Suunto
+  /utv/token:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Returns token JSON for the given source. Shapes:
+        - oura/suunto: {"access_token"}
+        - polar: {"access_token", "x_user_id"}
+        - garmin: {"access_token", "access_token_secret"}
+      parameters:
+      - description: User ID (UUID)
+        in: query
+        name: user_id
+        required: true
+        type: string
+      - description: 'Source (one of: ''garmin'', ''oura'', ''polar'', ''suunto'')'
+        in: query
+        name: source
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.GarminTokenResponse'
+        "204":
+          description: 'No Content: Token not found'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get wearable access token
+      tags:
+      - UTV - General
   /utv/tokens4update:
     get:
       consumes:

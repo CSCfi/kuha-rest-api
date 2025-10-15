@@ -5780,6 +5780,77 @@ const docTemplate = `{
                 }
             }
         },
+        "/utv/token": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns token JSON for the given source. Shapes:\n- oura/suunto: {\"access_token\"}\n- polar: {\"access_token\", \"x_user_id\"}\n- garmin: {\"access_token\", \"access_token_secret\"}",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UTV - General"
+                ],
+                "summary": "Get wearable access token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID (UUID)",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Source (one of: 'garmin', 'oura', 'polar', 'suunto')",
+                        "name": "source",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.GarminTokenResponse"
+                        }
+                    },
+                    "204": {
+                        "description": "No Content: Token not found"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/utv/tokens4update": {
             "get": {
                 "security": [
@@ -6896,6 +6967,19 @@ const docTemplate = `{
                 }
             }
         },
+        "swagger.GarminToken": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string",
+                    "example": "abc123token"
+                },
+                "access_token_secret": {
+                    "type": "string",
+                    "example": "shhh-keep-me-secret"
+                }
+            }
+        },
         "swagger.GarminTokenDetails": {
             "type": "object",
             "properties": {
@@ -6931,6 +7015,14 @@ const docTemplate = `{
                 "user_id": {
                     "type": "string",
                     "example": "e19c1832-d7f3-4d65-90ea-33a3d7f6d6df"
+                }
+            }
+        },
+        "swagger.GarminTokenResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "$ref": "#/definitions/swagger.GarminToken"
                 }
             }
         },

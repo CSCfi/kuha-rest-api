@@ -470,3 +470,33 @@ type SourceCacheItem struct {
 type SportIDsResponse struct {
 	SporttiIDs []string `json:"sportti_ids" example:"12345,67890,54321"`
 }
+
+type OuraToken struct {
+	AccessToken string `json:"access_token" example:"abc123token"`
+}
+type OuraTokenResponse struct {
+	Token OuraToken `json:"token"`
+}
+
+type SuuntoToken struct {
+	AccessToken string `json:"access_token" example:"abc123token"`
+}
+type SuuntoTokenResponse struct {
+	Token SuuntoToken `json:"token"`
+}
+
+type PolarToken struct {
+	AccessToken string `json:"access_token" example:"abc123token"`
+	XUserID     int    `json:"x_user_id" example:"45071318"`
+}
+type PolarTokenResponse struct {
+	Token PolarToken `json:"token"`
+}
+
+type GarminToken struct {
+	AccessToken       string `json:"access_token" example:"abc123token"`
+	AccessTokenSecret string `json:"access_token_secret" example:"shhh-keep-me-secret"`
+}
+type GarminTokenResponse struct {
+	Token GarminToken `json:"token"`
+}

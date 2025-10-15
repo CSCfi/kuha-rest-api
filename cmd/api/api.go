@@ -323,6 +323,7 @@ func (app *api) mount() http.Handler {
 					r.Delete("/disconnect", generalHandler.Disconnect)
 					r.Get("/tokens4update", generalHandler.GetTokensForUpdate)
 					r.Get("/data4update", generalHandler.GetDataForUpdate)
+					r.Get("/token", generalHandler.GetToken)
 
 					// User data routes
 					r.Get("/user", userDataHandler.GetUserData)

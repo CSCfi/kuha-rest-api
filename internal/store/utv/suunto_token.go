@@ -73,3 +73,11 @@ func (s *SuuntoTokenStore) GetDataForUpdate(ctx context.Context, cutoff time.Tim
 	queries := utvsqlc.New(s.db)
 	return queries.GetSuuntoDataForUpdate(ctx, cutoff)
 }
+
+func (s *SuuntoTokenStore) GetAccessTokenJSON(ctx context.Context, userID uuid.UUID) (json.RawMessage, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	queries := utvsqlc.New(s.db)
+	return queries.GetSuuntoAccessTokenJSON(ctx, userID)
+}

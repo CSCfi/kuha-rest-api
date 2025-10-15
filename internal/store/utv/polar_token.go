@@ -73,3 +73,11 @@ func (s *PolarTokenStore) GetDataForUpdate(ctx context.Context, cutoff time.Time
 	queries := utvsqlc.New(s.db)
 	return queries.GetPolarDataForUpdate(ctx, cutoff)
 }
+
+func (s *PolarTokenStore) GetTokenJSON(ctx context.Context, userID uuid.UUID) (json.RawMessage, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	queries := utvsqlc.New(s.db)
+	return queries.GetPolarTokenJSON(ctx, userID)
+}

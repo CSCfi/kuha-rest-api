@@ -637,4 +637,33 @@ FROM archinisis_tokens
 WHERE data ? 'sport_id' AND (data->>'sport_id') <> ''
 ORDER BY sport_id;
 
+-- name: GetOuraAccessTokenJSON :one
+SELECT jsonb_build_object(
+  'access_token', data->>'access_token'
+) AS token
+FROM oura_tokens
+WHERE user_id = $1;
+
+-- name: GetSuuntoAccessTokenJSON :one
+SELECT jsonb_build_object(
+  'access_token', data->>'access_token'
+) AS token
+FROM suunto_tokens
+WHERE user_id = $1;
+
+-- name: GetPolarTokenJSON :one
+SELECT jsonb_build_object(
+  'access_token', data->>'access_token',
+  'x_user_id',   data->>'x_user_id'   -- keep as string for safety
+) AS token
+FROM polar_tokens
+WHERE user_id = $1;
+
+-- name: GetGarminTokenJSON :one
+SELECT jsonb_build_object(
+  'access_token',         data->>'access_token',
+  'access_token_secret',  data->>'access_token_secret'
+) AS token
+FROM garmin_tokens
+WHERE user_id = $1;
 
