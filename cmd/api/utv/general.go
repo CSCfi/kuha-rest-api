@@ -687,6 +687,7 @@ type TokenInput struct {
 //	@Failure		401		{object}	swagger.UnauthorizedResponse
 //	@Failure		403		{object}	swagger.ForbiddenResponse
 //	@Failure		500		{object}	swagger.InternalServerErrorResponse
+//	@Failure		503		{object}	swagger.ServiceUnavailableResponse
 //	@Security		BearerAuth
 //	@Router			/utv/token [get]
 func (h *GeneralDataHandler) GetToken(w http.ResponseWriter, r *http.Request) {

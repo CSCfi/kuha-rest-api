@@ -5847,6 +5847,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/swagger.InternalServerErrorResponse"
                         }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
                     }
                 }
             }

@@ -6897,6 +6897,10 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
       security:
       - BearerAuth: []
       summary: Get wearable access token
