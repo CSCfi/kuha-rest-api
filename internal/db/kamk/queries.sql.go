@@ -28,7 +28,7 @@ WHERE competitor_id = $1
 ORDER BY date_start DESC
 `
 
-func (q *Queries) GetActiveInjuriesByUser(ctx context.Context, competitorID int32) ([]Injury, error) {
+func (q *Queries) GetActiveInjuriesByUser(ctx context.Context, competitorID sql.NullInt32) ([]Injury, error) {
 	rows, err := q.query(ctx, q.getActiveInjuriesByUserStmt, getActiveInjuriesByUser, competitorID)
 	if err != nil {
 		return nil, err
@@ -68,14 +68,14 @@ FROM public.injuries
 WHERE competitor_id = $1
 `
 
-func (q *Queries) GetMaxInjuryIDForUser(ctx context.Context, competitorID int32) (int32, error) {
+func (q *Queries) GetMaxInjuryIDForUser(ctx context.Context, competitorID sql.NullInt32) (int32, error) {
 	row := q.queryRow(ctx, q.getMaxInjuryIDForUserStmt, getMaxInjuryIDForUser, competitorID)
 	var id int32
 	err := row.Scan(&id)
 	return id, err
 }
 
-const getQuestionnairesByUserV2 = `-- name: GetQuestionnairesByUserV2 :many
+const getQuestionnairesByUser = `-- name: GetQuestionnairesByUser :many
 SELECT
   competitor_id,
   query_type,
@@ -83,20 +83,20 @@ SELECT
   comment,
   "timestamp",
   meta
-FROM public.querys_v2
+FROM public.querys
 WHERE competitor_id = $1
 ORDER BY "timestamp" DESC
 `
 
-func (q *Queries) GetQuestionnairesByUserV2(ctx context.Context, competitorID sql.NullInt32) ([]QuerysV2, error) {
-	rows, err := q.query(ctx, q.getQuestionnairesByUserV2Stmt, getQuestionnairesByUserV2, competitorID)
+func (q *Queries) GetQuestionnairesByUser(ctx context.Context, competitorID sql.NullInt32) ([]Query, error) {
+	rows, err := q.query(ctx, q.getQuestionnairesByUserStmt, getQuestionnairesByUser, competitorID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []QuerysV2
+	var items []Query
 	for rows.Next() {
-		var i QuerysV2
+		var i Query
 		if err := rows.Scan(
 			&i.CompetitorID,
 			&i.QueryType,
@@ -127,8 +127,8 @@ INSERT INTO public.injuries (
 `
 
 type InsertInjuryParams struct {
-	CompetitorID int32
-	InjuryType   int32
+	CompetitorID sql.NullInt32
+	InjuryType   sql.NullInt32
 	Severity     sql.NullInt32
 	PainLevel    sql.NullInt32
 	Description  sql.NullString
@@ -149,15 +149,15 @@ func (q *Queries) InsertInjury(ctx context.Context, arg InsertInjuryParams) erro
 	return err
 }
 
-const insertQuestionnaireV2 = `-- name: InsertQuestionnaireV2 :exec
-INSERT INTO public.querys_v2 (
+const insertQuestionnaire = `-- name: InsertQuestionnaire :exec
+INSERT INTO public.querys (
   competitor_id, query_type, answers, comment, "timestamp", meta
 ) VALUES (
   $1, $2, $3, $4, NOW(), $5
 )
 `
 
-type InsertQuestionnaireV2Params struct {
+type InsertQuestionnaireParams struct {
 	CompetitorID sql.NullInt32
 	QueryType    sql.NullInt32
 	Answers      sql.NullString
@@ -165,8 +165,8 @@ type InsertQuestionnaireV2Params struct {
 	Meta         sql.NullString
 }
 
-func (q *Queries) InsertQuestionnaireV2(ctx context.Context, arg InsertQuestionnaireV2Params) error {
-	_, err := q.exec(ctx, q.insertQuestionnaireV2Stmt, insertQuestionnaireV2,
+func (q *Queries) InsertQuestionnaire(ctx context.Context, arg InsertQuestionnaireParams) error {
+	_, err := q.exec(ctx, q.insertQuestionnaireStmt, insertQuestionnaire,
 		arg.CompetitorID,
 		arg.QueryType,
 		arg.Answers,
@@ -176,25 +176,25 @@ func (q *Queries) InsertQuestionnaireV2(ctx context.Context, arg InsertQuestionn
 	return err
 }
 
-const isQuizDoneTodayV2 = `-- name: IsQuizDoneTodayV2 :many
+const isQuizDoneToday = `-- name: IsQuizDoneToday :many
 SELECT
   competitor_id, query_type, answers, comment, "timestamp", meta
-FROM public.querys_v2
+FROM public.querys
 WHERE competitor_id = $1
-  AND query_type = $2
-  AND "timestamp" >= $3
-  AND "timestamp" <  $4
+  AND query_type    = $2
+  AND "timestamp"  >= $3
+  AND "timestamp"  <  $4
 `
 
-type IsQuizDoneTodayV2Params struct {
+type IsQuizDoneTodayParams struct {
 	CompetitorID sql.NullInt32
 	QueryType    sql.NullInt32
 	Timestamp    sql.NullTime
 	Timestamp_2  sql.NullTime
 }
 
-func (q *Queries) IsQuizDoneTodayV2(ctx context.Context, arg IsQuizDoneTodayV2Params) ([]QuerysV2, error) {
-	rows, err := q.query(ctx, q.isQuizDoneTodayV2Stmt, isQuizDoneTodayV2,
+func (q *Queries) IsQuizDoneToday(ctx context.Context, arg IsQuizDoneTodayParams) ([]Query, error) {
+	rows, err := q.query(ctx, q.isQuizDoneTodayStmt, isQuizDoneToday,
 		arg.CompetitorID,
 		arg.QueryType,
 		arg.Timestamp,
@@ -204,9 +204,9 @@ func (q *Queries) IsQuizDoneTodayV2(ctx context.Context, arg IsQuizDoneTodayV2Pa
 		return nil, err
 	}
 	defer rows.Close()
-	var items []QuerysV2
+	var items []Query
 	for rows.Next() {
-		var i QuerysV2
+		var i Query
 		if err := rows.Scan(
 			&i.CompetitorID,
 			&i.QueryType,
@@ -238,7 +238,7 @@ WHERE injury_id = $1
 
 type MarkInjuryRecoveredByIDParams struct {
 	InjuryID     sql.NullInt32
-	CompetitorID int32
+	CompetitorID sql.NullInt32
 }
 
 func (q *Queries) MarkInjuryRecoveredByID(ctx context.Context, arg MarkInjuryRecoveredByIDParams) error {
@@ -246,23 +246,23 @@ func (q *Queries) MarkInjuryRecoveredByID(ctx context.Context, arg MarkInjuryRec
 	return err
 }
 
-const updateQuestionnaireByTimestampV2 = `-- name: UpdateQuestionnaireByTimestampV2 :exec
-UPDATE public.querys_v2
+const updateQuestionnaireByTimestamp = `-- name: UpdateQuestionnaireByTimestamp :exec
+UPDATE public.querys
 SET answers = $3,
     comment = $4
 WHERE competitor_id = $1
-  AND "timestamp" = $2
+  AND "timestamp"  = $2
 `
 
-type UpdateQuestionnaireByTimestampV2Params struct {
+type UpdateQuestionnaireByTimestampParams struct {
 	CompetitorID sql.NullInt32
 	Timestamp    sql.NullTime
 	Answers      sql.NullString
 	Comment      sql.NullString
 }
 
-func (q *Queries) UpdateQuestionnaireByTimestampV2(ctx context.Context, arg UpdateQuestionnaireByTimestampV2Params) error {
-	_, err := q.exec(ctx, q.updateQuestionnaireByTimestampV2Stmt, updateQuestionnaireByTimestampV2,
+func (q *Queries) UpdateQuestionnaireByTimestamp(ctx context.Context, arg UpdateQuestionnaireByTimestampParams) error {
+	_, err := q.exec(ctx, q.updateQuestionnaireByTimestampStmt, updateQuestionnaireByTimestamp,
 		arg.CompetitorID,
 		arg.Timestamp,
 		arg.Answers,

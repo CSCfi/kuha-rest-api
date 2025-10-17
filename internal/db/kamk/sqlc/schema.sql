@@ -26,13 +26,13 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.injuries (
-    competitor_id integer NOT NULL,
-    injury_type integer NOT NULL,
+    competitor_id integer,
+    injury_type integer,
     severity integer,
     pain_level integer,
     description character varying(255),
-    date_start timestamp without time zone NOT NULL DEFAULT NOW(),
-    status integer NOT NULL DEFAULT 0,
+    date_start timestamp without time zone,
+    status integer,
     date_end timestamp without time zone,
     injury_id integer,
     meta character varying(255)
@@ -44,21 +44,6 @@ CREATE TABLE public.injuries (
 --
 
 CREATE TABLE public.querys (
-    competitor_id integer,
-    query_type integer,
-    question_id integer,
-    value integer,
-    date timestamp without time zone,
-    comment character varying(255),
-    meta character varying(255)
-);
-
-
---
--- Name: querys_v2; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.querys_v2 (
     competitor_id integer,
     query_type integer,
     answers character varying(255),
@@ -84,4 +69,16 @@ CREATE TABLE public.users (
     message character varying(255),
     salt character varying(255)
 );
+
+
+--
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: -
+--
+
+GRANT ALL ON SCHEMA public TO kamkadmin;
+
+
+--
+-- PostgreSQL database dump complete
+--
 

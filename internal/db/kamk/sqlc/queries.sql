@@ -35,14 +35,14 @@ FROM public.injuries
 WHERE competitor_id = $1;
 
 
--- name: InsertQuestionnaireV2 :exec
-INSERT INTO public.querys_v2 (
+-- name: InsertQuestionnaire :exec
+INSERT INTO public.querys (
   competitor_id, query_type, answers, comment, "timestamp", meta
 ) VALUES (
   $1, $2, $3, $4, NOW(), $5
 );
 
--- name: GetQuestionnairesByUserV2 :many
+-- name: GetQuestionnairesByUser :many
 SELECT
   competitor_id,
   query_type,
@@ -50,23 +50,22 @@ SELECT
   comment,
   "timestamp",
   meta
-FROM public.querys_v2
+FROM public.querys
 WHERE competitor_id = $1
 ORDER BY "timestamp" DESC;
 
--- name: IsQuizDoneTodayV2 :many
+-- name: IsQuizDoneToday :many
 SELECT
   competitor_id, query_type, answers, comment, "timestamp", meta
-FROM public.querys_v2
+FROM public.querys
 WHERE competitor_id = $1
-  AND query_type = $2
-  AND "timestamp" >= $3
-  AND "timestamp" <  $4;
+  AND query_type    = $2
+  AND "timestamp"  >= $3
+  AND "timestamp"  <  $4;
 
-
--- name: UpdateQuestionnaireByTimestampV2 :exec
-UPDATE public.querys_v2
+-- name: UpdateQuestionnaireByTimestamp :exec
+UPDATE public.querys
 SET answers = $3,
     comment = $4
 WHERE competitor_id = $1
-  AND "timestamp" = $2;
+  AND "timestamp"  = $2;
