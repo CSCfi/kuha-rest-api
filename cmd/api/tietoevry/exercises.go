@@ -288,6 +288,18 @@ func (h *TietoevryExerciseHandler) InsertExercisesBulk(w http.ResponseWriter, r 
 		return
 	}
 
+	if h.cache != nil {
+		seen := map[uuid.UUID]struct{}{}
+		for _, ex := range exercises {
+			uid := ex.Exercise.UserID
+			if _, ok := seen[uid]; ok {
+				continue
+			}
+			seen[uid] = struct{}{}
+			invalidateTietoevry(r.Context(), h.cache, uid, exPrefix)
+		}
+	}
+
 	w.WriteHeader(http.StatusCreated)
 }
 
@@ -437,6 +449,6 @@ func (h *TietoevryExerciseHandler) GetExercises(w http.ResponseWriter, r *http.R
 	}
 
 	resp := map[string]any{"exercises": output}
-	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, resp, 3*time.Minute)
+	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, resp, TietoevryCacheTTL)
 	utils.WriteJSON(w, http.StatusOK, resp)
 }

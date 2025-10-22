@@ -142,6 +142,18 @@ func (h *TietoevryActivityZoneHandler) InsertActivityZonesBulk(w http.ResponseWr
 		return
 	}
 
+	if h.cache != nil {
+		seen := map[uuid.UUID]struct{}{}
+		for _, p := range activityZones {
+			uid := p.UserID
+			if _, ok := seen[uid]; ok {
+				continue
+			}
+			seen[uid] = struct{}{}
+			invalidateTietoevry(r.Context(), h.cache, uid, tzPrefix)
+		}
+	}
+
 	w.WriteHeader(http.StatusCreated)
 }
 
@@ -232,6 +244,6 @@ func (h *TietoevryActivityZoneHandler) GetActivityZones(w http.ResponseWriter, r
 	}
 
 	resp := map[string]any{"activity_zones": output}
-	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, resp, 3*time.Minute)
+	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, resp, TietoevryCacheTTL)
 	utils.WriteJSON(w, http.StatusOK, resp)
 }

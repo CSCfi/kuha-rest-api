@@ -185,6 +185,18 @@ func (h *TietoevryTestResultHandler) InsertTestResultsBulk(w http.ResponseWriter
 		return
 	}
 
+	if h.cache != nil {
+		seen := map[uuid.UUID]struct{}{}
+		for _, t := range testResults {
+			uid := t.UserID
+			if _, ok := seen[uid]; ok {
+				continue
+			}
+			seen[uid] = struct{}{}
+			invalidateTietoevry(r.Context(), h.cache, uid, trPrefix)
+		}
+	}
+
 	w.WriteHeader(http.StatusCreated)
 }
 
@@ -281,6 +293,6 @@ func (h *TietoevryTestResultHandler) GetTestResults(w http.ResponseWriter, r *ht
 	}
 
 	resp := map[string]any{"test_results": output}
-	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, resp, 3*time.Minute)
+	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, resp, TietoevryCacheTTL)
 	utils.WriteJSON(w, http.StatusOK, resp)
 }

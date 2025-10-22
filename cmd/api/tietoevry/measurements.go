@@ -149,6 +149,18 @@ func (h *TietoevryMeasurementHandler) InsertMeasurementsBulk(w http.ResponseWrit
 		return
 	}
 
+	if h.cache != nil {
+		seen := map[uuid.UUID]struct{}{}
+		for _, p := range params {
+			uid := p.UserID
+			if _, ok := seen[uid]; ok {
+				continue
+			}
+			seen[uid] = struct{}{}
+			invalidateTietoevry(r.Context(), h.cache, uid, msPrefix)
+		}
+	}
+
 	w.WriteHeader(http.StatusCreated)
 }
 
@@ -241,6 +253,6 @@ func (h *TietoevryMeasurementHandler) GetMeasurements(w http.ResponseWriter, r *
 	}
 
 	resp := map[string]any{"measurements": output}
-	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, resp, 3*time.Minute)
+	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, resp, TietoevryCacheTTL)
 	utils.WriteJSON(w, http.StatusOK, resp)
 }

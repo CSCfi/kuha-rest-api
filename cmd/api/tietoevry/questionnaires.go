@@ -164,6 +164,18 @@ func (h *TietoevryQuestionnaireHandler) InsertQuestionnaireAnswersBulk(w http.Re
 		return
 	}
 
+	if h.cache != nil {
+		seen := map[uuid.UUID]struct{}{}
+		for _, q := range questionnaires {
+			uid := q.UserID
+			if _, ok := seen[uid]; ok {
+				continue
+			}
+			seen[uid] = struct{}{}
+			invalidateTietoevry(r.Context(), h.cache, uid, qnPrefix)
+		}
+	}
+
 	w.WriteHeader(http.StatusCreated)
 }
 
@@ -259,6 +271,6 @@ func (h *TietoevryQuestionnaireHandler) GetQuestionnaires(w http.ResponseWriter,
 	}
 
 	resp := map[string]any{"questionnaires": output}
-	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, resp, 3*time.Minute)
+	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, resp, TietoevryCacheTTL)
 	utils.WriteJSON(w, http.StatusOK, resp)
 }
