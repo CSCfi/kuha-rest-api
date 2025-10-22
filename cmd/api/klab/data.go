@@ -2,6 +2,7 @@ package klabapi
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -86,6 +87,11 @@ func (h *KlabDataHandler) InsertKlabDataBulk(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	if len(bundle.Customer) == 0 {
+		utils.BadRequestResponse(w, r, fmt.Errorf("customer array must contain at least one row"))
+		return
+	}
+
 	for i, c := range bundle.Customer {
 		if c.SporttiID == nil {
 			utils.BadRequestResponse(w, r, fmt.Errorf("customer[%d].sportti_id is required", i))
@@ -122,11 +128,11 @@ func (h *KlabDataHandler) InsertKlabDataBulk(w http.ResponseWriter, r *http.Requ
 	}
 
 	// 2) measurement_list
-	for _, m := range bundle.MeasurementList {
+	for i, m := range bundle.MeasurementList {
 		if m.IdCustomer == nil {
 			m.IdCustomer = &custID
 		} else if *m.IdCustomer != custID {
-			utils.BadRequestResponse(w, r, err)
+			utils.BadRequestResponse(w, r, fmt.Errorf("measurement_list[%d].idCustomer must equal customer[0].idCustomer (%d)", i, custID))
 			return
 		}
 
@@ -185,6 +191,8 @@ func (h *KlabDataHandler) InsertKlabDataBulk(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	invalidateKlabAll(r.Context(), h.cache, sporttiID)
+
 	w.WriteHeader(http.StatusCreated)
 }
 
@@ -231,6 +239,14 @@ func (h *KlabDataHandler) GetKlabData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if h.cache != nil {
+		cacheKey := fmt.Sprintf("%s:%s", klabDataPrefix, sporttiID)
+		if cached, err := h.cache.Get(r.Context(), cacheKey); err == nil && cached != "" {
+			utils.WriteJSON(w, http.StatusOK, json.RawMessage(cached))
+			return
+		}
+	}
+
 	idcustomer, err := h.store.GetCustomerIDBySporttiID(r.Context(), sporttiID)
 	if err == sql.ErrNoRows {
 		utils.NotFoundResponse(w, r, err)
@@ -251,7 +267,7 @@ func (h *KlabDataHandler) GetKlabData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]any{
+	body := map[string]any{
 		"customer_id":  res.CustomerID,
 		"measurements": res.Measurements,
 		"dirtest":      res.DirTests,
@@ -259,5 +275,8 @@ func (h *KlabDataHandler) GetKlabData(w http.ResponseWriter, r *http.Request) {
 		"dirreport":    res.DirReports,
 		"dirrawdata":   res.DirRawData,
 		"dirresults":   res.DirResults,
-	})
+	}
+
+	cache.SetCacheJSON(r.Context(), h.cache, fmt.Sprintf("%s:%s", klabDataPrefix, sporttiID), body, KLABCacheTTL)
+	utils.WriteJSON(w, http.StatusOK, body)
 }

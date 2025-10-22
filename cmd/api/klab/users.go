@@ -2,6 +2,7 @@ package klabapi
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -67,6 +68,14 @@ func (h *UserDataHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.BadRequestResponse(w, r, err)
 		return
+	}
+
+	if h.cache != nil {
+		cacheKey := fmt.Sprintf("%s:%s", klabUserPrefix, sporttiID)
+		if cached, err := h.cache.Get(r.Context(), cacheKey); err == nil && cached != "" {
+			utils.WriteJSON(w, http.StatusOK, json.RawMessage(cached))
+			return
+		}
 	}
 
 	idcustomer, err := h.store.GetCustomerIDBySporttiID(r.Context(), sporttiID)
@@ -143,9 +152,10 @@ func (h *UserDataHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 		SporttiID:          utils.StringPtrOrNil(row.SporttiID),
 	}
 
-	utils.WriteJSON(w, http.StatusOK, map[string]any{
-		"customer": resp,
-	})
+	body := map[string]any{"customer": resp}
+
+	cache.SetCacheJSON(r.Context(), h.cache, fmt.Sprintf("%s:%s", klabUserPrefix, sporttiID), body, KLABCacheTTL)
+	utils.WriteJSON(w, http.StatusOK, body)
 }
 
 type SporttiIDParam struct {
@@ -203,6 +213,8 @@ func (h *UserDataHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		utils.InternalServerError(w, r, err)
 		return
 	}
+
+	invalidateKlabAll(r.Context(), h.cache, sid)
 
 	w.WriteHeader(http.StatusOK)
 }
