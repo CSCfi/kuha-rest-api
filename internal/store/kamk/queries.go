@@ -101,15 +101,19 @@ func (s *QueriesStore) IsQuizDoneToday(ctx context.Context, userID int32, queryT
 	return out, nil
 }
 
-func (s *QueriesStore) UpdateQuestionnaireByTimestamp(ctx context.Context, userID int32, ts time.Time, answers string, comment *string) error {
+func (s *QueriesStore) UpdateQuestionnaireByTimestamp(ctx context.Context, userID int32, ts time.Time, answers string, comment *string) (int64, error) {
 	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
 	defer cancel()
 
 	q := kamksqlc.New(s.db)
-	return q.UpdateQuestionnaireByTimestamp(ctx, kamksqlc.UpdateQuestionnaireByTimestampParams{
+	n, err := q.UpdateQuestionnaireByTimestamp(ctx, kamksqlc.UpdateQuestionnaireByTimestampParams{
 		CompetitorID: userID,
-		Timestamp:    ts,
+		Timestamp:    ts.UTC(),
 		Answers:      utils.NullString(answers),
 		Comment:      utils.NullStringPtr(comment),
 	})
+	if err != nil {
+		return 0, err
+	}
+	return n, nil
 }

@@ -17,7 +17,7 @@ type Queries interface {
 	AddQuestionnaire(ctx context.Context, userID int32, in QuestionnaireInput) error
 	GetQuestionnaires(ctx context.Context, userID int32) ([]Questionnaire, error)
 	IsQuizDoneToday(ctx context.Context, userID int32, queryType int32) ([]Questionnaire, error)
-	UpdateQuestionnaireByTimestamp(ctx context.Context, userID int32, ts time.Time, answers string, comment *string) error
+	UpdateQuestionnaireByTimestamp(ctx context.Context, userID int32, ts time.Time, answers string, comment *string) (int64, error)
 }
 
 // KAMKStorage

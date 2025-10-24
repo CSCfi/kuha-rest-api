@@ -247,12 +247,13 @@ func (q *Queries) MarkInjuryRecoveredByID(ctx context.Context, arg MarkInjuryRec
 	return err
 }
 
-const updateQuestionnaireByTimestamp = `-- name: UpdateQuestionnaireByTimestamp :exec
+const updateQuestionnaireByTimestamp = `-- name: UpdateQuestionnaireByTimestamp :execrows
 UPDATE public.querys
 SET answers = $3,
     comment = $4
 WHERE competitor_id = $1
-  AND "timestamp"  = $2
+  AND "timestamp" >= date_trunc('minute', $2::timestamptz)
+  AND "timestamp" <  date_trunc('minute', $2::timestamptz) + interval '1 minute'
 `
 
 type UpdateQuestionnaireByTimestampParams struct {
@@ -262,12 +263,15 @@ type UpdateQuestionnaireByTimestampParams struct {
 	Comment      sql.NullString
 }
 
-func (q *Queries) UpdateQuestionnaireByTimestamp(ctx context.Context, arg UpdateQuestionnaireByTimestampParams) error {
-	_, err := q.exec(ctx, q.updateQuestionnaireByTimestampStmt, updateQuestionnaireByTimestamp,
+func (q *Queries) UpdateQuestionnaireByTimestamp(ctx context.Context, arg UpdateQuestionnaireByTimestampParams) (int64, error) {
+	result, err := q.exec(ctx, q.updateQuestionnaireByTimestampStmt, updateQuestionnaireByTimestamp,
 		arg.CompetitorID,
 		arg.Timestamp,
 		arg.Answers,
 		arg.Comment,
 	)
-	return err
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }

@@ -292,8 +292,14 @@ func (h *QueriesHandler) UpdateQuestionnaireByTimestamp(w http.ResponseWriter, r
 		return
 	}
 
-	if err := h.store.UpdateQuestionnaireByTimestamp(r.Context(), uid, ts, body.Answers, body.Comment); err != nil {
+	n, err := h.store.UpdateQuestionnaireByTimestamp(r.Context(), uid, ts, body.Answers, body.Comment)
+	if err != nil {
 		utils.HandleDatabaseError(w, r, err)
+		return
+	}
+
+	if n == 0 {
+		utils.NotFoundResponse(w, r, fmt.Errorf("no questionnaire found for that minute"))
 		return
 	}
 

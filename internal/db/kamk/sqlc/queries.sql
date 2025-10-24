@@ -63,9 +63,11 @@ WHERE competitor_id = $1
   AND "timestamp"  >= $3
   AND "timestamp"  <  $4;
 
--- name: UpdateQuestionnaireByTimestamp :exec
+-- name: UpdateQuestionnaireByTimestamp :execrows
 UPDATE public.querys
 SET answers = $3,
     comment = $4
 WHERE competitor_id = $1
-  AND "timestamp"  = $2;
+  AND "timestamp" >= date_trunc('minute', $2::timestamptz)
+  AND "timestamp" <  date_trunc('minute', $2::timestamptz) + interval '1 minute';
+
