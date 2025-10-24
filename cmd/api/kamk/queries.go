@@ -36,7 +36,7 @@ type KamkGetQuestionnairesParams struct {
 
 type KamkIsQuizDoneParams struct {
 	UserID   int32 `json:"user_id" validate:"required,gt=0"`
-	QuizType int32 `form:"quiz_type" validate:"gt=0"`
+	QuizType int32 `form:"quiz_type" validate:"gte=0"`
 }
 
 type KamkUpdateQuestionnaireQuery struct {
