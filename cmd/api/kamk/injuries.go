@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/DeRuina/KUHA-REST-API/internal/auth/authz"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/cache"
@@ -78,7 +77,13 @@ func (h *InjuriesHandler) AddInjury(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.store.AddInjury(r.Context(), input.UserID, kamk.InjuryInput{
+	sid, err := utils.ParseSporttiID(input.UserID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	err = h.store.AddInjury(r.Context(), sid, kamk.InjuryInput{
 		InjuryType:  input.InjuryType,
 		Severity:    input.Severity,
 		PainLevel:   input.PainLevel,
@@ -90,6 +95,8 @@ func (h *InjuriesHandler) AddInjury(w http.ResponseWriter, r *http.Request) {
 		utils.HandleDatabaseError(w, r, err)
 		return
 	}
+
+	invalidateKamkInjuries(r.Context(), h.cache, sid)
 
 	w.WriteHeader(http.StatusCreated)
 }
@@ -126,10 +133,18 @@ func (h *InjuriesHandler) MarkRecovered(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if _, err := h.store.MarkInjuryRecovered(r.Context(), input.UserID, input.InjuryID); err != nil {
+	sid, err := utils.ParseSporttiID(input.UserID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	if _, err := h.store.MarkInjuryRecovered(r.Context(), sid, input.InjuryID); err != nil {
 		utils.HandleDatabaseError(w, r, err)
 		return
 	}
+
+	invalidateKamkInjuries(r.Context(), h.cache, sid)
 
 	w.WriteHeader(http.StatusOK)
 }
@@ -170,7 +185,13 @@ func (h *InjuriesHandler) GetActive(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cacheKey := fmt.Sprintf("kamk:injury:list:%s", params.UserID)
+	sid, err := utils.ParseSporttiID(params.UserID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	cacheKey := fmt.Sprintf("kamk:injury:list:%s", sid)
 	if h.cache != nil {
 		if cached, err := h.cache.Get(r.Context(), cacheKey); err == nil && cached != "" {
 			utils.WriteJSON(w, http.StatusOK, json.RawMessage(cached))
@@ -178,7 +199,7 @@ func (h *InjuriesHandler) GetActive(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	items, err := h.store.GetActiveInjuries(r.Context(), params.UserID)
+	items, err := h.store.GetActiveInjuries(r.Context(), sid)
 	if err != nil {
 		utils.InternalServerError(w, r, err)
 		return
@@ -190,7 +211,7 @@ func (h *InjuriesHandler) GetActive(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := map[string]any{"injuries": items}
-	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, resp, 3*time.Minute)
+	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, resp, KAMKCacheTTL)
 	utils.WriteJSON(w, http.StatusOK, resp)
 }
 
@@ -229,7 +250,13 @@ func (h *InjuriesHandler) GetMaxID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := h.store.GetMaxInjuryID(r.Context(), params.UserID)
+	sid, err := utils.ParseSporttiID(params.UserID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	id, err := h.store.GetMaxInjuryID(r.Context(), sid)
 	if err != nil {
 		utils.InternalServerError(w, r, err)
 		return

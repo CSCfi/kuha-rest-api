@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/DeRuina/KUHA-REST-API/internal/auth/authz"
 	"github.com/DeRuina/KUHA-REST-API/internal/store/cache"
@@ -82,7 +81,13 @@ func (h *QueriesHandler) AddQuestionnaire(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err := h.store.AddQuestionnaire(r.Context(), input.UserID, kamk.QuestionnaireInput{
+	sid, err := utils.ParseSporttiID(input.UserID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	err = h.store.AddQuestionnaire(r.Context(), sid, kamk.QuestionnaireInput{
 		QueryType: input.QueryType,
 		Answers:   input.Answers,
 		Comment:   input.Comment,
@@ -92,6 +97,8 @@ func (h *QueriesHandler) AddQuestionnaire(w http.ResponseWriter, r *http.Request
 		utils.HandleDatabaseError(w, r, err)
 		return
 	}
+
+	invalidateKamkQueries(r.Context(), h.cache, sid)
 
 	w.WriteHeader(http.StatusCreated)
 }
@@ -132,7 +139,13 @@ func (h *QueriesHandler) GetQuestionnaires(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	cacheKey := fmt.Sprintf("kamk:queries:list:%s", params.UserID)
+	sid, err := utils.ParseSporttiID(params.UserID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	cacheKey := fmt.Sprintf("kamk:queries:list:%s", sid)
 	if h.cache != nil {
 		if cached, err := h.cache.Get(r.Context(), cacheKey); err == nil && cached != "" {
 			utils.WriteJSON(w, http.StatusOK, json.RawMessage(cached))
@@ -140,7 +153,7 @@ func (h *QueriesHandler) GetQuestionnaires(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-	items, err := h.store.GetQuestionnaires(r.Context(), params.UserID)
+	items, err := h.store.GetQuestionnaires(r.Context(), sid)
 	if err != nil {
 		utils.InternalServerError(w, r, err)
 		return
@@ -152,7 +165,7 @@ func (h *QueriesHandler) GetQuestionnaires(w http.ResponseWriter, r *http.Reques
 	}
 
 	resp := map[string]any{"questionnaires": items}
-	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, resp, 3*time.Minute)
+	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, resp, KAMKCacheTTL)
 	utils.WriteJSON(w, http.StatusOK, resp)
 }
 
@@ -201,7 +214,13 @@ func (h *QueriesHandler) IsQuizDoneToday(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	rows, err := h.store.IsQuizDoneToday(r.Context(), params.UserID, params.QuizType)
+	sid, err := utils.ParseSporttiID(params.UserID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	rows, err := h.store.IsQuizDoneToday(r.Context(), sid, params.QuizType)
 	if err != nil {
 		utils.InternalServerError(w, r, err)
 		return
@@ -269,10 +288,18 @@ func (h *QueriesHandler) UpdateQuestionnaireByTimestamp(w http.ResponseWriter, r
 		return
 	}
 
-	if err := h.store.UpdateQuestionnaireByTimestamp(r.Context(), qp.UserID, ts, body.Answers, body.Comment); err != nil {
+	sid, err := utils.ParseSporttiID(qp.UserID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	if err := h.store.UpdateQuestionnaireByTimestamp(r.Context(), sid, ts, body.Answers, body.Comment); err != nil {
 		utils.HandleDatabaseError(w, r, err)
 		return
 	}
+
+	invalidateKamkQueries(r.Context(), h.cache, sid)
 
 	w.WriteHeader(http.StatusOK)
 }
