@@ -125,7 +125,9 @@ SELECT
     rJP.JudPtsR2,
     rJP.WindR2,
     rJP.WindPtsR2,
-    rJP.GateR2
+    rJP.GateR2,
+    rJP.TotRun1,
+    rJP.TotRun2
 FROM A_resultJP rJP
 JOIN A_raceJP aJP ON rJP.RaceID = aJP.RaceID
 WHERE rJP.CompetitorID = $1
@@ -180,94 +182,24 @@ ORDER BY RaceID;
 
 
 -- name: GetRaceResultsNKByRaceID :many
-SELECT 
-    RecID,
-    RaceID,
-    Position,
-    SpeedR1,
-    DistR1,
-    JudPtsR1,
-    PosR1,
-    GateR1,
-    TotRun1,
-    PointsJump,
-    PosCC,
-    TimeTot,
-    TimeTotInt
-FROM A_resultNK
-WHERE RaceID = $1
-ORDER BY RecID;
+SELECT *
+FROM public.a_resultnk
+WHERE raceid = $1
+ORDER BY recid;
+
 
 -- name: GetRaceResultsJPByRaceID :many
-SELECT 
-    RecID,
-    RaceID,
-    Position,
-    SpeedR1,
-    DistR1,
-    JudPtsR1,
-    PosR1,
-    GateR1,
-    SpeedR2,
-    DistR2,
-    JudPtsR2,
-    PosR2,
-    GateR2
-FROM A_resultJP
-WHERE RaceID = $1
-ORDER BY RecID;
+SELECT *
+FROM public.a_resultjp
+WHERE raceid = $1
+ORDER BY recid;
+
 
 -- name: GetRaceResultsCCByRaceID :many
-SELECT
-    RecID,
-    RaceID,
-    Position,
-    PF,
-    Bib,
-    Fiscode,
-    TimeTot,
-    RacePoints,
-    CupPoints
-FROM A_resultCC
-WHERE RaceID = $1
-ORDER BY RecID;
-
-
--- name: GetCompetitorIDsByGenderAndNationJP :many
-SELECT CompetitorID
-FROM A_competitor
-WHERE Gender = $1 AND NationCode = $2 AND SectorCode = 'JP';
-
--- name: GetResultsByCompetitorsJP :many
-SELECT 
-    rJP.RaceID,
-    rJP.Position,
-    aJP.RaceDate,
-    aJP.SeasonCode,
-    aJP.DisciplineCode,
-    aJP.CatCode,
-    aJP.Place,
-    rJP.PosR1,
-    rJP.SpeedR1,
-    rJP.DistR1,
-    rJP.JudPtsR1,
-    rJP.WindR1,
-    rJP.WindPtsR1,
-    rJP.GateR1,
-    rJP.PosR2,
-    rJP.SpeedR2,
-    rJP.DistR2,
-    rJP.JudPtsR2,
-    rJP.WindR2,
-    rJP.WindPtsR2,
-    rJP.GateR2
-FROM A_resultJP rJP
-JOIN A_raceJP aJP ON rJP.RaceID = aJP.RaceID
-WHERE rJP.CompetitorID = ANY($1::int4[])
-  AND ($2::int[]  IS NULL OR aJP.SeasonCode     = ANY($2))
-  AND ($3::text[] IS NULL OR aJP.DisciplineCode = ANY($3))
-  AND ($4::text[] IS NULL OR aJP.CatCode        = ANY($4))
-ORDER BY aJP.RaceDate;
+SELECT *
+FROM public.a_resultcc
+WHERE raceid = $1
+ORDER BY recid;
 
 
 -- name: GetLastRowCompetitor :one
@@ -297,58 +229,88 @@ LIMIT 1;
 -- name: GetLastRowResultCC :one
 SELECT *
 FROM a_resultcc
-ORDER BY raceid DESC
+ORDER BY recid DESC
 LIMIT 1;
 
 -- name: GetLastRowResultJP :one
 SELECT *
 FROM a_resultjp
-ORDER BY raceid DESC
+ORDER BY recid DESC
 LIMIT 1;
 
 -- name: GetLastRowResultNK :one
 SELECT *
 FROM a_resultnk
-ORDER BY raceid DESC
+ORDER BY recid DESC
 LIMIT 1;
 
 
 -- name: InsertCompetitor :exec
-INSERT INTO a_competitor (
-  competitorid, personid, ipcid, type, sectorcode, fiscode,
-  lastname, firstname, gender, birthdate,
-  nationcode, nationalcode, skiclub, association,
-  status, status_old, status_by, status_date,
-  version, lastupdate
+INSERT INTO public.a_competitor (
+  competitorid, personid, ipcid, fiscode, birthdate, status_date,
+  fee, dateofcreation, injury, version, compidmssql, carving, photo,
+  notallowed, published, team, photo_big, lastupdate,
+  statusnextlist, alternatenamecheck, deletedat, doped, createdby,
+  categorycode, classname, data, lastupdateby, disciplines,
+  type, sectorcode, classcode, lastname, firstname, gender, natteam,
+  nationcode, nationalcode, skiclub, association, status,
+  status_old, status_by, tragroup
 ) VALUES (
-  $1, $2, $3, $4, $5, $6,
-  $7, $8, $9, $10,
-  $11, $12, $13, $14,
-  $15, $16, $17, $18,
-  $19, $20
+  $1,  $2,  $3,  $4,  $5,  $6,
+  $7,  $8,  $9,  $10, $11, $12, $13,
+  $14, $15, $16, $17, $18,
+  $19, $20, $21, $22, $23,
+  $24, $25, $26, $27, $28,
+  $29, $30, $31, $32, $33, $34, $35,
+  $36, $37, $38, $39, $40,
+  $41, $42, $43
 );
 
+
 -- name: UpdateCompetitorByID :exec
-UPDATE a_competitor SET
-  personid      = $2,
-  ipcid         = $3,
-  type          = $4,
-  sectorcode    = $5,
-  fiscode       = $6,
-  lastname      = $7,
-  firstname     = $8,
-  gender        = $9,
-  birthdate     = $10,
-  nationcode    = $11,
-  nationalcode  = $12,
-  skiclub       = $13,
-  association   = $14,
-  status        = $15,
-  status_old    = $16,
-  status_by     = $17,
-  status_date   = $18,
-  version       = $19,
-  lastupdate    = $20
+UPDATE public.a_competitor SET
+  personid            = $2,
+  ipcid               = $3,
+  type                = $4,
+  sectorcode          = $5,
+  fiscode             = $6,
+  lastname            = $7,
+  firstname           = $8,
+  gender              = $9,
+  birthdate           = $10,
+  nationcode          = $11,
+  nationalcode        = $12,
+  skiclub             = $13,
+  association         = $14,
+  status              = $15,
+  status_old          = $16,
+  status_by           = $17,
+  status_date         = $18,
+  statusnextlist      = $19,
+  alternatenamecheck  = $20,
+  fee                 = $21,
+  dateofcreation      = $22,
+  createdby           = $23,
+  injury              = $24,
+  version             = $25,
+  compidmssql         = $26,
+  carving             = $27,
+  photo               = $28,
+  notallowed          = $29,
+  natteam             = $30,
+  tragroup            = $31,
+  published           = $32,
+  doped               = $33,
+  team                = $34,
+  photo_big           = $35,
+  data                = $36,
+  lastupdateby        = $37,
+  disciplines         = $38,
+  lastupdate          = $39,
+  deletedat           = $40,
+  categorycode        = $41,
+  classname           = $42,
+  classcode           = $43
 WHERE competitorid = $1;
 
 -- name: DeleteCompetitorByID :exec
@@ -357,111 +319,422 @@ WHERE competitorid = $1;
 
 
 -- name: InsertRaceCC :exec
-INSERT INTO a_racecc (
+INSERT INTO public.a_racecc (
   raceid, eventid, seasoncode, racecodex,
-  disciplineid, disciplinecode, catcode, gender,
-  racedate, starteventdate, description, place, nationcode,
-  published, validforfispoints, version, lastupdate
+  disciplineid, disciplinecode, catcode, catcode2, catcode3, catcode4, gender,
+  racedate, starteventdate, description, place, nationcode, receiveddate, validdate,
+  td1id, td1name, td1nation, td1code,
+  td2id, td2name, td2nation, td2code,
+  calstatuscode, procstatuscode, displaystatus, fisinterncomment, webcomment,
+  pursuit, masse, relay, distance, hill, style, qualif, finale, homol,
+  published, validforfispoints, usedfislist, tolist, discforlistcode,
+  calculatedpenalty, appliedpenalty, appliedscala, penscafixed,
+  version, nationraceid, provraceid, msql7evid, mssql7id,
+  topbanner, bottombanner, toplogo, bottomlogo, gallery,
+  indi, team, tabcount, columncount, level,
+  hloc1, hloc2, hloc3, hcet1, hcet2, hcet3,
+  live, livestatus1, livestatus2, livestatus3, liveinfo1, liveinfo2, liveinfo3,
+  passwd, timinglogo,
+  results, pdf, noepr, tddoc, timingreport, special_cup_points, skip_wcsl,
+  validforowg,
+  lastupdate
 ) VALUES (
-  $1, $2, $3, $4,
-  $5, $6, $7, $8,
-  $9, $10, $11, $12, $13,
-  $14, $15, $16, $17
+  $1,  $2,  $3,  $4,
+  $5,  $6,  $7,  $8,  $9,  $10, $11,
+  $12, $13, $14, $15, $16, $17, $18,
+  $19, $20, $21, $22,
+  $23, $24, $25, $26,
+  $27, $28, $29, $30, $31,
+  $32, $33, $34, $35, $36, $37, $38, $39, $40,
+  $41, $42, $43, $44, $45,
+  $46, $47, $48, $49,
+  $50, $51, $52, $53, $54,
+  $55, $56, $57, $58, $59,
+  $60, $61, $62, $63, $64,
+  $65, $66, $67, $68, $69, $70,
+  $71, $72, $73, $74, $75, $76, $77,
+  $78, $79,
+  $80, $81, $82, $83, $84, $85, $86,
+  $87,
+  $88
 );
 
+
 -- name: UpdateRaceCCByID :exec
-UPDATE a_racecc SET
-  eventid          = $2,
-  seasoncode       = $3,
-  racecodex        = $4,
-  disciplineid     = $5,
-  disciplinecode   = $6,
-  catcode          = $7,
-  gender           = $8,
-  racedate         = $9,
-  starteventdate   = $10,
-  description      = $11,
-  place            = $12,
-  nationcode       = $13,
-  published        = $14,
-  validforfispoints= $15,
-  version          = $16,
-  lastupdate       = $17
+UPDATE public.a_racecc SET
+  eventid = $2,
+  seasoncode = $3,
+  racecodex = $4,
+  disciplineid = $5,
+  disciplinecode = $6,
+  catcode = $7,
+  catcode2 = $8,
+  catcode3 = $9,
+  catcode4 = $10,
+  gender = $11,
+  racedate = $12,
+  starteventdate = $13,
+  description = $14,
+  place = $15,
+  nationcode = $16,
+  td1id = $17,
+  td1name = $18,
+  td1nation = $19,
+  td1code = $20,
+  td2id = $21,
+  td2name = $22,
+  td2nation = $23,
+  td2code = $24,
+  calstatuscode = $25,
+  procstatuscode = $26,
+  receiveddate = $27,
+  pursuit = $28,
+  masse = $29,
+  relay = $30,
+  distance = $31,
+  hill = $32,
+  style = $33,
+  qualif = $34,
+  finale = $35,
+  homol = $36,
+  webcomment = $37,
+  displaystatus = $38,
+  fisinterncomment = $39,
+  published = $40,
+  validforfispoints = $41,
+  usedfislist = $42,
+  tolist = $43,
+  discforlistcode = $44,
+  calculatedpenalty = $45,
+  appliedpenalty = $46,
+  appliedscala = $47,
+  penscafixed = $48,
+  version = $49,
+  nationraceid = $50,
+  provraceid = $51,
+  msql7evid = $52,
+  mssql7id = $53,
+  results = $54,
+  pdf = $55,
+  topbanner = $56,
+  bottombanner = $57,
+  toplogo = $58,
+  bottomlogo = $59,
+  gallery = $60,
+  indi = $61,
+  team = $62,
+  tabcount = $63,
+  columncount = $64,
+  level = $65,
+  hloc1 = $66,
+  hloc2 = $67,
+  hloc3 = $68,
+  hcet1 = $69,
+  hcet2 = $70,
+  hcet3 = $71,
+  live = $72,
+  livestatus1 = $73,
+  livestatus2 = $74,
+  livestatus3 = $75,
+  liveinfo1 = $76,
+  liveinfo2 = $77,
+  liveinfo3 = $78,
+  passwd = $79,
+  timinglogo = $80,
+  validdate = $81,
+  noepr = $82,
+  tddoc = $83,
+  timingreport = $84,
+  special_cup_points = $85,
+  skip_wcsl = $86,
+  validforowg = $87,
+  lastupdate = $88
 WHERE raceid = $1;
+
 
 -- name: DeleteRaceCCByID :exec
 DELETE FROM a_racecc
 WHERE raceid = $1;
 
 -- name: InsertRaceJP :exec
-INSERT INTO a_racejp (
+INSERT INTO public.a_racejp (
   raceid, eventid, seasoncode, racecodex,
-  disciplineid, disciplinecode, catcode, gender,
+  disciplineid, disciplinecode, catcode, catcode2, catcode3, catcode4, gender,
   racedate, starteventdate, description, place, nationcode,
-  published, validforfispoints, version, lastupdate
+  td1id, td1name, td1nation, td1code,
+  td2id, td2name, td2nation, td2code,
+  calstatuscode, procstatuscode, receiveddate,
+  pursuit, masse, relay, distance, hill, style, qualif, finale, homol,
+  webcomment, displaystatus, fisinterncomment,
+  published, validforfispoints, usedfislist, tolist, discforlistcode,
+  calculatedpenalty, appliedpenalty, appliedscala, penscafixed,
+  version, nationraceid, provraceid, msql7evid, mssql7id,
+  results, pdf,
+  topbanner, bottombanner, toplogo, bottomlogo, gallery,
+  indi, team, tabcount, columncount, level,
+  hloc1, hloc2, hloc3, hcet1, hcet2, hcet3,
+  live, livestatus1, livestatus2, livestatus3,
+  liveinfo1, liveinfo2, liveinfo3,
+  passwd, timinglogo,
+  validdate, noepr, tddoc, timingreport, special_cup_points, skip_wcsl,
+  lastupdate, validforowg
 ) VALUES (
-  $1, $2, $3, $4,
-  $5, $6, $7, $8,
-  $9, $10, $11, $12, $13,
-  $14, $15, $16, $17
+  $1,$2,$3,$4,
+  $5,$6,$7,$8,$9,$10,$11,
+  $12,$13,$14,$15,$16,
+  $17,$18,$19,$20,
+  $21,$22,$23,$24,
+  $25,$26,$27,
+  $28,$29,$30,$31,$32,$33,$34,$35,$36,
+  $37,$38,$39,
+  $40,$41,$42,$43,$44,
+  $45,$46,$47,$48,
+  $49,$50,$51,$52,$53,
+  $54,$55,
+  $56,$57,$58,$59,$60,
+  $61,$62,$63,$64,$65,
+  $66,$67,$68,$69,$70,$71,
+  $72,$73,$74,$75,
+  $76,$77,$78,
+  $79,$80,
+  $81,$82,$83,$84,$85,$86,
+  $87,$88
 );
 
+
 -- name: UpdateRaceJPByID :exec
-UPDATE a_racejp SET
-  eventid          = $2,
-  seasoncode       = $3,
-  racecodex        = $4,
-  disciplineid     = $5,
-  disciplinecode   = $6,
-  catcode          = $7,
-  gender           = $8,
-  racedate         = $9,
-  starteventdate   = $10,
-  description      = $11,
-  place            = $12,
-  nationcode       = $13,
-  published        = $14,
-  validforfispoints= $15,
-  version          = $16,
-  lastupdate       = $17
+UPDATE public.a_racejp SET
+  eventid = $2,
+  seasoncode = $3,
+  racecodex = $4,
+  disciplineid = $5,
+  disciplinecode = $6,
+  catcode = $7,
+  catcode2 = $8,
+  catcode3 = $9,
+  catcode4 = $10,
+  gender = $11,
+  racedate = $12,
+  starteventdate = $13,
+  description = $14,
+  place = $15,
+  nationcode = $16,
+  td1id = $17,
+  td1name = $18,
+  td1nation = $19,
+  td1code = $20,
+  td2id = $21,
+  td2name = $22,
+  td2nation = $23,
+  td2code = $24,
+  calstatuscode = $25,
+  procstatuscode = $26,
+  receiveddate = $27,
+  pursuit = $28,
+  masse = $29,
+  relay = $30,
+  distance = $31,
+  hill = $32,
+  style = $33,
+  qualif = $34,
+  finale = $35,
+  homol = $36,
+  webcomment = $37,
+  displaystatus = $38,
+  fisinterncomment = $39,
+  published = $40,
+  validforfispoints = $41,
+  usedfislist = $42,
+  tolist = $43,
+  discforlistcode = $44,
+  calculatedpenalty = $45,
+  appliedpenalty = $46,
+  appliedscala = $47,
+  penscafixed = $48,
+  version = $49,
+  nationraceid = $50,
+  provraceid = $51,
+  msql7evid = $52,
+  mssql7id = $53,
+  results = $54,
+  pdf = $55,
+  topbanner = $56,
+  bottombanner = $57,
+  toplogo = $58,
+  bottomlogo = $59,
+  gallery = $60,
+  indi = $61,
+  team = $62,
+  tabcount = $63,
+  columncount = $64,
+  level = $65,
+  hloc1 = $66,
+  hloc2 = $67,
+  hloc3 = $68,
+  hcet1 = $69,
+  hcet2 = $70,
+  hcet3 = $71,
+  live = $72,
+  livestatus1 = $73,
+  livestatus2 = $74,
+  livestatus3 = $75,
+  liveinfo1 = $76,
+  liveinfo2 = $77,
+  liveinfo3 = $78,
+  passwd = $79,
+  timinglogo = $80,
+  validdate = $81,
+  noepr = $82,
+  tddoc = $83,
+  timingreport = $84,
+  special_cup_points = $85,
+  skip_wcsl = $86,
+  lastupdate = $87,
+  validforowg = $88
 WHERE raceid = $1;
+
 
 -- name: DeleteRaceJPByID :exec
 DELETE FROM a_racejp
 WHERE raceid = $1;
 
 -- name: InsertRaceNK :exec
-INSERT INTO a_racenk (
+INSERT INTO public.a_racenk (
   raceid, eventid, seasoncode, racecodex,
-  disciplineid, disciplinecode, catcode, gender,
+  disciplineid, disciplinecode, catcode, catcode2, catcode3, catcode4, gender,
   racedate, starteventdate, description, place, nationcode,
-  published, validforfispoints, version, lastupdate
+  td1id, td1name, td1nation, td1code,
+  td2id, td2name, td2nation, td2code,
+  calstatuscode, procstatuscode, receiveddate,
+  pursuit, masse, relay, distance, hill, style, qualif, finale, homol,
+  webcomment, displaystatus, fisinterncomment,
+  published, validforfispoints, usedfislist, tolist, discforlistcode,
+  calculatedpenalty, appliedpenalty, appliedscala, penscafixed,
+  version, nationraceid, provraceid, msql7evid, mssql7id,
+  results, pdf,
+  topbanner, bottombanner, toplogo, bottomlogo, gallery,
+  indi, team, tabcount, columncount, level,
+  hloc1, hloc2, hloc3, hcet1, hcet2, hcet3,
+  live, livestatus1, livestatus2, livestatus3,
+  liveinfo1, liveinfo2, liveinfo3,
+  passwd, timinglogo,
+  validdate, noepr, tddoc, timingreport, special_cup_points, skip_wcsl,
+  validforowg, lastupdate
 ) VALUES (
-  $1, $2, $3, $4,
-  $5, $6, $7, $8,
-  $9, $10, $11, $12, $13,
-  $14, $15, $16, $17
+  $1,$2,$3,$4,
+  $5,$6,$7,$8,$9,$10,$11,
+  $12,$13,$14,$15,$16,
+  $17,$18,$19,$20,
+  $21,$22,$23,$24,
+  $25,$26,$27,
+  $28,$29,$30,$31,$32,$33,$34,$35,$36,
+  $37,$38,$39,
+  $40,$41,$42,$43,$44,
+  $45,$46,$47,$48,
+  $49,$50,$51,$52,$53,
+  $54,$55,
+  $56,$57,$58,$59,$60,
+  $61,$62,$63,$64,$65,
+  $66,$67,$68,$69,$70,$71,
+  $72,$73,$74,$75,
+  $76,$77,$78,
+  $79,$80,
+  $81,$82,$83,$84,$85,$86,
+  $87,$88
 );
 
+
 -- name: UpdateRaceNKByID :exec
-UPDATE a_racenk SET
-  eventid          = $2,
-  seasoncode       = $3,
-  racecodex        = $4,
-  disciplineid     = $5,
-  disciplinecode   = $6,
-  catcode          = $7,
-  gender           = $8,
-  racedate         = $9,
-  starteventdate   = $10,
-  description      = $11,
-  place            = $12,
-  nationcode       = $13,
-  published        = $14,
-  validforfispoints= $15,
-  version          = $16,
-  lastupdate       = $17
+UPDATE public.a_racenk SET
+  eventid = $2,
+  seasoncode = $3,
+  racecodex = $4,
+  disciplineid = $5,
+  disciplinecode = $6,
+  catcode = $7,
+  catcode2 = $8,
+  catcode3 = $9,
+  catcode4 = $10,
+  gender = $11,
+  racedate = $12,
+  starteventdate = $13,
+  description = $14,
+  place = $15,
+  nationcode = $16,
+  td1id = $17,
+  td1name = $18,
+  td1nation = $19,
+  td1code = $20,
+  td2id = $21,
+  td2name = $22,
+  td2nation = $23,
+  td2code = $24,
+  calstatuscode = $25,
+  procstatuscode = $26,
+  receiveddate = $27,
+  pursuit = $28,
+  masse = $29,
+  relay = $30,
+  distance = $31,
+  hill = $32,
+  style = $33,
+  qualif = $34,
+  finale = $35,
+  homol = $36,
+  webcomment = $37,
+  displaystatus = $38,
+  fisinterncomment = $39,
+  published = $40,
+  validforfispoints = $41,
+  usedfislist = $42,
+  tolist = $43,
+  discforlistcode = $44,
+  calculatedpenalty = $45,
+  appliedpenalty = $46,
+  appliedscala = $47,
+  penscafixed = $48,
+  version = $49,
+  nationraceid = $50,
+  provraceid = $51,
+  msql7evid = $52,
+  mssql7id = $53,
+  results = $54,
+  pdf = $55,
+  topbanner = $56,
+  bottombanner = $57,
+  toplogo = $58,
+  bottomlogo = $59,
+  gallery = $60,
+  indi = $61,
+  team = $62,
+  tabcount = $63,
+  columncount = $64,
+  level = $65,
+  hloc1 = $66,
+  hloc2 = $67,
+  hloc3 = $68,
+  hcet1 = $69,
+  hcet2 = $70,
+  hcet3 = $71,
+  live = $72,
+  livestatus1 = $73,
+  livestatus2 = $74,
+  livestatus3 = $75,
+  liveinfo1 = $76,
+  liveinfo2 = $77,
+  liveinfo3 = $78,
+  passwd = $79,
+  timinglogo = $80,
+  validdate = $81,
+  noepr = $82,
+  tddoc = $83,
+  timingreport = $84,
+  special_cup_points = $85,
+  skip_wcsl = $86,
+  validforowg = $87,
+  lastupdate = $88
 WHERE raceid = $1;
+
 
 -- name: DeleteRaceNKByID :exec
 DELETE FROM a_racenk

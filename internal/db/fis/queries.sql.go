@@ -184,7 +184,9 @@ SELECT
     rJP.JudPtsR2,
     rJP.WindR2,
     rJP.WindPtsR2,
-    rJP.GateR2
+    rJP.GateR2,
+    rJP.TotRun1,
+    rJP.TotRun2
 FROM A_resultJP rJP
 JOIN A_raceJP aJP ON rJP.RaceID = aJP.RaceID
 WHERE rJP.CompetitorID = $1
@@ -223,6 +225,8 @@ type GetAthleteResultsJPRow struct {
 	Windr2         sql.NullString
 	Windptsr2      sql.NullString
 	Gater2         sql.NullString
+	Totrun1        sql.NullString
+	Totrun2        sql.NullString
 }
 
 func (q *Queries) GetAthleteResultsJP(ctx context.Context, arg GetAthleteResultsJPParams) ([]GetAthleteResultsJPRow, error) {
@@ -261,6 +265,8 @@ func (q *Queries) GetAthleteResultsJP(ctx context.Context, arg GetAthleteResults
 			&i.Windr2,
 			&i.Windptsr2,
 			&i.Gater2,
+			&i.Totrun1,
+			&i.Totrun2,
 		); err != nil {
 			return nil, err
 		}
@@ -464,40 +470,6 @@ func (q *Queries) GetCompetitorIDByFiscodeNK(ctx context.Context, fiscode sql.Nu
 	var competitorid sql.NullInt32
 	err := row.Scan(&competitorid)
 	return competitorid, err
-}
-
-const getCompetitorIDsByGenderAndNationJP = `-- name: GetCompetitorIDsByGenderAndNationJP :many
-SELECT CompetitorID
-FROM A_competitor
-WHERE Gender = $1 AND NationCode = $2 AND SectorCode = 'JP'
-`
-
-type GetCompetitorIDsByGenderAndNationJPParams struct {
-	Gender     sql.NullString
-	Nationcode sql.NullString
-}
-
-func (q *Queries) GetCompetitorIDsByGenderAndNationJP(ctx context.Context, arg GetCompetitorIDsByGenderAndNationJPParams) ([]sql.NullInt32, error) {
-	rows, err := q.query(ctx, q.getCompetitorIDsByGenderAndNationJPStmt, getCompetitorIDsByGenderAndNationJP, arg.Gender, arg.Nationcode)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []sql.NullInt32
-	for rows.Next() {
-		var competitorid sql.NullInt32
-		if err := rows.Scan(&competitorid); err != nil {
-			return nil, err
-		}
-		items = append(items, competitorid)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const getCrossCountryCategories = `-- name: GetCrossCountryCategories :many
@@ -957,7 +929,7 @@ func (q *Queries) GetLastRowRaceNK(ctx context.Context) (ARacenk, error) {
 const getLastRowResultCC = `-- name: GetLastRowResultCC :one
 SELECT recid, raceid, competitorid, status, reason, position, pf, status2, bib, bibcolor, fiscode, competitorname, nationcode, stage, level, heat, timer1, timer2, timer3, timetot, valid, racepoints, cuppoints, bonustime, bonuscuppoints, version, rg1, rg2, lastupdate
 FROM a_resultcc
-ORDER BY raceid DESC
+ORDER BY recid DESC
 LIMIT 1
 `
 
@@ -1001,7 +973,7 @@ func (q *Queries) GetLastRowResultCC(ctx context.Context) (AResultcc, error) {
 const getLastRowResultJP = `-- name: GetLastRowResultJP :one
 SELECT recid, raceid, competitorid, status, status2, position, bib, fiscode, competitorname, nationcode, level, heat, stage, j1r1, j2r1, j3r1, j4r1, j5r1, speedr1, distr1, disptsr1, judptsr1, totrun1, posr1, statusr1, j1r2, j2r2, j3r2, j4r2, j5r2, speedr2, distr2, disptsr2, judptsr2, totrun2, posr2, statusr2, j1r3, j2r3, j3r3, j4r3, j5r3, speedr3, distr3, disptsr3, judptsr3, totrun3, posr3, statusr3, j1r4, j2r4, j3r4, j4r4, j5r4, speedr4, distr4, disptsr4, judptsr4, gater1, gater2, gater3, gater4, gateptsr1, gateptsr2, gateptsr3, gateptsr4, windr1, windr2, windr3, windr4, windptsr1, windptsr2, windptsr3, windptsr4, reason, totrun4, tot, valid, racepoints, cuppoints, version, lastupdate, posr4, statusr4
 FROM a_resultjp
-ORDER BY raceid DESC
+ORDER BY recid DESC
 LIMIT 1
 `
 
@@ -1100,7 +1072,7 @@ func (q *Queries) GetLastRowResultJP(ctx context.Context) (AResultjp, error) {
 const getLastRowResultNK = `-- name: GetLastRowResultNK :one
 SELECT recid, raceid, competitorid, status, reason, position, pf, status2, bib, bibcolor, fiscode, competitorname, nationcode, level, heat, stage, j1r1, j2r1, j3r1, j4r1, j5r1, speedr1, distr1, disptsr1, judptsr1, gater1, gateptsr1, windr1, windptsr1, totrun1, posr1, statusr1, j1r2, j2r2, j3r2, j4r2, j5r2, speedr2, distr2, disptsr2, judptsr2, gater2, gateptsr2, windr2, windptsr2, totrun2, posr2, statusr2, pointsjump, behindjump, posjump, timecc, timeccint, poscc, starttime, statuscc, totbehind, timetot, timetotint, valid, racepoints, cuppoints, version, lastupdate
 FROM a_resultnk
-ORDER BY raceid DESC
+ORDER BY recid DESC
 LIMIT 1
 `
 
@@ -1294,52 +1266,51 @@ func (q *Queries) GetNordicCombinedSeasons(ctx context.Context) ([]sql.NullInt32
 }
 
 const getRaceResultsCCByRaceID = `-- name: GetRaceResultsCCByRaceID :many
-SELECT
-    RecID,
-    RaceID,
-    Position,
-    PF,
-    Bib,
-    Fiscode,
-    TimeTot,
-    RacePoints,
-    CupPoints
-FROM A_resultCC
-WHERE RaceID = $1
-ORDER BY RecID
+SELECT recid, raceid, competitorid, status, reason, position, pf, status2, bib, bibcolor, fiscode, competitorname, nationcode, stage, level, heat, timer1, timer2, timer3, timetot, valid, racepoints, cuppoints, bonustime, bonuscuppoints, version, rg1, rg2, lastupdate
+FROM public.a_resultcc
+WHERE raceid = $1
+ORDER BY recid
 `
 
-type GetRaceResultsCCByRaceIDRow struct {
-	Recid      sql.NullInt32
-	Raceid     sql.NullInt32
-	Position   sql.NullString
-	Pf         sql.NullInt32
-	Bib        sql.NullString
-	Fiscode    sql.NullInt32
-	Timetot    sql.NullString
-	Racepoints sql.NullString
-	Cuppoints  sql.NullString
-}
-
-func (q *Queries) GetRaceResultsCCByRaceID(ctx context.Context, raceid sql.NullInt32) ([]GetRaceResultsCCByRaceIDRow, error) {
+func (q *Queries) GetRaceResultsCCByRaceID(ctx context.Context, raceid sql.NullInt32) ([]AResultcc, error) {
 	rows, err := q.query(ctx, q.getRaceResultsCCByRaceIDStmt, getRaceResultsCCByRaceID, raceid)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetRaceResultsCCByRaceIDRow
+	var items []AResultcc
 	for rows.Next() {
-		var i GetRaceResultsCCByRaceIDRow
+		var i AResultcc
 		if err := rows.Scan(
 			&i.Recid,
 			&i.Raceid,
+			&i.Competitorid,
+			&i.Status,
+			&i.Reason,
 			&i.Position,
 			&i.Pf,
+			&i.Status2,
 			&i.Bib,
+			&i.Bibcolor,
 			&i.Fiscode,
+			&i.Competitorname,
+			&i.Nationcode,
+			&i.Stage,
+			&i.Level,
+			&i.Heat,
+			&i.Timer1,
+			&i.Timer2,
+			&i.Timer3,
 			&i.Timetot,
+			&i.Valid,
 			&i.Racepoints,
 			&i.Cuppoints,
+			&i.Bonustime,
+			&i.Bonuscuppoints,
+			&i.Version,
+			&i.Rg1,
+			&i.Rg2,
+			&i.Lastupdate,
 		); err != nil {
 			return nil, err
 		}
@@ -1355,64 +1326,106 @@ func (q *Queries) GetRaceResultsCCByRaceID(ctx context.Context, raceid sql.NullI
 }
 
 const getRaceResultsJPByRaceID = `-- name: GetRaceResultsJPByRaceID :many
-SELECT 
-    RecID,
-    RaceID,
-    Position,
-    SpeedR1,
-    DistR1,
-    JudPtsR1,
-    PosR1,
-    GateR1,
-    SpeedR2,
-    DistR2,
-    JudPtsR2,
-    PosR2,
-    GateR2
-FROM A_resultJP
-WHERE RaceID = $1
-ORDER BY RecID
+SELECT recid, raceid, competitorid, status, status2, position, bib, fiscode, competitorname, nationcode, level, heat, stage, j1r1, j2r1, j3r1, j4r1, j5r1, speedr1, distr1, disptsr1, judptsr1, totrun1, posr1, statusr1, j1r2, j2r2, j3r2, j4r2, j5r2, speedr2, distr2, disptsr2, judptsr2, totrun2, posr2, statusr2, j1r3, j2r3, j3r3, j4r3, j5r3, speedr3, distr3, disptsr3, judptsr3, totrun3, posr3, statusr3, j1r4, j2r4, j3r4, j4r4, j5r4, speedr4, distr4, disptsr4, judptsr4, gater1, gater2, gater3, gater4, gateptsr1, gateptsr2, gateptsr3, gateptsr4, windr1, windr2, windr3, windr4, windptsr1, windptsr2, windptsr3, windptsr4, reason, totrun4, tot, valid, racepoints, cuppoints, version, lastupdate, posr4, statusr4
+FROM public.a_resultjp
+WHERE raceid = $1
+ORDER BY recid
 `
 
-type GetRaceResultsJPByRaceIDRow struct {
-	Recid    sql.NullInt32
-	Raceid   sql.NullInt32
-	Position sql.NullInt32
-	Speedr1  sql.NullString
-	Distr1   sql.NullString
-	Judptsr1 sql.NullString
-	Posr1    sql.NullString
-	Gater1   sql.NullString
-	Speedr2  sql.NullString
-	Distr2   sql.NullString
-	Judptsr2 sql.NullString
-	Posr2    sql.NullString
-	Gater2   sql.NullString
-}
-
-func (q *Queries) GetRaceResultsJPByRaceID(ctx context.Context, raceid sql.NullInt32) ([]GetRaceResultsJPByRaceIDRow, error) {
+func (q *Queries) GetRaceResultsJPByRaceID(ctx context.Context, raceid sql.NullInt32) ([]AResultjp, error) {
 	rows, err := q.query(ctx, q.getRaceResultsJPByRaceIDStmt, getRaceResultsJPByRaceID, raceid)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetRaceResultsJPByRaceIDRow
+	var items []AResultjp
 	for rows.Next() {
-		var i GetRaceResultsJPByRaceIDRow
+		var i AResultjp
 		if err := rows.Scan(
 			&i.Recid,
 			&i.Raceid,
+			&i.Competitorid,
+			&i.Status,
+			&i.Status2,
 			&i.Position,
+			&i.Bib,
+			&i.Fiscode,
+			&i.Competitorname,
+			&i.Nationcode,
+			&i.Level,
+			&i.Heat,
+			&i.Stage,
+			&i.J1r1,
+			&i.J2r1,
+			&i.J3r1,
+			&i.J4r1,
+			&i.J5r1,
 			&i.Speedr1,
 			&i.Distr1,
+			&i.Disptsr1,
 			&i.Judptsr1,
+			&i.Totrun1,
 			&i.Posr1,
-			&i.Gater1,
+			&i.Statusr1,
+			&i.J1r2,
+			&i.J2r2,
+			&i.J3r2,
+			&i.J4r2,
+			&i.J5r2,
 			&i.Speedr2,
 			&i.Distr2,
+			&i.Disptsr2,
 			&i.Judptsr2,
+			&i.Totrun2,
 			&i.Posr2,
+			&i.Statusr2,
+			&i.J1r3,
+			&i.J2r3,
+			&i.J3r3,
+			&i.J4r3,
+			&i.J5r3,
+			&i.Speedr3,
+			&i.Distr3,
+			&i.Disptsr3,
+			&i.Judptsr3,
+			&i.Totrun3,
+			&i.Posr3,
+			&i.Statusr3,
+			&i.J1r4,
+			&i.J2r4,
+			&i.J3r4,
+			&i.J4r4,
+			&i.J5r4,
+			&i.Speedr4,
+			&i.Distr4,
+			&i.Disptsr4,
+			&i.Judptsr4,
+			&i.Gater1,
 			&i.Gater2,
+			&i.Gater3,
+			&i.Gater4,
+			&i.Gateptsr1,
+			&i.Gateptsr2,
+			&i.Gateptsr3,
+			&i.Gateptsr4,
+			&i.Windr1,
+			&i.Windr2,
+			&i.Windr3,
+			&i.Windr4,
+			&i.Windptsr1,
+			&i.Windptsr2,
+			&i.Windptsr3,
+			&i.Windptsr4,
+			&i.Reason,
+			&i.Totrun4,
+			&i.Tot,
+			&i.Valid,
+			&i.Racepoints,
+			&i.Cuppoints,
+			&i.Version,
+			&i.Lastupdate,
+			&i.Posr4,
+			&i.Statusr4,
 		); err != nil {
 			return nil, err
 		}
@@ -1428,64 +1441,86 @@ func (q *Queries) GetRaceResultsJPByRaceID(ctx context.Context, raceid sql.NullI
 }
 
 const getRaceResultsNKByRaceID = `-- name: GetRaceResultsNKByRaceID :many
-SELECT 
-    RecID,
-    RaceID,
-    Position,
-    SpeedR1,
-    DistR1,
-    JudPtsR1,
-    PosR1,
-    GateR1,
-    TotRun1,
-    PointsJump,
-    PosCC,
-    TimeTot,
-    TimeTotInt
-FROM A_resultNK
-WHERE RaceID = $1
-ORDER BY RecID
+SELECT recid, raceid, competitorid, status, reason, position, pf, status2, bib, bibcolor, fiscode, competitorname, nationcode, level, heat, stage, j1r1, j2r1, j3r1, j4r1, j5r1, speedr1, distr1, disptsr1, judptsr1, gater1, gateptsr1, windr1, windptsr1, totrun1, posr1, statusr1, j1r2, j2r2, j3r2, j4r2, j5r2, speedr2, distr2, disptsr2, judptsr2, gater2, gateptsr2, windr2, windptsr2, totrun2, posr2, statusr2, pointsjump, behindjump, posjump, timecc, timeccint, poscc, starttime, statuscc, totbehind, timetot, timetotint, valid, racepoints, cuppoints, version, lastupdate
+FROM public.a_resultnk
+WHERE raceid = $1
+ORDER BY recid
 `
 
-type GetRaceResultsNKByRaceIDRow struct {
-	Recid      sql.NullInt32
-	Raceid     sql.NullInt32
-	Position   sql.NullInt32
-	Speedr1    sql.NullString
-	Distr1     sql.NullString
-	Judptsr1   sql.NullString
-	Posr1      sql.NullString
-	Gater1     sql.NullString
-	Totrun1    sql.NullString
-	Pointsjump sql.NullString
-	Poscc      sql.NullString
-	Timetot    sql.NullString
-	Timetotint sql.NullInt32
-}
-
-func (q *Queries) GetRaceResultsNKByRaceID(ctx context.Context, raceid sql.NullInt32) ([]GetRaceResultsNKByRaceIDRow, error) {
+func (q *Queries) GetRaceResultsNKByRaceID(ctx context.Context, raceid sql.NullInt32) ([]AResultnk, error) {
 	rows, err := q.query(ctx, q.getRaceResultsNKByRaceIDStmt, getRaceResultsNKByRaceID, raceid)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetRaceResultsNKByRaceIDRow
+	var items []AResultnk
 	for rows.Next() {
-		var i GetRaceResultsNKByRaceIDRow
+		var i AResultnk
 		if err := rows.Scan(
 			&i.Recid,
 			&i.Raceid,
+			&i.Competitorid,
+			&i.Status,
+			&i.Reason,
 			&i.Position,
+			&i.Pf,
+			&i.Status2,
+			&i.Bib,
+			&i.Bibcolor,
+			&i.Fiscode,
+			&i.Competitorname,
+			&i.Nationcode,
+			&i.Level,
+			&i.Heat,
+			&i.Stage,
+			&i.J1r1,
+			&i.J2r1,
+			&i.J3r1,
+			&i.J4r1,
+			&i.J5r1,
 			&i.Speedr1,
 			&i.Distr1,
+			&i.Disptsr1,
 			&i.Judptsr1,
-			&i.Posr1,
 			&i.Gater1,
+			&i.Gateptsr1,
+			&i.Windr1,
+			&i.Windptsr1,
 			&i.Totrun1,
+			&i.Posr1,
+			&i.Statusr1,
+			&i.J1r2,
+			&i.J2r2,
+			&i.J3r2,
+			&i.J4r2,
+			&i.J5r2,
+			&i.Speedr2,
+			&i.Distr2,
+			&i.Disptsr2,
+			&i.Judptsr2,
+			&i.Gater2,
+			&i.Gateptsr2,
+			&i.Windr2,
+			&i.Windptsr2,
+			&i.Totrun2,
+			&i.Posr2,
+			&i.Statusr2,
 			&i.Pointsjump,
+			&i.Behindjump,
+			&i.Posjump,
+			&i.Timecc,
+			&i.Timeccint,
 			&i.Poscc,
+			&i.Starttime,
+			&i.Statuscc,
+			&i.Totbehind,
 			&i.Timetot,
 			&i.Timetotint,
+			&i.Valid,
+			&i.Racepoints,
+			&i.Cuppoints,
+			&i.Version,
+			&i.Lastupdate,
 		); err != nil {
 			return nil, err
 		}
@@ -1881,119 +1916,6 @@ func (q *Queries) GetRacesNK(ctx context.Context, arg GetRacesNKParams) ([]ARace
 	return items, nil
 }
 
-const getResultsByCompetitorsJP = `-- name: GetResultsByCompetitorsJP :many
-SELECT 
-    rJP.RaceID,
-    rJP.Position,
-    aJP.RaceDate,
-    aJP.SeasonCode,
-    aJP.DisciplineCode,
-    aJP.CatCode,
-    aJP.Place,
-    rJP.PosR1,
-    rJP.SpeedR1,
-    rJP.DistR1,
-    rJP.JudPtsR1,
-    rJP.WindR1,
-    rJP.WindPtsR1,
-    rJP.GateR1,
-    rJP.PosR2,
-    rJP.SpeedR2,
-    rJP.DistR2,
-    rJP.JudPtsR2,
-    rJP.WindR2,
-    rJP.WindPtsR2,
-    rJP.GateR2
-FROM A_resultJP rJP
-JOIN A_raceJP aJP ON rJP.RaceID = aJP.RaceID
-WHERE rJP.CompetitorID = ANY($1::int4[])
-  AND ($2::int[]  IS NULL OR aJP.SeasonCode     = ANY($2))
-  AND ($3::text[] IS NULL OR aJP.DisciplineCode = ANY($3))
-  AND ($4::text[] IS NULL OR aJP.CatCode        = ANY($4))
-ORDER BY aJP.RaceDate
-`
-
-type GetResultsByCompetitorsJPParams struct {
-	Column1 []int32
-	Column2 []int32
-	Column3 []string
-	Column4 []string
-}
-
-type GetResultsByCompetitorsJPRow struct {
-	Raceid         sql.NullInt32
-	Position       sql.NullInt32
-	Racedate       sql.NullTime
-	Seasoncode     sql.NullInt32
-	Disciplinecode sql.NullString
-	Catcode        sql.NullString
-	Place          sql.NullString
-	Posr1          sql.NullString
-	Speedr1        sql.NullString
-	Distr1         sql.NullString
-	Judptsr1       sql.NullString
-	Windr1         sql.NullString
-	Windptsr1      sql.NullString
-	Gater1         sql.NullString
-	Posr2          sql.NullString
-	Speedr2        sql.NullString
-	Distr2         sql.NullString
-	Judptsr2       sql.NullString
-	Windr2         sql.NullString
-	Windptsr2      sql.NullString
-	Gater2         sql.NullString
-}
-
-func (q *Queries) GetResultsByCompetitorsJP(ctx context.Context, arg GetResultsByCompetitorsJPParams) ([]GetResultsByCompetitorsJPRow, error) {
-	rows, err := q.query(ctx, q.getResultsByCompetitorsJPStmt, getResultsByCompetitorsJP,
-		pq.Array(arg.Column1),
-		pq.Array(arg.Column2),
-		pq.Array(arg.Column3),
-		pq.Array(arg.Column4),
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetResultsByCompetitorsJPRow
-	for rows.Next() {
-		var i GetResultsByCompetitorsJPRow
-		if err := rows.Scan(
-			&i.Raceid,
-			&i.Position,
-			&i.Racedate,
-			&i.Seasoncode,
-			&i.Disciplinecode,
-			&i.Catcode,
-			&i.Place,
-			&i.Posr1,
-			&i.Speedr1,
-			&i.Distr1,
-			&i.Judptsr1,
-			&i.Windr1,
-			&i.Windptsr1,
-			&i.Gater1,
-			&i.Posr2,
-			&i.Speedr2,
-			&i.Distr2,
-			&i.Judptsr2,
-			&i.Windr2,
-			&i.Windptsr2,
-			&i.Gater2,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getSkiJumpingCategories = `-- name: GetSkiJumpingCategories :many
 SELECT DISTINCT CatCode
 FROM A_raceJP
@@ -2082,42 +2004,71 @@ func (q *Queries) GetSkiJumpingSeasons(ctx context.Context) ([]sql.NullInt32, er
 }
 
 const insertCompetitor = `-- name: InsertCompetitor :exec
-INSERT INTO a_competitor (
-  competitorid, personid, ipcid, type, sectorcode, fiscode,
-  lastname, firstname, gender, birthdate,
-  nationcode, nationalcode, skiclub, association,
-  status, status_old, status_by, status_date,
-  version, lastupdate
+INSERT INTO public.a_competitor (
+  competitorid, personid, ipcid, fiscode, birthdate, status_date,
+  fee, dateofcreation, injury, version, compidmssql, carving, photo,
+  notallowed, published, team, photo_big, lastupdate,
+  statusnextlist, alternatenamecheck, deletedat, doped, createdby,
+  categorycode, classname, data, lastupdateby, disciplines,
+  type, sectorcode, classcode, lastname, firstname, gender, natteam,
+  nationcode, nationalcode, skiclub, association, status,
+  status_old, status_by, tragroup
 ) VALUES (
-  $1, $2, $3, $4, $5, $6,
-  $7, $8, $9, $10,
-  $11, $12, $13, $14,
-  $15, $16, $17, $18,
-  $19, $20
+  $1,  $2,  $3,  $4,  $5,  $6,
+  $7,  $8,  $9,  $10, $11, $12, $13,
+  $14, $15, $16, $17, $18,
+  $19, $20, $21, $22, $23,
+  $24, $25, $26, $27, $28,
+  $29, $30, $31, $32, $33, $34, $35,
+  $36, $37, $38, $39, $40,
+  $41, $42, $43
 )
 `
 
 type InsertCompetitorParams struct {
-	Competitorid sql.NullInt32
-	Personid     sql.NullInt32
-	Ipcid        sql.NullInt32
-	Type         sql.NullString
-	Sectorcode   sql.NullString
-	Fiscode      sql.NullInt32
-	Lastname     sql.NullString
-	Firstname    sql.NullString
-	Gender       sql.NullString
-	Birthdate    sql.NullTime
-	Nationcode   sql.NullString
-	Nationalcode sql.NullString
-	Skiclub      sql.NullString
-	Association  sql.NullString
-	Status       sql.NullString
-	StatusOld    sql.NullString
-	StatusBy     sql.NullString
-	StatusDate   sql.NullTime
-	Version      sql.NullInt32
-	Lastupdate   sql.NullTime
+	Competitorid       sql.NullInt32
+	Personid           sql.NullInt32
+	Ipcid              sql.NullInt32
+	Fiscode            sql.NullInt32
+	Birthdate          sql.NullTime
+	StatusDate         sql.NullTime
+	Fee                sql.NullString
+	Dateofcreation     sql.NullTime
+	Injury             sql.NullInt32
+	Version            sql.NullInt32
+	Compidmssql        sql.NullInt32
+	Carving            sql.NullInt32
+	Photo              sql.NullInt32
+	Notallowed         sql.NullInt32
+	Published          sql.NullInt32
+	Team               sql.NullInt32
+	PhotoBig           sql.NullInt32
+	Lastupdate         sql.NullTime
+	Statusnextlist     sql.NullString
+	Alternatenamecheck sql.NullString
+	Deletedat          sql.NullString
+	Doped              sql.NullString
+	Createdby          sql.NullString
+	Categorycode       sql.NullString
+	Classname          sql.NullString
+	Data               sql.NullString
+	Lastupdateby       sql.NullString
+	Disciplines        sql.NullString
+	Type               sql.NullString
+	Sectorcode         sql.NullString
+	Classcode          sql.NullString
+	Lastname           sql.NullString
+	Firstname          sql.NullString
+	Gender             sql.NullString
+	Natteam            sql.NullString
+	Nationcode         sql.NullString
+	Nationalcode       sql.NullString
+	Skiclub            sql.NullString
+	Association        sql.NullString
+	Status             sql.NullString
+	StatusOld          sql.NullString
+	StatusBy           sql.NullString
+	Tragroup           sql.NullString
 }
 
 func (q *Queries) InsertCompetitor(ctx context.Context, arg InsertCompetitorParams) error {
@@ -2125,13 +2076,38 @@ func (q *Queries) InsertCompetitor(ctx context.Context, arg InsertCompetitorPara
 		arg.Competitorid,
 		arg.Personid,
 		arg.Ipcid,
+		arg.Fiscode,
+		arg.Birthdate,
+		arg.StatusDate,
+		arg.Fee,
+		arg.Dateofcreation,
+		arg.Injury,
+		arg.Version,
+		arg.Compidmssql,
+		arg.Carving,
+		arg.Photo,
+		arg.Notallowed,
+		arg.Published,
+		arg.Team,
+		arg.PhotoBig,
+		arg.Lastupdate,
+		arg.Statusnextlist,
+		arg.Alternatenamecheck,
+		arg.Deletedat,
+		arg.Doped,
+		arg.Createdby,
+		arg.Categorycode,
+		arg.Classname,
+		arg.Data,
+		arg.Lastupdateby,
+		arg.Disciplines,
 		arg.Type,
 		arg.Sectorcode,
-		arg.Fiscode,
+		arg.Classcode,
 		arg.Lastname,
 		arg.Firstname,
 		arg.Gender,
-		arg.Birthdate,
+		arg.Natteam,
 		arg.Nationcode,
 		arg.Nationalcode,
 		arg.Skiclub,
@@ -2139,24 +2115,50 @@ func (q *Queries) InsertCompetitor(ctx context.Context, arg InsertCompetitorPara
 		arg.Status,
 		arg.StatusOld,
 		arg.StatusBy,
-		arg.StatusDate,
-		arg.Version,
-		arg.Lastupdate,
+		arg.Tragroup,
 	)
 	return err
 }
 
 const insertRaceCC = `-- name: InsertRaceCC :exec
-INSERT INTO a_racecc (
+INSERT INTO public.a_racecc (
   raceid, eventid, seasoncode, racecodex,
-  disciplineid, disciplinecode, catcode, gender,
-  racedate, starteventdate, description, place, nationcode,
-  published, validforfispoints, version, lastupdate
+  disciplineid, disciplinecode, catcode, catcode2, catcode3, catcode4, gender,
+  racedate, starteventdate, description, place, nationcode, receiveddate, validdate,
+  td1id, td1name, td1nation, td1code,
+  td2id, td2name, td2nation, td2code,
+  calstatuscode, procstatuscode, displaystatus, fisinterncomment, webcomment,
+  pursuit, masse, relay, distance, hill, style, qualif, finale, homol,
+  published, validforfispoints, usedfislist, tolist, discforlistcode,
+  calculatedpenalty, appliedpenalty, appliedscala, penscafixed,
+  version, nationraceid, provraceid, msql7evid, mssql7id,
+  topbanner, bottombanner, toplogo, bottomlogo, gallery,
+  indi, team, tabcount, columncount, level,
+  hloc1, hloc2, hloc3, hcet1, hcet2, hcet3,
+  live, livestatus1, livestatus2, livestatus3, liveinfo1, liveinfo2, liveinfo3,
+  passwd, timinglogo,
+  results, pdf, noepr, tddoc, timingreport, special_cup_points, skip_wcsl,
+  validforowg,
+  lastupdate
 ) VALUES (
-  $1, $2, $3, $4,
-  $5, $6, $7, $8,
-  $9, $10, $11, $12, $13,
-  $14, $15, $16, $17
+  $1,  $2,  $3,  $4,
+  $5,  $6,  $7,  $8,  $9,  $10, $11,
+  $12, $13, $14, $15, $16, $17, $18,
+  $19, $20, $21, $22,
+  $23, $24, $25, $26,
+  $27, $28, $29, $30, $31,
+  $32, $33, $34, $35, $36, $37, $38, $39, $40,
+  $41, $42, $43, $44, $45,
+  $46, $47, $48, $49,
+  $50, $51, $52, $53, $54,
+  $55, $56, $57, $58, $59,
+  $60, $61, $62, $63, $64,
+  $65, $66, $67, $68, $69, $70,
+  $71, $72, $73, $74, $75, $76, $77,
+  $78, $79,
+  $80, $81, $82, $83, $84, $85, $86,
+  $87,
+  $88
 )
 `
 
@@ -2168,15 +2170,86 @@ type InsertRaceCCParams struct {
 	Disciplineid      sql.NullString
 	Disciplinecode    sql.NullString
 	Catcode           sql.NullString
+	Catcode2          sql.NullString
+	Catcode3          sql.NullString
+	Catcode4          sql.NullString
 	Gender            sql.NullString
 	Racedate          sql.NullTime
 	Starteventdate    sql.NullTime
 	Description       sql.NullString
 	Place             sql.NullString
 	Nationcode        sql.NullString
+	Receiveddate      sql.NullTime
+	Validdate         sql.NullTime
+	Td1id             sql.NullInt32
+	Td1name           sql.NullString
+	Td1nation         sql.NullString
+	Td1code           sql.NullInt32
+	Td2id             sql.NullInt32
+	Td2name           sql.NullString
+	Td2nation         sql.NullString
+	Td2code           sql.NullInt32
+	Calstatuscode     sql.NullString
+	Procstatuscode    sql.NullString
+	Displaystatus     sql.NullString
+	Fisinterncomment  sql.NullString
+	Webcomment        sql.NullString
+	Pursuit           sql.NullString
+	Masse             sql.NullString
+	Relay             sql.NullString
+	Distance          sql.NullString
+	Hill              sql.NullString
+	Style             sql.NullString
+	Qualif            sql.NullString
+	Finale            sql.NullString
+	Homol             sql.NullString
 	Published         sql.NullInt32
 	Validforfispoints sql.NullInt32
+	Usedfislist       sql.NullString
+	Tolist            sql.NullString
+	Discforlistcode   sql.NullString
+	Calculatedpenalty sql.NullString
+	Appliedpenalty    sql.NullString
+	Appliedscala      sql.NullString
+	Penscafixed       sql.NullString
 	Version           sql.NullInt32
+	Nationraceid      sql.NullInt32
+	Provraceid        sql.NullInt32
+	Msql7evid         sql.NullInt32
+	Mssql7id          sql.NullInt32
+	Topbanner         sql.NullString
+	Bottombanner      sql.NullString
+	Toplogo           sql.NullString
+	Bottomlogo        sql.NullString
+	Gallery           sql.NullString
+	Indi              sql.NullInt32
+	Team              sql.NullInt32
+	Tabcount          sql.NullInt32
+	Columncount       sql.NullInt32
+	Level             sql.NullString
+	Hloc1             sql.NullString
+	Hloc2             sql.NullString
+	Hloc3             sql.NullString
+	Hcet1             sql.NullString
+	Hcet2             sql.NullString
+	Hcet3             sql.NullString
+	Live              sql.NullInt32
+	Livestatus1       sql.NullString
+	Livestatus2       sql.NullString
+	Livestatus3       sql.NullString
+	Liveinfo1         sql.NullString
+	Liveinfo2         sql.NullString
+	Liveinfo3         sql.NullString
+	Passwd            sql.NullString
+	Timinglogo        sql.NullString
+	Results           sql.NullInt32
+	Pdf               sql.NullInt32
+	Noepr             sql.NullInt32
+	Tddoc             sql.NullInt32
+	Timingreport      sql.NullInt32
+	SpecialCupPoints  sql.NullInt32
+	SkipWcsl          sql.NullInt32
+	Validforowg       sql.NullInt32
 	Lastupdate        sql.NullTime
 }
 
@@ -2189,31 +2262,134 @@ func (q *Queries) InsertRaceCC(ctx context.Context, arg InsertRaceCCParams) erro
 		arg.Disciplineid,
 		arg.Disciplinecode,
 		arg.Catcode,
+		arg.Catcode2,
+		arg.Catcode3,
+		arg.Catcode4,
 		arg.Gender,
 		arg.Racedate,
 		arg.Starteventdate,
 		arg.Description,
 		arg.Place,
 		arg.Nationcode,
+		arg.Receiveddate,
+		arg.Validdate,
+		arg.Td1id,
+		arg.Td1name,
+		arg.Td1nation,
+		arg.Td1code,
+		arg.Td2id,
+		arg.Td2name,
+		arg.Td2nation,
+		arg.Td2code,
+		arg.Calstatuscode,
+		arg.Procstatuscode,
+		arg.Displaystatus,
+		arg.Fisinterncomment,
+		arg.Webcomment,
+		arg.Pursuit,
+		arg.Masse,
+		arg.Relay,
+		arg.Distance,
+		arg.Hill,
+		arg.Style,
+		arg.Qualif,
+		arg.Finale,
+		arg.Homol,
 		arg.Published,
 		arg.Validforfispoints,
+		arg.Usedfislist,
+		arg.Tolist,
+		arg.Discforlistcode,
+		arg.Calculatedpenalty,
+		arg.Appliedpenalty,
+		arg.Appliedscala,
+		arg.Penscafixed,
 		arg.Version,
+		arg.Nationraceid,
+		arg.Provraceid,
+		arg.Msql7evid,
+		arg.Mssql7id,
+		arg.Topbanner,
+		arg.Bottombanner,
+		arg.Toplogo,
+		arg.Bottomlogo,
+		arg.Gallery,
+		arg.Indi,
+		arg.Team,
+		arg.Tabcount,
+		arg.Columncount,
+		arg.Level,
+		arg.Hloc1,
+		arg.Hloc2,
+		arg.Hloc3,
+		arg.Hcet1,
+		arg.Hcet2,
+		arg.Hcet3,
+		arg.Live,
+		arg.Livestatus1,
+		arg.Livestatus2,
+		arg.Livestatus3,
+		arg.Liveinfo1,
+		arg.Liveinfo2,
+		arg.Liveinfo3,
+		arg.Passwd,
+		arg.Timinglogo,
+		arg.Results,
+		arg.Pdf,
+		arg.Noepr,
+		arg.Tddoc,
+		arg.Timingreport,
+		arg.SpecialCupPoints,
+		arg.SkipWcsl,
+		arg.Validforowg,
 		arg.Lastupdate,
 	)
 	return err
 }
 
 const insertRaceJP = `-- name: InsertRaceJP :exec
-INSERT INTO a_racejp (
+INSERT INTO public.a_racejp (
   raceid, eventid, seasoncode, racecodex,
-  disciplineid, disciplinecode, catcode, gender,
+  disciplineid, disciplinecode, catcode, catcode2, catcode3, catcode4, gender,
   racedate, starteventdate, description, place, nationcode,
-  published, validforfispoints, version, lastupdate
+  td1id, td1name, td1nation, td1code,
+  td2id, td2name, td2nation, td2code,
+  calstatuscode, procstatuscode, receiveddate,
+  pursuit, masse, relay, distance, hill, style, qualif, finale, homol,
+  webcomment, displaystatus, fisinterncomment,
+  published, validforfispoints, usedfislist, tolist, discforlistcode,
+  calculatedpenalty, appliedpenalty, appliedscala, penscafixed,
+  version, nationraceid, provraceid, msql7evid, mssql7id,
+  results, pdf,
+  topbanner, bottombanner, toplogo, bottomlogo, gallery,
+  indi, team, tabcount, columncount, level,
+  hloc1, hloc2, hloc3, hcet1, hcet2, hcet3,
+  live, livestatus1, livestatus2, livestatus3,
+  liveinfo1, liveinfo2, liveinfo3,
+  passwd, timinglogo,
+  validdate, noepr, tddoc, timingreport, special_cup_points, skip_wcsl,
+  lastupdate, validforowg
 ) VALUES (
-  $1, $2, $3, $4,
-  $5, $6, $7, $8,
-  $9, $10, $11, $12, $13,
-  $14, $15, $16, $17
+  $1,$2,$3,$4,
+  $5,$6,$7,$8,$9,$10,$11,
+  $12,$13,$14,$15,$16,
+  $17,$18,$19,$20,
+  $21,$22,$23,$24,
+  $25,$26,$27,
+  $28,$29,$30,$31,$32,$33,$34,$35,$36,
+  $37,$38,$39,
+  $40,$41,$42,$43,$44,
+  $45,$46,$47,$48,
+  $49,$50,$51,$52,$53,
+  $54,$55,
+  $56,$57,$58,$59,$60,
+  $61,$62,$63,$64,$65,
+  $66,$67,$68,$69,$70,$71,
+  $72,$73,$74,$75,
+  $76,$77,$78,
+  $79,$80,
+  $81,$82,$83,$84,$85,$86,
+  $87,$88
 )
 `
 
@@ -2225,16 +2401,87 @@ type InsertRaceJPParams struct {
 	Disciplineid      sql.NullString
 	Disciplinecode    sql.NullString
 	Catcode           sql.NullString
+	Catcode2          sql.NullString
+	Catcode3          sql.NullString
+	Catcode4          sql.NullString
 	Gender            sql.NullString
 	Racedate          sql.NullTime
 	Starteventdate    sql.NullTime
 	Description       sql.NullString
 	Place             sql.NullString
 	Nationcode        sql.NullString
+	Td1id             sql.NullInt32
+	Td1name           sql.NullString
+	Td1nation         sql.NullString
+	Td1code           sql.NullInt32
+	Td2id             sql.NullInt32
+	Td2name           sql.NullString
+	Td2nation         sql.NullString
+	Td2code           sql.NullInt32
+	Calstatuscode     sql.NullString
+	Procstatuscode    sql.NullString
+	Receiveddate      sql.NullTime
+	Pursuit           sql.NullString
+	Masse             sql.NullString
+	Relay             sql.NullString
+	Distance          sql.NullString
+	Hill              sql.NullInt32
+	Style             sql.NullString
+	Qualif            sql.NullString
+	Finale            sql.NullString
+	Homol             sql.NullString
+	Webcomment        sql.NullString
+	Displaystatus     sql.NullString
+	Fisinterncomment  sql.NullString
 	Published         sql.NullInt32
 	Validforfispoints sql.NullInt32
+	Usedfislist       sql.NullString
+	Tolist            sql.NullString
+	Discforlistcode   sql.NullString
+	Calculatedpenalty sql.NullString
+	Appliedpenalty    sql.NullString
+	Appliedscala      sql.NullString
+	Penscafixed       sql.NullString
 	Version           sql.NullInt32
+	Nationraceid      sql.NullInt32
+	Provraceid        sql.NullInt32
+	Msql7evid         sql.NullInt32
+	Mssql7id          sql.NullInt32
+	Results           sql.NullInt32
+	Pdf               sql.NullInt32
+	Topbanner         sql.NullString
+	Bottombanner      sql.NullString
+	Toplogo           sql.NullString
+	Bottomlogo        sql.NullString
+	Gallery           sql.NullString
+	Indi              sql.NullInt32
+	Team              sql.NullInt32
+	Tabcount          sql.NullInt32
+	Columncount       sql.NullInt32
+	Level             sql.NullString
+	Hloc1             sql.NullTime
+	Hloc2             sql.NullTime
+	Hloc3             sql.NullTime
+	Hcet1             sql.NullTime
+	Hcet2             sql.NullTime
+	Hcet3             sql.NullTime
+	Live              sql.NullInt32
+	Livestatus1       sql.NullString
+	Livestatus2       sql.NullString
+	Livestatus3       sql.NullString
+	Liveinfo1         sql.NullString
+	Liveinfo2         sql.NullString
+	Liveinfo3         sql.NullString
+	Passwd            sql.NullString
+	Timinglogo        sql.NullString
+	Validdate         sql.NullTime
+	Noepr             sql.NullInt32
+	Tddoc             sql.NullInt32
+	Timingreport      sql.NullInt32
+	SpecialCupPoints  sql.NullInt32
+	SkipWcsl          sql.NullInt32
 	Lastupdate        sql.NullTime
+	Validforowg       sql.NullString
 }
 
 func (q *Queries) InsertRaceJP(ctx context.Context, arg InsertRaceJPParams) error {
@@ -2246,31 +2493,134 @@ func (q *Queries) InsertRaceJP(ctx context.Context, arg InsertRaceJPParams) erro
 		arg.Disciplineid,
 		arg.Disciplinecode,
 		arg.Catcode,
+		arg.Catcode2,
+		arg.Catcode3,
+		arg.Catcode4,
 		arg.Gender,
 		arg.Racedate,
 		arg.Starteventdate,
 		arg.Description,
 		arg.Place,
 		arg.Nationcode,
+		arg.Td1id,
+		arg.Td1name,
+		arg.Td1nation,
+		arg.Td1code,
+		arg.Td2id,
+		arg.Td2name,
+		arg.Td2nation,
+		arg.Td2code,
+		arg.Calstatuscode,
+		arg.Procstatuscode,
+		arg.Receiveddate,
+		arg.Pursuit,
+		arg.Masse,
+		arg.Relay,
+		arg.Distance,
+		arg.Hill,
+		arg.Style,
+		arg.Qualif,
+		arg.Finale,
+		arg.Homol,
+		arg.Webcomment,
+		arg.Displaystatus,
+		arg.Fisinterncomment,
 		arg.Published,
 		arg.Validforfispoints,
+		arg.Usedfislist,
+		arg.Tolist,
+		arg.Discforlistcode,
+		arg.Calculatedpenalty,
+		arg.Appliedpenalty,
+		arg.Appliedscala,
+		arg.Penscafixed,
 		arg.Version,
+		arg.Nationraceid,
+		arg.Provraceid,
+		arg.Msql7evid,
+		arg.Mssql7id,
+		arg.Results,
+		arg.Pdf,
+		arg.Topbanner,
+		arg.Bottombanner,
+		arg.Toplogo,
+		arg.Bottomlogo,
+		arg.Gallery,
+		arg.Indi,
+		arg.Team,
+		arg.Tabcount,
+		arg.Columncount,
+		arg.Level,
+		arg.Hloc1,
+		arg.Hloc2,
+		arg.Hloc3,
+		arg.Hcet1,
+		arg.Hcet2,
+		arg.Hcet3,
+		arg.Live,
+		arg.Livestatus1,
+		arg.Livestatus2,
+		arg.Livestatus3,
+		arg.Liveinfo1,
+		arg.Liveinfo2,
+		arg.Liveinfo3,
+		arg.Passwd,
+		arg.Timinglogo,
+		arg.Validdate,
+		arg.Noepr,
+		arg.Tddoc,
+		arg.Timingreport,
+		arg.SpecialCupPoints,
+		arg.SkipWcsl,
 		arg.Lastupdate,
+		arg.Validforowg,
 	)
 	return err
 }
 
 const insertRaceNK = `-- name: InsertRaceNK :exec
-INSERT INTO a_racenk (
+INSERT INTO public.a_racenk (
   raceid, eventid, seasoncode, racecodex,
-  disciplineid, disciplinecode, catcode, gender,
+  disciplineid, disciplinecode, catcode, catcode2, catcode3, catcode4, gender,
   racedate, starteventdate, description, place, nationcode,
-  published, validforfispoints, version, lastupdate
+  td1id, td1name, td1nation, td1code,
+  td2id, td2name, td2nation, td2code,
+  calstatuscode, procstatuscode, receiveddate,
+  pursuit, masse, relay, distance, hill, style, qualif, finale, homol,
+  webcomment, displaystatus, fisinterncomment,
+  published, validforfispoints, usedfislist, tolist, discforlistcode,
+  calculatedpenalty, appliedpenalty, appliedscala, penscafixed,
+  version, nationraceid, provraceid, msql7evid, mssql7id,
+  results, pdf,
+  topbanner, bottombanner, toplogo, bottomlogo, gallery,
+  indi, team, tabcount, columncount, level,
+  hloc1, hloc2, hloc3, hcet1, hcet2, hcet3,
+  live, livestatus1, livestatus2, livestatus3,
+  liveinfo1, liveinfo2, liveinfo3,
+  passwd, timinglogo,
+  validdate, noepr, tddoc, timingreport, special_cup_points, skip_wcsl,
+  validforowg, lastupdate
 ) VALUES (
-  $1, $2, $3, $4,
-  $5, $6, $7, $8,
-  $9, $10, $11, $12, $13,
-  $14, $15, $16, $17
+  $1,$2,$3,$4,
+  $5,$6,$7,$8,$9,$10,$11,
+  $12,$13,$14,$15,$16,
+  $17,$18,$19,$20,
+  $21,$22,$23,$24,
+  $25,$26,$27,
+  $28,$29,$30,$31,$32,$33,$34,$35,$36,
+  $37,$38,$39,
+  $40,$41,$42,$43,$44,
+  $45,$46,$47,$48,
+  $49,$50,$51,$52,$53,
+  $54,$55,
+  $56,$57,$58,$59,$60,
+  $61,$62,$63,$64,$65,
+  $66,$67,$68,$69,$70,$71,
+  $72,$73,$74,$75,
+  $76,$77,$78,
+  $79,$80,
+  $81,$82,$83,$84,$85,$86,
+  $87,$88
 )
 `
 
@@ -2282,15 +2632,86 @@ type InsertRaceNKParams struct {
 	Disciplineid      sql.NullString
 	Disciplinecode    sql.NullString
 	Catcode           sql.NullString
+	Catcode2          sql.NullString
+	Catcode3          sql.NullString
+	Catcode4          sql.NullString
 	Gender            sql.NullString
 	Racedate          sql.NullTime
 	Starteventdate    sql.NullTime
 	Description       sql.NullString
 	Place             sql.NullString
 	Nationcode        sql.NullString
+	Td1id             sql.NullInt32
+	Td1name           sql.NullString
+	Td1nation         sql.NullString
+	Td1code           sql.NullInt32
+	Td2id             sql.NullInt32
+	Td2name           sql.NullString
+	Td2nation         sql.NullString
+	Td2code           sql.NullInt32
+	Calstatuscode     sql.NullString
+	Procstatuscode    sql.NullString
+	Receiveddate      sql.NullTime
+	Pursuit           sql.NullString
+	Masse             sql.NullString
+	Relay             sql.NullString
+	Distance          sql.NullString
+	Hill              sql.NullInt32
+	Style             sql.NullString
+	Qualif            sql.NullString
+	Finale            sql.NullString
+	Homol             sql.NullString
+	Webcomment        sql.NullString
+	Displaystatus     sql.NullString
+	Fisinterncomment  sql.NullString
 	Published         sql.NullInt32
 	Validforfispoints sql.NullInt32
+	Usedfislist       sql.NullString
+	Tolist            sql.NullString
+	Discforlistcode   sql.NullString
+	Calculatedpenalty sql.NullString
+	Appliedpenalty    sql.NullString
+	Appliedscala      sql.NullString
+	Penscafixed       sql.NullString
 	Version           sql.NullInt32
+	Nationraceid      sql.NullInt32
+	Provraceid        sql.NullInt32
+	Msql7evid         sql.NullInt32
+	Mssql7id          sql.NullInt32
+	Results           sql.NullInt32
+	Pdf               sql.NullInt32
+	Topbanner         sql.NullString
+	Bottombanner      sql.NullString
+	Toplogo           sql.NullString
+	Bottomlogo        sql.NullString
+	Gallery           sql.NullString
+	Indi              sql.NullInt32
+	Team              sql.NullInt32
+	Tabcount          sql.NullInt32
+	Columncount       sql.NullInt32
+	Level             sql.NullString
+	Hloc1             sql.NullTime
+	Hloc2             sql.NullTime
+	Hloc3             sql.NullTime
+	Hcet1             sql.NullTime
+	Hcet2             sql.NullTime
+	Hcet3             sql.NullTime
+	Live              sql.NullInt32
+	Livestatus1       sql.NullString
+	Livestatus2       sql.NullString
+	Livestatus3       sql.NullString
+	Liveinfo1         sql.NullString
+	Liveinfo2         sql.NullString
+	Liveinfo3         sql.NullString
+	Passwd            sql.NullString
+	Timinglogo        sql.NullString
+	Validdate         sql.NullTime
+	Noepr             sql.NullInt32
+	Tddoc             sql.NullInt32
+	Timingreport      sql.NullInt32
+	SpecialCupPoints  sql.NullInt32
+	SkipWcsl          sql.NullInt32
+	Validforowg       sql.NullInt32
 	Lastupdate        sql.NullTime
 }
 
@@ -2303,15 +2724,86 @@ func (q *Queries) InsertRaceNK(ctx context.Context, arg InsertRaceNKParams) erro
 		arg.Disciplineid,
 		arg.Disciplinecode,
 		arg.Catcode,
+		arg.Catcode2,
+		arg.Catcode3,
+		arg.Catcode4,
 		arg.Gender,
 		arg.Racedate,
 		arg.Starteventdate,
 		arg.Description,
 		arg.Place,
 		arg.Nationcode,
+		arg.Td1id,
+		arg.Td1name,
+		arg.Td1nation,
+		arg.Td1code,
+		arg.Td2id,
+		arg.Td2name,
+		arg.Td2nation,
+		arg.Td2code,
+		arg.Calstatuscode,
+		arg.Procstatuscode,
+		arg.Receiveddate,
+		arg.Pursuit,
+		arg.Masse,
+		arg.Relay,
+		arg.Distance,
+		arg.Hill,
+		arg.Style,
+		arg.Qualif,
+		arg.Finale,
+		arg.Homol,
+		arg.Webcomment,
+		arg.Displaystatus,
+		arg.Fisinterncomment,
 		arg.Published,
 		arg.Validforfispoints,
+		arg.Usedfislist,
+		arg.Tolist,
+		arg.Discforlistcode,
+		arg.Calculatedpenalty,
+		arg.Appliedpenalty,
+		arg.Appliedscala,
+		arg.Penscafixed,
 		arg.Version,
+		arg.Nationraceid,
+		arg.Provraceid,
+		arg.Msql7evid,
+		arg.Mssql7id,
+		arg.Results,
+		arg.Pdf,
+		arg.Topbanner,
+		arg.Bottombanner,
+		arg.Toplogo,
+		arg.Bottomlogo,
+		arg.Gallery,
+		arg.Indi,
+		arg.Team,
+		arg.Tabcount,
+		arg.Columncount,
+		arg.Level,
+		arg.Hloc1,
+		arg.Hloc2,
+		arg.Hloc3,
+		arg.Hcet1,
+		arg.Hcet2,
+		arg.Hcet3,
+		arg.Live,
+		arg.Livestatus1,
+		arg.Livestatus2,
+		arg.Livestatus3,
+		arg.Liveinfo1,
+		arg.Liveinfo2,
+		arg.Liveinfo3,
+		arg.Passwd,
+		arg.Timinglogo,
+		arg.Validdate,
+		arg.Noepr,
+		arg.Tddoc,
+		arg.Timingreport,
+		arg.SpecialCupPoints,
+		arg.SkipWcsl,
+		arg.Validforowg,
 		arg.Lastupdate,
 	)
 	return err
@@ -2767,50 +3259,96 @@ func (q *Queries) InsertResultNK(ctx context.Context, arg InsertResultNKParams) 
 }
 
 const updateCompetitorByID = `-- name: UpdateCompetitorByID :exec
-UPDATE a_competitor SET
-  personid      = $2,
-  ipcid         = $3,
-  type          = $4,
-  sectorcode    = $5,
-  fiscode       = $6,
-  lastname      = $7,
-  firstname     = $8,
-  gender        = $9,
-  birthdate     = $10,
-  nationcode    = $11,
-  nationalcode  = $12,
-  skiclub       = $13,
-  association   = $14,
-  status        = $15,
-  status_old    = $16,
-  status_by     = $17,
-  status_date   = $18,
-  version       = $19,
-  lastupdate    = $20
+UPDATE public.a_competitor SET
+  personid            = $2,
+  ipcid               = $3,
+  type                = $4,
+  sectorcode          = $5,
+  fiscode             = $6,
+  lastname            = $7,
+  firstname           = $8,
+  gender              = $9,
+  birthdate           = $10,
+  nationcode          = $11,
+  nationalcode        = $12,
+  skiclub             = $13,
+  association         = $14,
+  status              = $15,
+  status_old          = $16,
+  status_by           = $17,
+  status_date         = $18,
+  statusnextlist      = $19,
+  alternatenamecheck  = $20,
+  fee                 = $21,
+  dateofcreation      = $22,
+  createdby           = $23,
+  injury              = $24,
+  version             = $25,
+  compidmssql         = $26,
+  carving             = $27,
+  photo               = $28,
+  notallowed          = $29,
+  natteam             = $30,
+  tragroup            = $31,
+  published           = $32,
+  doped               = $33,
+  team                = $34,
+  photo_big           = $35,
+  data                = $36,
+  lastupdateby        = $37,
+  disciplines         = $38,
+  lastupdate          = $39,
+  deletedat           = $40,
+  categorycode        = $41,
+  classname           = $42,
+  classcode           = $43
 WHERE competitorid = $1
 `
 
 type UpdateCompetitorByIDParams struct {
-	Competitorid sql.NullInt32
-	Personid     sql.NullInt32
-	Ipcid        sql.NullInt32
-	Type         sql.NullString
-	Sectorcode   sql.NullString
-	Fiscode      sql.NullInt32
-	Lastname     sql.NullString
-	Firstname    sql.NullString
-	Gender       sql.NullString
-	Birthdate    sql.NullTime
-	Nationcode   sql.NullString
-	Nationalcode sql.NullString
-	Skiclub      sql.NullString
-	Association  sql.NullString
-	Status       sql.NullString
-	StatusOld    sql.NullString
-	StatusBy     sql.NullString
-	StatusDate   sql.NullTime
-	Version      sql.NullInt32
-	Lastupdate   sql.NullTime
+	Competitorid       sql.NullInt32
+	Personid           sql.NullInt32
+	Ipcid              sql.NullInt32
+	Type               sql.NullString
+	Sectorcode         sql.NullString
+	Fiscode            sql.NullInt32
+	Lastname           sql.NullString
+	Firstname          sql.NullString
+	Gender             sql.NullString
+	Birthdate          sql.NullTime
+	Nationcode         sql.NullString
+	Nationalcode       sql.NullString
+	Skiclub            sql.NullString
+	Association        sql.NullString
+	Status             sql.NullString
+	StatusOld          sql.NullString
+	StatusBy           sql.NullString
+	StatusDate         sql.NullTime
+	Statusnextlist     sql.NullString
+	Alternatenamecheck sql.NullString
+	Fee                sql.NullString
+	Dateofcreation     sql.NullTime
+	Createdby          sql.NullString
+	Injury             sql.NullInt32
+	Version            sql.NullInt32
+	Compidmssql        sql.NullInt32
+	Carving            sql.NullInt32
+	Photo              sql.NullInt32
+	Notallowed         sql.NullInt32
+	Natteam            sql.NullString
+	Tragroup           sql.NullString
+	Published          sql.NullInt32
+	Doped              sql.NullString
+	Team               sql.NullInt32
+	PhotoBig           sql.NullInt32
+	Data               sql.NullString
+	Lastupdateby       sql.NullString
+	Disciplines        sql.NullString
+	Lastupdate         sql.NullTime
+	Deletedat          sql.NullString
+	Categorycode       sql.NullString
+	Classname          sql.NullString
+	Classcode          sql.NullString
 }
 
 func (q *Queries) UpdateCompetitorByID(ctx context.Context, arg UpdateCompetitorByIDParams) error {
@@ -2833,30 +3371,124 @@ func (q *Queries) UpdateCompetitorByID(ctx context.Context, arg UpdateCompetitor
 		arg.StatusOld,
 		arg.StatusBy,
 		arg.StatusDate,
+		arg.Statusnextlist,
+		arg.Alternatenamecheck,
+		arg.Fee,
+		arg.Dateofcreation,
+		arg.Createdby,
+		arg.Injury,
 		arg.Version,
+		arg.Compidmssql,
+		arg.Carving,
+		arg.Photo,
+		arg.Notallowed,
+		arg.Natteam,
+		arg.Tragroup,
+		arg.Published,
+		arg.Doped,
+		arg.Team,
+		arg.PhotoBig,
+		arg.Data,
+		arg.Lastupdateby,
+		arg.Disciplines,
 		arg.Lastupdate,
+		arg.Deletedat,
+		arg.Categorycode,
+		arg.Classname,
+		arg.Classcode,
 	)
 	return err
 }
 
 const updateRaceCCByID = `-- name: UpdateRaceCCByID :exec
-UPDATE a_racecc SET
-  eventid          = $2,
-  seasoncode       = $3,
-  racecodex        = $4,
-  disciplineid     = $5,
-  disciplinecode   = $6,
-  catcode          = $7,
-  gender           = $8,
-  racedate         = $9,
-  starteventdate   = $10,
-  description      = $11,
-  place            = $12,
-  nationcode       = $13,
-  published        = $14,
-  validforfispoints= $15,
-  version          = $16,
-  lastupdate       = $17
+UPDATE public.a_racecc SET
+  eventid = $2,
+  seasoncode = $3,
+  racecodex = $4,
+  disciplineid = $5,
+  disciplinecode = $6,
+  catcode = $7,
+  catcode2 = $8,
+  catcode3 = $9,
+  catcode4 = $10,
+  gender = $11,
+  racedate = $12,
+  starteventdate = $13,
+  description = $14,
+  place = $15,
+  nationcode = $16,
+  td1id = $17,
+  td1name = $18,
+  td1nation = $19,
+  td1code = $20,
+  td2id = $21,
+  td2name = $22,
+  td2nation = $23,
+  td2code = $24,
+  calstatuscode = $25,
+  procstatuscode = $26,
+  receiveddate = $27,
+  pursuit = $28,
+  masse = $29,
+  relay = $30,
+  distance = $31,
+  hill = $32,
+  style = $33,
+  qualif = $34,
+  finale = $35,
+  homol = $36,
+  webcomment = $37,
+  displaystatus = $38,
+  fisinterncomment = $39,
+  published = $40,
+  validforfispoints = $41,
+  usedfislist = $42,
+  tolist = $43,
+  discforlistcode = $44,
+  calculatedpenalty = $45,
+  appliedpenalty = $46,
+  appliedscala = $47,
+  penscafixed = $48,
+  version = $49,
+  nationraceid = $50,
+  provraceid = $51,
+  msql7evid = $52,
+  mssql7id = $53,
+  results = $54,
+  pdf = $55,
+  topbanner = $56,
+  bottombanner = $57,
+  toplogo = $58,
+  bottomlogo = $59,
+  gallery = $60,
+  indi = $61,
+  team = $62,
+  tabcount = $63,
+  columncount = $64,
+  level = $65,
+  hloc1 = $66,
+  hloc2 = $67,
+  hloc3 = $68,
+  hcet1 = $69,
+  hcet2 = $70,
+  hcet3 = $71,
+  live = $72,
+  livestatus1 = $73,
+  livestatus2 = $74,
+  livestatus3 = $75,
+  liveinfo1 = $76,
+  liveinfo2 = $77,
+  liveinfo3 = $78,
+  passwd = $79,
+  timinglogo = $80,
+  validdate = $81,
+  noepr = $82,
+  tddoc = $83,
+  timingreport = $84,
+  special_cup_points = $85,
+  skip_wcsl = $86,
+  validforowg = $87,
+  lastupdate = $88
 WHERE raceid = $1
 `
 
@@ -2868,15 +3500,86 @@ type UpdateRaceCCByIDParams struct {
 	Disciplineid      sql.NullString
 	Disciplinecode    sql.NullString
 	Catcode           sql.NullString
+	Catcode2          sql.NullString
+	Catcode3          sql.NullString
+	Catcode4          sql.NullString
 	Gender            sql.NullString
 	Racedate          sql.NullTime
 	Starteventdate    sql.NullTime
 	Description       sql.NullString
 	Place             sql.NullString
 	Nationcode        sql.NullString
+	Td1id             sql.NullInt32
+	Td1name           sql.NullString
+	Td1nation         sql.NullString
+	Td1code           sql.NullInt32
+	Td2id             sql.NullInt32
+	Td2name           sql.NullString
+	Td2nation         sql.NullString
+	Td2code           sql.NullInt32
+	Calstatuscode     sql.NullString
+	Procstatuscode    sql.NullString
+	Receiveddate      sql.NullTime
+	Pursuit           sql.NullString
+	Masse             sql.NullString
+	Relay             sql.NullString
+	Distance          sql.NullString
+	Hill              sql.NullString
+	Style             sql.NullString
+	Qualif            sql.NullString
+	Finale            sql.NullString
+	Homol             sql.NullString
+	Webcomment        sql.NullString
+	Displaystatus     sql.NullString
+	Fisinterncomment  sql.NullString
 	Published         sql.NullInt32
 	Validforfispoints sql.NullInt32
+	Usedfislist       sql.NullString
+	Tolist            sql.NullString
+	Discforlistcode   sql.NullString
+	Calculatedpenalty sql.NullString
+	Appliedpenalty    sql.NullString
+	Appliedscala      sql.NullString
+	Penscafixed       sql.NullString
 	Version           sql.NullInt32
+	Nationraceid      sql.NullInt32
+	Provraceid        sql.NullInt32
+	Msql7evid         sql.NullInt32
+	Mssql7id          sql.NullInt32
+	Results           sql.NullInt32
+	Pdf               sql.NullInt32
+	Topbanner         sql.NullString
+	Bottombanner      sql.NullString
+	Toplogo           sql.NullString
+	Bottomlogo        sql.NullString
+	Gallery           sql.NullString
+	Indi              sql.NullInt32
+	Team              sql.NullInt32
+	Tabcount          sql.NullInt32
+	Columncount       sql.NullInt32
+	Level             sql.NullString
+	Hloc1             sql.NullString
+	Hloc2             sql.NullString
+	Hloc3             sql.NullString
+	Hcet1             sql.NullString
+	Hcet2             sql.NullString
+	Hcet3             sql.NullString
+	Live              sql.NullInt32
+	Livestatus1       sql.NullString
+	Livestatus2       sql.NullString
+	Livestatus3       sql.NullString
+	Liveinfo1         sql.NullString
+	Liveinfo2         sql.NullString
+	Liveinfo3         sql.NullString
+	Passwd            sql.NullString
+	Timinglogo        sql.NullString
+	Validdate         sql.NullTime
+	Noepr             sql.NullInt32
+	Tddoc             sql.NullInt32
+	Timingreport      sql.NullInt32
+	SpecialCupPoints  sql.NullInt32
+	SkipWcsl          sql.NullInt32
+	Validforowg       sql.NullInt32
 	Lastupdate        sql.NullTime
 }
 
@@ -2889,38 +3592,180 @@ func (q *Queries) UpdateRaceCCByID(ctx context.Context, arg UpdateRaceCCByIDPara
 		arg.Disciplineid,
 		arg.Disciplinecode,
 		arg.Catcode,
+		arg.Catcode2,
+		arg.Catcode3,
+		arg.Catcode4,
 		arg.Gender,
 		arg.Racedate,
 		arg.Starteventdate,
 		arg.Description,
 		arg.Place,
 		arg.Nationcode,
+		arg.Td1id,
+		arg.Td1name,
+		arg.Td1nation,
+		arg.Td1code,
+		arg.Td2id,
+		arg.Td2name,
+		arg.Td2nation,
+		arg.Td2code,
+		arg.Calstatuscode,
+		arg.Procstatuscode,
+		arg.Receiveddate,
+		arg.Pursuit,
+		arg.Masse,
+		arg.Relay,
+		arg.Distance,
+		arg.Hill,
+		arg.Style,
+		arg.Qualif,
+		arg.Finale,
+		arg.Homol,
+		arg.Webcomment,
+		arg.Displaystatus,
+		arg.Fisinterncomment,
 		arg.Published,
 		arg.Validforfispoints,
+		arg.Usedfislist,
+		arg.Tolist,
+		arg.Discforlistcode,
+		arg.Calculatedpenalty,
+		arg.Appliedpenalty,
+		arg.Appliedscala,
+		arg.Penscafixed,
 		arg.Version,
+		arg.Nationraceid,
+		arg.Provraceid,
+		arg.Msql7evid,
+		arg.Mssql7id,
+		arg.Results,
+		arg.Pdf,
+		arg.Topbanner,
+		arg.Bottombanner,
+		arg.Toplogo,
+		arg.Bottomlogo,
+		arg.Gallery,
+		arg.Indi,
+		arg.Team,
+		arg.Tabcount,
+		arg.Columncount,
+		arg.Level,
+		arg.Hloc1,
+		arg.Hloc2,
+		arg.Hloc3,
+		arg.Hcet1,
+		arg.Hcet2,
+		arg.Hcet3,
+		arg.Live,
+		arg.Livestatus1,
+		arg.Livestatus2,
+		arg.Livestatus3,
+		arg.Liveinfo1,
+		arg.Liveinfo2,
+		arg.Liveinfo3,
+		arg.Passwd,
+		arg.Timinglogo,
+		arg.Validdate,
+		arg.Noepr,
+		arg.Tddoc,
+		arg.Timingreport,
+		arg.SpecialCupPoints,
+		arg.SkipWcsl,
+		arg.Validforowg,
 		arg.Lastupdate,
 	)
 	return err
 }
 
 const updateRaceJPByID = `-- name: UpdateRaceJPByID :exec
-UPDATE a_racejp SET
-  eventid          = $2,
-  seasoncode       = $3,
-  racecodex        = $4,
-  disciplineid     = $5,
-  disciplinecode   = $6,
-  catcode          = $7,
-  gender           = $8,
-  racedate         = $9,
-  starteventdate   = $10,
-  description      = $11,
-  place            = $12,
-  nationcode       = $13,
-  published        = $14,
-  validforfispoints= $15,
-  version          = $16,
-  lastupdate       = $17
+UPDATE public.a_racejp SET
+  eventid = $2,
+  seasoncode = $3,
+  racecodex = $4,
+  disciplineid = $5,
+  disciplinecode = $6,
+  catcode = $7,
+  catcode2 = $8,
+  catcode3 = $9,
+  catcode4 = $10,
+  gender = $11,
+  racedate = $12,
+  starteventdate = $13,
+  description = $14,
+  place = $15,
+  nationcode = $16,
+  td1id = $17,
+  td1name = $18,
+  td1nation = $19,
+  td1code = $20,
+  td2id = $21,
+  td2name = $22,
+  td2nation = $23,
+  td2code = $24,
+  calstatuscode = $25,
+  procstatuscode = $26,
+  receiveddate = $27,
+  pursuit = $28,
+  masse = $29,
+  relay = $30,
+  distance = $31,
+  hill = $32,
+  style = $33,
+  qualif = $34,
+  finale = $35,
+  homol = $36,
+  webcomment = $37,
+  displaystatus = $38,
+  fisinterncomment = $39,
+  published = $40,
+  validforfispoints = $41,
+  usedfislist = $42,
+  tolist = $43,
+  discforlistcode = $44,
+  calculatedpenalty = $45,
+  appliedpenalty = $46,
+  appliedscala = $47,
+  penscafixed = $48,
+  version = $49,
+  nationraceid = $50,
+  provraceid = $51,
+  msql7evid = $52,
+  mssql7id = $53,
+  results = $54,
+  pdf = $55,
+  topbanner = $56,
+  bottombanner = $57,
+  toplogo = $58,
+  bottomlogo = $59,
+  gallery = $60,
+  indi = $61,
+  team = $62,
+  tabcount = $63,
+  columncount = $64,
+  level = $65,
+  hloc1 = $66,
+  hloc2 = $67,
+  hloc3 = $68,
+  hcet1 = $69,
+  hcet2 = $70,
+  hcet3 = $71,
+  live = $72,
+  livestatus1 = $73,
+  livestatus2 = $74,
+  livestatus3 = $75,
+  liveinfo1 = $76,
+  liveinfo2 = $77,
+  liveinfo3 = $78,
+  passwd = $79,
+  timinglogo = $80,
+  validdate = $81,
+  noepr = $82,
+  tddoc = $83,
+  timingreport = $84,
+  special_cup_points = $85,
+  skip_wcsl = $86,
+  lastupdate = $87,
+  validforowg = $88
 WHERE raceid = $1
 `
 
@@ -2932,16 +3777,87 @@ type UpdateRaceJPByIDParams struct {
 	Disciplineid      sql.NullString
 	Disciplinecode    sql.NullString
 	Catcode           sql.NullString
+	Catcode2          sql.NullString
+	Catcode3          sql.NullString
+	Catcode4          sql.NullString
 	Gender            sql.NullString
 	Racedate          sql.NullTime
 	Starteventdate    sql.NullTime
 	Description       sql.NullString
 	Place             sql.NullString
 	Nationcode        sql.NullString
+	Td1id             sql.NullInt32
+	Td1name           sql.NullString
+	Td1nation         sql.NullString
+	Td1code           sql.NullInt32
+	Td2id             sql.NullInt32
+	Td2name           sql.NullString
+	Td2nation         sql.NullString
+	Td2code           sql.NullInt32
+	Calstatuscode     sql.NullString
+	Procstatuscode    sql.NullString
+	Receiveddate      sql.NullTime
+	Pursuit           sql.NullString
+	Masse             sql.NullString
+	Relay             sql.NullString
+	Distance          sql.NullString
+	Hill              sql.NullInt32
+	Style             sql.NullString
+	Qualif            sql.NullString
+	Finale            sql.NullString
+	Homol             sql.NullString
+	Webcomment        sql.NullString
+	Displaystatus     sql.NullString
+	Fisinterncomment  sql.NullString
 	Published         sql.NullInt32
 	Validforfispoints sql.NullInt32
+	Usedfislist       sql.NullString
+	Tolist            sql.NullString
+	Discforlistcode   sql.NullString
+	Calculatedpenalty sql.NullString
+	Appliedpenalty    sql.NullString
+	Appliedscala      sql.NullString
+	Penscafixed       sql.NullString
 	Version           sql.NullInt32
+	Nationraceid      sql.NullInt32
+	Provraceid        sql.NullInt32
+	Msql7evid         sql.NullInt32
+	Mssql7id          sql.NullInt32
+	Results           sql.NullInt32
+	Pdf               sql.NullInt32
+	Topbanner         sql.NullString
+	Bottombanner      sql.NullString
+	Toplogo           sql.NullString
+	Bottomlogo        sql.NullString
+	Gallery           sql.NullString
+	Indi              sql.NullInt32
+	Team              sql.NullInt32
+	Tabcount          sql.NullInt32
+	Columncount       sql.NullInt32
+	Level             sql.NullString
+	Hloc1             sql.NullTime
+	Hloc2             sql.NullTime
+	Hloc3             sql.NullTime
+	Hcet1             sql.NullTime
+	Hcet2             sql.NullTime
+	Hcet3             sql.NullTime
+	Live              sql.NullInt32
+	Livestatus1       sql.NullString
+	Livestatus2       sql.NullString
+	Livestatus3       sql.NullString
+	Liveinfo1         sql.NullString
+	Liveinfo2         sql.NullString
+	Liveinfo3         sql.NullString
+	Passwd            sql.NullString
+	Timinglogo        sql.NullString
+	Validdate         sql.NullTime
+	Noepr             sql.NullInt32
+	Tddoc             sql.NullInt32
+	Timingreport      sql.NullInt32
+	SpecialCupPoints  sql.NullInt32
+	SkipWcsl          sql.NullInt32
 	Lastupdate        sql.NullTime
+	Validforowg       sql.NullString
 }
 
 func (q *Queries) UpdateRaceJPByID(ctx context.Context, arg UpdateRaceJPByIDParams) error {
@@ -2953,38 +3869,180 @@ func (q *Queries) UpdateRaceJPByID(ctx context.Context, arg UpdateRaceJPByIDPara
 		arg.Disciplineid,
 		arg.Disciplinecode,
 		arg.Catcode,
+		arg.Catcode2,
+		arg.Catcode3,
+		arg.Catcode4,
 		arg.Gender,
 		arg.Racedate,
 		arg.Starteventdate,
 		arg.Description,
 		arg.Place,
 		arg.Nationcode,
+		arg.Td1id,
+		arg.Td1name,
+		arg.Td1nation,
+		arg.Td1code,
+		arg.Td2id,
+		arg.Td2name,
+		arg.Td2nation,
+		arg.Td2code,
+		arg.Calstatuscode,
+		arg.Procstatuscode,
+		arg.Receiveddate,
+		arg.Pursuit,
+		arg.Masse,
+		arg.Relay,
+		arg.Distance,
+		arg.Hill,
+		arg.Style,
+		arg.Qualif,
+		arg.Finale,
+		arg.Homol,
+		arg.Webcomment,
+		arg.Displaystatus,
+		arg.Fisinterncomment,
 		arg.Published,
 		arg.Validforfispoints,
+		arg.Usedfislist,
+		arg.Tolist,
+		arg.Discforlistcode,
+		arg.Calculatedpenalty,
+		arg.Appliedpenalty,
+		arg.Appliedscala,
+		arg.Penscafixed,
 		arg.Version,
+		arg.Nationraceid,
+		arg.Provraceid,
+		arg.Msql7evid,
+		arg.Mssql7id,
+		arg.Results,
+		arg.Pdf,
+		arg.Topbanner,
+		arg.Bottombanner,
+		arg.Toplogo,
+		arg.Bottomlogo,
+		arg.Gallery,
+		arg.Indi,
+		arg.Team,
+		arg.Tabcount,
+		arg.Columncount,
+		arg.Level,
+		arg.Hloc1,
+		arg.Hloc2,
+		arg.Hloc3,
+		arg.Hcet1,
+		arg.Hcet2,
+		arg.Hcet3,
+		arg.Live,
+		arg.Livestatus1,
+		arg.Livestatus2,
+		arg.Livestatus3,
+		arg.Liveinfo1,
+		arg.Liveinfo2,
+		arg.Liveinfo3,
+		arg.Passwd,
+		arg.Timinglogo,
+		arg.Validdate,
+		arg.Noepr,
+		arg.Tddoc,
+		arg.Timingreport,
+		arg.SpecialCupPoints,
+		arg.SkipWcsl,
 		arg.Lastupdate,
+		arg.Validforowg,
 	)
 	return err
 }
 
 const updateRaceNKByID = `-- name: UpdateRaceNKByID :exec
-UPDATE a_racenk SET
-  eventid          = $2,
-  seasoncode       = $3,
-  racecodex        = $4,
-  disciplineid     = $5,
-  disciplinecode   = $6,
-  catcode          = $7,
-  gender           = $8,
-  racedate         = $9,
-  starteventdate   = $10,
-  description      = $11,
-  place            = $12,
-  nationcode       = $13,
-  published        = $14,
-  validforfispoints= $15,
-  version          = $16,
-  lastupdate       = $17
+UPDATE public.a_racenk SET
+  eventid = $2,
+  seasoncode = $3,
+  racecodex = $4,
+  disciplineid = $5,
+  disciplinecode = $6,
+  catcode = $7,
+  catcode2 = $8,
+  catcode3 = $9,
+  catcode4 = $10,
+  gender = $11,
+  racedate = $12,
+  starteventdate = $13,
+  description = $14,
+  place = $15,
+  nationcode = $16,
+  td1id = $17,
+  td1name = $18,
+  td1nation = $19,
+  td1code = $20,
+  td2id = $21,
+  td2name = $22,
+  td2nation = $23,
+  td2code = $24,
+  calstatuscode = $25,
+  procstatuscode = $26,
+  receiveddate = $27,
+  pursuit = $28,
+  masse = $29,
+  relay = $30,
+  distance = $31,
+  hill = $32,
+  style = $33,
+  qualif = $34,
+  finale = $35,
+  homol = $36,
+  webcomment = $37,
+  displaystatus = $38,
+  fisinterncomment = $39,
+  published = $40,
+  validforfispoints = $41,
+  usedfislist = $42,
+  tolist = $43,
+  discforlistcode = $44,
+  calculatedpenalty = $45,
+  appliedpenalty = $46,
+  appliedscala = $47,
+  penscafixed = $48,
+  version = $49,
+  nationraceid = $50,
+  provraceid = $51,
+  msql7evid = $52,
+  mssql7id = $53,
+  results = $54,
+  pdf = $55,
+  topbanner = $56,
+  bottombanner = $57,
+  toplogo = $58,
+  bottomlogo = $59,
+  gallery = $60,
+  indi = $61,
+  team = $62,
+  tabcount = $63,
+  columncount = $64,
+  level = $65,
+  hloc1 = $66,
+  hloc2 = $67,
+  hloc3 = $68,
+  hcet1 = $69,
+  hcet2 = $70,
+  hcet3 = $71,
+  live = $72,
+  livestatus1 = $73,
+  livestatus2 = $74,
+  livestatus3 = $75,
+  liveinfo1 = $76,
+  liveinfo2 = $77,
+  liveinfo3 = $78,
+  passwd = $79,
+  timinglogo = $80,
+  validdate = $81,
+  noepr = $82,
+  tddoc = $83,
+  timingreport = $84,
+  special_cup_points = $85,
+  skip_wcsl = $86,
+  validforowg = $87,
+  lastupdate = $88
 WHERE raceid = $1
 `
 
@@ -2996,15 +4054,86 @@ type UpdateRaceNKByIDParams struct {
 	Disciplineid      sql.NullString
 	Disciplinecode    sql.NullString
 	Catcode           sql.NullString
+	Catcode2          sql.NullString
+	Catcode3          sql.NullString
+	Catcode4          sql.NullString
 	Gender            sql.NullString
 	Racedate          sql.NullTime
 	Starteventdate    sql.NullTime
 	Description       sql.NullString
 	Place             sql.NullString
 	Nationcode        sql.NullString
+	Td1id             sql.NullInt32
+	Td1name           sql.NullString
+	Td1nation         sql.NullString
+	Td1code           sql.NullInt32
+	Td2id             sql.NullInt32
+	Td2name           sql.NullString
+	Td2nation         sql.NullString
+	Td2code           sql.NullInt32
+	Calstatuscode     sql.NullString
+	Procstatuscode    sql.NullString
+	Receiveddate      sql.NullTime
+	Pursuit           sql.NullString
+	Masse             sql.NullString
+	Relay             sql.NullString
+	Distance          sql.NullString
+	Hill              sql.NullInt32
+	Style             sql.NullString
+	Qualif            sql.NullString
+	Finale            sql.NullString
+	Homol             sql.NullString
+	Webcomment        sql.NullString
+	Displaystatus     sql.NullString
+	Fisinterncomment  sql.NullString
 	Published         sql.NullInt32
 	Validforfispoints sql.NullInt32
+	Usedfislist       sql.NullString
+	Tolist            sql.NullString
+	Discforlistcode   sql.NullString
+	Calculatedpenalty sql.NullString
+	Appliedpenalty    sql.NullString
+	Appliedscala      sql.NullString
+	Penscafixed       sql.NullString
 	Version           sql.NullInt32
+	Nationraceid      sql.NullInt32
+	Provraceid        sql.NullInt32
+	Msql7evid         sql.NullInt32
+	Mssql7id          sql.NullInt32
+	Results           sql.NullInt32
+	Pdf               sql.NullInt32
+	Topbanner         sql.NullString
+	Bottombanner      sql.NullString
+	Toplogo           sql.NullString
+	Bottomlogo        sql.NullString
+	Gallery           sql.NullString
+	Indi              sql.NullInt32
+	Team              sql.NullInt32
+	Tabcount          sql.NullInt32
+	Columncount       sql.NullInt32
+	Level             sql.NullString
+	Hloc1             sql.NullTime
+	Hloc2             sql.NullTime
+	Hloc3             sql.NullTime
+	Hcet1             sql.NullTime
+	Hcet2             sql.NullTime
+	Hcet3             sql.NullTime
+	Live              sql.NullInt32
+	Livestatus1       sql.NullString
+	Livestatus2       sql.NullString
+	Livestatus3       sql.NullString
+	Liveinfo1         sql.NullString
+	Liveinfo2         sql.NullString
+	Liveinfo3         sql.NullString
+	Passwd            sql.NullString
+	Timinglogo        sql.NullString
+	Validdate         sql.NullTime
+	Noepr             sql.NullInt32
+	Tddoc             sql.NullInt32
+	Timingreport      sql.NullInt32
+	SpecialCupPoints  sql.NullInt32
+	SkipWcsl          sql.NullInt32
+	Validforowg       sql.NullInt32
 	Lastupdate        sql.NullTime
 }
 
@@ -3017,15 +4146,86 @@ func (q *Queries) UpdateRaceNKByID(ctx context.Context, arg UpdateRaceNKByIDPara
 		arg.Disciplineid,
 		arg.Disciplinecode,
 		arg.Catcode,
+		arg.Catcode2,
+		arg.Catcode3,
+		arg.Catcode4,
 		arg.Gender,
 		arg.Racedate,
 		arg.Starteventdate,
 		arg.Description,
 		arg.Place,
 		arg.Nationcode,
+		arg.Td1id,
+		arg.Td1name,
+		arg.Td1nation,
+		arg.Td1code,
+		arg.Td2id,
+		arg.Td2name,
+		arg.Td2nation,
+		arg.Td2code,
+		arg.Calstatuscode,
+		arg.Procstatuscode,
+		arg.Receiveddate,
+		arg.Pursuit,
+		arg.Masse,
+		arg.Relay,
+		arg.Distance,
+		arg.Hill,
+		arg.Style,
+		arg.Qualif,
+		arg.Finale,
+		arg.Homol,
+		arg.Webcomment,
+		arg.Displaystatus,
+		arg.Fisinterncomment,
 		arg.Published,
 		arg.Validforfispoints,
+		arg.Usedfislist,
+		arg.Tolist,
+		arg.Discforlistcode,
+		arg.Calculatedpenalty,
+		arg.Appliedpenalty,
+		arg.Appliedscala,
+		arg.Penscafixed,
 		arg.Version,
+		arg.Nationraceid,
+		arg.Provraceid,
+		arg.Msql7evid,
+		arg.Mssql7id,
+		arg.Results,
+		arg.Pdf,
+		arg.Topbanner,
+		arg.Bottombanner,
+		arg.Toplogo,
+		arg.Bottomlogo,
+		arg.Gallery,
+		arg.Indi,
+		arg.Team,
+		arg.Tabcount,
+		arg.Columncount,
+		arg.Level,
+		arg.Hloc1,
+		arg.Hloc2,
+		arg.Hloc3,
+		arg.Hcet1,
+		arg.Hcet2,
+		arg.Hcet3,
+		arg.Live,
+		arg.Livestatus1,
+		arg.Livestatus2,
+		arg.Livestatus3,
+		arg.Liveinfo1,
+		arg.Liveinfo2,
+		arg.Liveinfo3,
+		arg.Passwd,
+		arg.Timinglogo,
+		arg.Validdate,
+		arg.Noepr,
+		arg.Tddoc,
+		arg.Timingreport,
+		arg.SpecialCupPoints,
+		arg.SkipWcsl,
+		arg.Validforowg,
 		arg.Lastupdate,
 	)
 	return err
