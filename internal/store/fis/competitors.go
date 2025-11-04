@@ -79,7 +79,7 @@ func (s *CompetitorsStore) DeleteCompetitorByID(ctx context.Context, competitorI
 	defer cancel()
 
 	q := fissqlc.New(s.db)
-	return q.DeleteCompetitorByID(ctx, sql.NullInt32{Int32: competitorID, Valid: true})
+	return q.DeleteCompetitorByID(ctx, competitorID)
 }
 
 func (s *CompetitorsStore) GetCompetitorIDByFiscodeCC(ctx context.Context, fiscode int32) (int32, error) {
@@ -87,14 +87,7 @@ func (s *CompetitorsStore) GetCompetitorIDByFiscodeCC(ctx context.Context, fisco
 	defer cancel()
 
 	q := fissqlc.New(s.db)
-	id, err := q.GetCompetitorIDByFiscodeCC(ctx, sql.NullInt32{Int32: fiscode, Valid: true})
-	if err != nil {
-		return 0, err
-	}
-	if !id.Valid {
-		return 0, sql.ErrNoRows
-	}
-	return id.Int32, nil
+	return q.GetCompetitorIDByFiscodeCC(ctx, sql.NullInt32{Int32: fiscode, Valid: true})
 }
 
 func (s *CompetitorsStore) GetCompetitorIDByFiscodeJP(ctx context.Context, fiscode int32) (int32, error) {
@@ -102,14 +95,7 @@ func (s *CompetitorsStore) GetCompetitorIDByFiscodeJP(ctx context.Context, fisco
 	defer cancel()
 
 	q := fissqlc.New(s.db)
-	id, err := q.GetCompetitorIDByFiscodeJP(ctx, sql.NullInt32{Int32: fiscode, Valid: true})
-	if err != nil {
-		return 0, err
-	}
-	if !id.Valid {
-		return 0, sql.ErrNoRows
-	}
-	return id.Int32, nil
+	return q.GetCompetitorIDByFiscodeJP(ctx, sql.NullInt32{Int32: fiscode, Valid: true})
 }
 
 func (s *CompetitorsStore) GetCompetitorIDByFiscodeNK(ctx context.Context, fiscode int32) (int32, error) {
@@ -117,12 +103,5 @@ func (s *CompetitorsStore) GetCompetitorIDByFiscodeNK(ctx context.Context, fisco
 	defer cancel()
 
 	q := fissqlc.New(s.db)
-	id, err := q.GetCompetitorIDByFiscodeNK(ctx, sql.NullInt32{Int32: fiscode, Valid: true})
-	if err != nil {
-		return 0, err
-	}
-	if !id.Valid {
-		return 0, sql.ErrNoRows
-	}
-	return id.Int32, nil
+	return q.GetCompetitorIDByFiscodeNK(ctx, sql.NullInt32{Int32: fiscode, Valid: true})
 }

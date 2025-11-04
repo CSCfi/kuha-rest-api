@@ -22,7 +22,7 @@ type CompetitorIDParam struct {
 }
 
 type InsertCompetitorInput struct {
-	Competitorid       *int32  `json:"competitorid" validate:"required"`
+	Competitorid       int32   `json:"competitorid" validate:"required"`
 	Personid           *int32  `json:"personid"`
 	Ipcid              *int32  `json:"ipcid"`
 	Fiscode            *int32  `json:"fiscode"`
@@ -68,7 +68,7 @@ type InsertCompetitorInput struct {
 }
 
 type UpdateCompetitorInput struct {
-	Competitorid       *int32  `json:"competitorid" validate:"required"`
+	Competitorid       int32   `json:"competitorid" validate:"required"`
 	Personid           *int32  `json:"personid"`
 	Ipcid              *int32  `json:"ipcid"`
 	Type               *string `json:"type"`
@@ -221,7 +221,7 @@ func mapUpdateInput(in UpdateCompetitorInput) (fis.UpdateCompetitorClean, error)
 	}
 
 	return fis.UpdateCompetitorClean{
-		Competitorid:       utils.DerefInt32(in.Competitorid),
+		Competitorid:       in.Competitorid,
 		Personid:           in.Personid,
 		Ipcid:              in.Ipcid,
 		Type:               in.Type,
@@ -268,21 +268,19 @@ func mapUpdateInput(in UpdateCompetitorInput) (fis.UpdateCompetitorClean, error)
 }
 
 type FISCompetitorResponse struct {
-	Competitorid *int32  `json:"competitorid,omitempty"`
-	Personid     *int32  `json:"personid,omitempty"`
-	Ipcid        *int32  `json:"ipcid,omitempty"`
-	Type         *string `json:"type,omitempty"`
-	Sectorcode   *string `json:"sectorcode,omitempty"`
-	Fiscode      *int32  `json:"fiscode,omitempty"`
-	Lastname     *string `json:"lastname,omitempty"`
-	Firstname    *string `json:"firstname,omitempty"`
-	Gender       *string `json:"gender,omitempty"`
-
-	Birthdate      *string `json:"birthdate,omitempty"`      // YYYY-MM-DD
-	StatusDate     *string `json:"status_date,omitempty"`    // RFC3339
-	Dateofcreation *string `json:"dateofcreation,omitempty"` // YYYY-MM-DD
-	Lastupdate     *string `json:"lastupdate,omitempty"`     // RFC3339
-
+	Competitorid       int32   `json:"competitorid,omitempty"`
+	Personid           *int32  `json:"personid,omitempty"`
+	Ipcid              *int32  `json:"ipcid,omitempty"`
+	Type               *string `json:"type,omitempty"`
+	Sectorcode         *string `json:"sectorcode,omitempty"`
+	Fiscode            *int32  `json:"fiscode,omitempty"`
+	Lastname           *string `json:"lastname,omitempty"`
+	Firstname          *string `json:"firstname,omitempty"`
+	Gender             *string `json:"gender,omitempty"`
+	Birthdate          *string `json:"birthdate,omitempty"`      // YYYY-MM-DD
+	StatusDate         *string `json:"status_date,omitempty"`    // RFC3339
+	Dateofcreation     *string `json:"dateofcreation,omitempty"` // YYYY-MM-DD
+	Lastupdate         *string `json:"lastupdate,omitempty"`     // RFC3339
 	Nationcode         *string `json:"nationcode,omitempty"`
 	Nationalcode       *string `json:"nationalcode,omitempty"`
 	Skiclub            *string `json:"skiclub,omitempty"`
@@ -337,17 +335,16 @@ func FISCompetitorFullFromSqlc(row fissqlc.ACompetitor) FISCompetitorResponse {
 	}
 
 	return FISCompetitorResponse{
-		Competitorid: utils.Int32PtrOrNil(row.Competitorid),
-		Personid:     utils.Int32PtrOrNil(row.Personid),
-		Ipcid:        utils.Int32PtrOrNil(row.Ipcid),
-		Type:         utils.StringPtrOrNil(row.Type),
-		Sectorcode:   utils.StringPtrOrNil(row.Sectorcode),
-		Fiscode:      utils.Int32PtrOrNil(row.Fiscode),
-		Lastname:     utils.StringPtrOrNil(row.Lastname),
-		Firstname:    utils.StringPtrOrNil(row.Firstname),
-		Gender:       utils.StringPtrOrNil(row.Gender),
-		Birthdate:    birthStr,
-
+		Competitorid:       row.Competitorid,
+		Personid:           utils.Int32PtrOrNil(row.Personid),
+		Ipcid:              utils.Int32PtrOrNil(row.Ipcid),
+		Type:               utils.StringPtrOrNil(row.Type),
+		Sectorcode:         utils.StringPtrOrNil(row.Sectorcode),
+		Fiscode:            utils.Int32PtrOrNil(row.Fiscode),
+		Lastname:           utils.StringPtrOrNil(row.Lastname),
+		Firstname:          utils.StringPtrOrNil(row.Firstname),
+		Gender:             utils.StringPtrOrNil(row.Gender),
+		Birthdate:          birthStr,
 		Nationcode:         utils.StringPtrOrNil(row.Nationcode),
 		Nationalcode:       utils.StringPtrOrNil(row.Nationalcode),
 		Skiclub:            utils.StringPtrOrNil(row.Skiclub),

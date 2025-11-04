@@ -17,7 +17,7 @@ DELETE FROM a_competitor
 WHERE competitorid = $1
 `
 
-func (q *Queries) DeleteCompetitorByID(ctx context.Context, competitorid sql.NullInt32) error {
+func (q *Queries) DeleteCompetitorByID(ctx context.Context, competitorid int32) error {
 	_, err := q.exec(ctx, q.deleteCompetitorByIDStmt, deleteCompetitorByID, competitorid)
 	return err
 }
@@ -27,7 +27,7 @@ DELETE FROM a_racecc
 WHERE raceid = $1
 `
 
-func (q *Queries) DeleteRaceCCByID(ctx context.Context, raceid sql.NullInt32) error {
+func (q *Queries) DeleteRaceCCByID(ctx context.Context, raceid int32) error {
 	_, err := q.exec(ctx, q.deleteRaceCCByIDStmt, deleteRaceCCByID, raceid)
 	return err
 }
@@ -37,7 +37,7 @@ DELETE FROM a_racejp
 WHERE raceid = $1
 `
 
-func (q *Queries) DeleteRaceJPByID(ctx context.Context, raceid sql.NullInt32) error {
+func (q *Queries) DeleteRaceJPByID(ctx context.Context, raceid int32) error {
 	_, err := q.exec(ctx, q.deleteRaceJPByIDStmt, deleteRaceJPByID, raceid)
 	return err
 }
@@ -47,7 +47,7 @@ DELETE FROM a_racenk
 WHERE raceid = $1
 `
 
-func (q *Queries) DeleteRaceNKByID(ctx context.Context, raceid sql.NullInt32) error {
+func (q *Queries) DeleteRaceNKByID(ctx context.Context, raceid int32) error {
 	_, err := q.exec(ctx, q.deleteRaceNKByIDStmt, deleteRaceNKByID, raceid)
 	return err
 }
@@ -57,7 +57,7 @@ DELETE FROM a_resultcc
 WHERE recid = $1
 `
 
-func (q *Queries) DeleteResultCCByRecID(ctx context.Context, recid sql.NullInt32) error {
+func (q *Queries) DeleteResultCCByRecID(ctx context.Context, recid int32) error {
 	_, err := q.exec(ctx, q.deleteResultCCByRecIDStmt, deleteResultCCByRecID, recid)
 	return err
 }
@@ -67,7 +67,7 @@ DELETE FROM a_resultjp
 WHERE recid = $1
 `
 
-func (q *Queries) DeleteResultJPByRecID(ctx context.Context, recid sql.NullInt32) error {
+func (q *Queries) DeleteResultJPByRecID(ctx context.Context, recid int32) error {
 	_, err := q.exec(ctx, q.deleteResultJPByRecIDStmt, deleteResultJPByRecID, recid)
 	return err
 }
@@ -77,7 +77,7 @@ DELETE FROM a_resultnk
 WHERE recid = $1
 `
 
-func (q *Queries) DeleteResultNKByRecID(ctx context.Context, recid sql.NullInt32) error {
+func (q *Queries) DeleteResultNKByRecID(ctx context.Context, recid int32) error {
 	_, err := q.exec(ctx, q.deleteResultNKByRecIDStmt, deleteResultNKByRecID, recid)
 	return err
 }
@@ -111,7 +111,7 @@ type GetAthleteResultsCCParams struct {
 }
 
 type GetAthleteResultsCCRow struct {
-	Recid          sql.NullInt32
+	Recid          int32
 	Raceid         sql.NullInt32
 	Position       sql.NullString
 	Timetot        sql.NullString
@@ -322,7 +322,7 @@ type GetAthleteResultsNKParams struct {
 }
 
 type GetAthleteResultsNKRow struct {
-	Recid          sql.NullInt32
+	Recid          int32
 	Raceid         sql.NullInt32
 	Position       sql.NullInt32
 	Racedate       sql.NullTime
@@ -439,9 +439,9 @@ FROM A_competitor
 WHERE Fiscode = $1 AND SectorCode = 'CC'
 `
 
-func (q *Queries) GetCompetitorIDByFiscodeCC(ctx context.Context, fiscode sql.NullInt32) (sql.NullInt32, error) {
+func (q *Queries) GetCompetitorIDByFiscodeCC(ctx context.Context, fiscode sql.NullInt32) (int32, error) {
 	row := q.queryRow(ctx, q.getCompetitorIDByFiscodeCCStmt, getCompetitorIDByFiscodeCC, fiscode)
-	var competitorid sql.NullInt32
+	var competitorid int32
 	err := row.Scan(&competitorid)
 	return competitorid, err
 }
@@ -452,9 +452,9 @@ FROM A_competitor
 WHERE Fiscode = $1 AND SectorCode = 'JP'
 `
 
-func (q *Queries) GetCompetitorIDByFiscodeJP(ctx context.Context, fiscode sql.NullInt32) (sql.NullInt32, error) {
+func (q *Queries) GetCompetitorIDByFiscodeJP(ctx context.Context, fiscode sql.NullInt32) (int32, error) {
 	row := q.queryRow(ctx, q.getCompetitorIDByFiscodeJPStmt, getCompetitorIDByFiscodeJP, fiscode)
-	var competitorid sql.NullInt32
+	var competitorid int32
 	err := row.Scan(&competitorid)
 	return competitorid, err
 }
@@ -465,9 +465,9 @@ FROM A_competitor
 WHERE Fiscode = $1 AND SectorCode = 'NK'
 `
 
-func (q *Queries) GetCompetitorIDByFiscodeNK(ctx context.Context, fiscode sql.NullInt32) (sql.NullInt32, error) {
+func (q *Queries) GetCompetitorIDByFiscodeNK(ctx context.Context, fiscode sql.NullInt32) (int32, error) {
 	row := q.queryRow(ctx, q.getCompetitorIDByFiscodeNKStmt, getCompetitorIDByFiscodeNK, fiscode)
-	var competitorid sql.NullInt32
+	var competitorid int32
 	err := row.Scan(&competitorid)
 	return competitorid, err
 }
@@ -2026,7 +2026,7 @@ INSERT INTO public.a_competitor (
 `
 
 type InsertCompetitorParams struct {
-	Competitorid       sql.NullInt32
+	Competitorid       int32
 	Personid           sql.NullInt32
 	Ipcid              sql.NullInt32
 	Fiscode            sql.NullInt32
@@ -2163,7 +2163,7 @@ INSERT INTO public.a_racecc (
 `
 
 type InsertRaceCCParams struct {
-	Raceid            sql.NullInt32
+	Raceid            int32
 	Eventid           sql.NullInt32
 	Seasoncode        sql.NullInt32
 	Racecodex         sql.NullInt32
@@ -2394,7 +2394,7 @@ INSERT INTO public.a_racejp (
 `
 
 type InsertRaceJPParams struct {
-	Raceid            sql.NullInt32
+	Raceid            int32
 	Eventid           sql.NullInt32
 	Seasoncode        sql.NullInt32
 	Racecodex         sql.NullInt32
@@ -2625,7 +2625,7 @@ INSERT INTO public.a_racenk (
 `
 
 type InsertRaceNKParams struct {
-	Raceid            sql.NullInt32
+	Raceid            int32
 	Eventid           sql.NullInt32
 	Seasoncode        sql.NullInt32
 	Racecodex         sql.NullInt32
@@ -2828,7 +2828,7 @@ INSERT INTO a_resultcc (
 `
 
 type InsertResultCCParams struct {
-	Recid          sql.NullInt32
+	Recid          int32
 	Raceid         sql.NullInt32
 	Competitorid   sql.NullInt32
 	Status         sql.NullString
@@ -2923,7 +2923,7 @@ INSERT INTO a_resultjp (
 `
 
 type InsertResultJPParams struct {
-	Recid          sql.NullInt32
+	Recid          int32
 	Raceid         sql.NullInt32
 	Competitorid   sql.NullInt32
 	Status         sql.NullString
@@ -3122,7 +3122,7 @@ INSERT INTO a_resultnk (
 `
 
 type InsertResultNKParams struct {
-	Recid          sql.NullInt32
+	Recid          int32
 	Raceid         sql.NullInt32
 	Competitorid   sql.NullInt32
 	Status         sql.NullString
@@ -3306,7 +3306,7 @@ WHERE competitorid = $1
 `
 
 type UpdateCompetitorByIDParams struct {
-	Competitorid       sql.NullInt32
+	Competitorid       int32
 	Personid           sql.NullInt32
 	Ipcid              sql.NullInt32
 	Type               sql.NullString
@@ -3493,7 +3493,7 @@ WHERE raceid = $1
 `
 
 type UpdateRaceCCByIDParams struct {
-	Raceid            sql.NullInt32
+	Raceid            int32
 	Eventid           sql.NullInt32
 	Seasoncode        sql.NullInt32
 	Racecodex         sql.NullInt32
@@ -3770,7 +3770,7 @@ WHERE raceid = $1
 `
 
 type UpdateRaceJPByIDParams struct {
-	Raceid            sql.NullInt32
+	Raceid            int32
 	Eventid           sql.NullInt32
 	Seasoncode        sql.NullInt32
 	Racecodex         sql.NullInt32
@@ -4047,7 +4047,7 @@ WHERE raceid = $1
 `
 
 type UpdateRaceNKByIDParams struct {
-	Raceid            sql.NullInt32
+	Raceid            int32
 	Eventid           sql.NullInt32
 	Seasoncode        sql.NullInt32
 	Racecodex         sql.NullInt32
@@ -4265,7 +4265,7 @@ WHERE recid = $1
 `
 
 type UpdateResultCCByRecIDParams struct {
-	Recid          sql.NullInt32
+	Recid          int32
 	Raceid         sql.NullInt32
 	Competitorid   sql.NullInt32
 	Status         sql.NullString
@@ -4348,7 +4348,7 @@ WHERE recid = $1
 `
 
 type UpdateResultJPByRecIDParams struct {
-	Recid          sql.NullInt32
+	Recid          int32
 	Raceid         sql.NullInt32
 	Competitorid   sql.NullInt32
 	Status         sql.NullString
@@ -4538,7 +4538,7 @@ WHERE recid = $1
 `
 
 type UpdateResultNKByRecIDParams struct {
-	Recid          sql.NullInt32
+	Recid          int32
 	Raceid         sql.NullInt32
 	Competitorid   sql.NullInt32
 	Status         sql.NullString

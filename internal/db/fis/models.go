@@ -9,7 +9,7 @@ import (
 )
 
 type ACompetitor struct {
-	Competitorid       sql.NullInt32
+	Competitorid       int32
 	Personid           sql.NullInt32
 	Ipcid              sql.NullInt32
 	Type               sql.NullString
@@ -55,7 +55,7 @@ type ACompetitor struct {
 }
 
 type ARacecc struct {
-	Raceid            sql.NullInt32
+	Raceid            int32
 	Eventid           sql.NullInt32
 	Seasoncode        sql.NullInt32
 	Racecodex         sql.NullInt32
@@ -146,7 +146,7 @@ type ARacecc struct {
 }
 
 type ARacejp struct {
-	Raceid            sql.NullInt32
+	Raceid            int32
 	Eventid           sql.NullInt32
 	Seasoncode        sql.NullInt32
 	Racecodex         sql.NullInt32
@@ -237,7 +237,7 @@ type ARacejp struct {
 }
 
 type ARacenk struct {
-	Raceid            sql.NullInt32
+	Raceid            int32
 	Eventid           sql.NullInt32
 	Seasoncode        sql.NullInt32
 	Racecodex         sql.NullInt32
@@ -328,7 +328,7 @@ type ARacenk struct {
 }
 
 type AResultcc struct {
-	Recid          sql.NullInt32
+	Recid          int32
 	Raceid         sql.NullInt32
 	Competitorid   sql.NullInt32
 	Status         sql.NullString
@@ -360,7 +360,7 @@ type AResultcc struct {
 }
 
 type AResultjp struct {
-	Recid          sql.NullInt32
+	Recid          int32
 	Raceid         sql.NullInt32
 	Competitorid   sql.NullInt32
 	Status         sql.NullString
@@ -447,7 +447,7 @@ type AResultjp struct {
 }
 
 type AResultnk struct {
-	Recid          sql.NullInt32
+	Recid          int32
 	Raceid         sql.NullInt32
 	Competitorid   sql.NullInt32
 	Status         sql.NullString

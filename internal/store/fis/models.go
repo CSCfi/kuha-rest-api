@@ -1,7 +1,6 @@
 package fis
 
 import (
-	"database/sql"
 	"time"
 
 	fissqlc "github.com/DeRuina/KUHA-REST-API/internal/db/fis"
@@ -15,7 +14,7 @@ type AthleteRow struct {
 }
 
 type InsertCompetitorClean struct {
-	Competitorid       *int32
+	Competitorid       int32
 	Personid           *int32
 	Ipcid              *int32
 	Fiscode            *int32
@@ -108,7 +107,7 @@ type UpdateCompetitorClean struct {
 
 func mapInsertToParams(in InsertCompetitorClean) fissqlc.InsertCompetitorParams {
 	return fissqlc.InsertCompetitorParams{
-		Competitorid:       utils.NullInt32Ptr(in.Competitorid),
+		Competitorid:       in.Competitorid,
 		Personid:           utils.NullInt32Ptr(in.Personid),
 		Ipcid:              utils.NullInt32Ptr(in.Ipcid),
 		Fiscode:            utils.NullInt32Ptr(in.Fiscode),
@@ -156,7 +155,7 @@ func mapInsertToParams(in InsertCompetitorClean) fissqlc.InsertCompetitorParams 
 
 func mapUpdateToParams(in UpdateCompetitorClean) fissqlc.UpdateCompetitorByIDParams {
 	return fissqlc.UpdateCompetitorByIDParams{
-		Competitorid:       sql.NullInt32{Int32: in.Competitorid, Valid: true},
+		Competitorid:       in.Competitorid,
 		Personid:           utils.NullInt32Ptr(in.Personid),
 		Ipcid:              utils.NullInt32Ptr(in.Ipcid),
 		Type:               utils.NullStringPtr(in.Type),

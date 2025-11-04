@@ -1,6 +1,7 @@
 package fisapi
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -159,7 +160,7 @@ func (h *CompetitorHandler) GetLastRowCompetitor(w http.ResponseWriter, r *http.
 
 	row, err := h.store.GetLastRowCompetitor(r.Context())
 	if err != nil {
-		if errors.Is(err, sqlErrNoRows()) {
+		if errors.Is(err, sql.ErrNoRows) {
 			utils.NotFoundResponse(w, r, err)
 			return
 		}
@@ -191,7 +192,6 @@ func (h *CompetitorHandler) GetLastRowCompetitor(w http.ResponseWriter, r *http.
 //	@Failure		503			{object}	swagger.ServiceUnavailableResponse
 //	@Security		BearerAuth
 //	@Router			/fis/competitor [post]
-
 func (h *CompetitorHandler) InsertCompetitor(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
 		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
@@ -218,9 +218,7 @@ func (h *CompetitorHandler) InsertCompetitor(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if clean.Competitorid != nil {
-		invalidateCompetitor(r.Context(), h.cache, *clean.Competitorid)
-	}
+	invalidateCompetitor(r.Context(), h.cache, clean.Competitorid)
 
 	if clean.Sectorcode != nil && *clean.Sectorcode != "" {
 		invalidateSector(r.Context(), h.cache, *clean.Sectorcode)
@@ -246,7 +244,6 @@ func (h *CompetitorHandler) InsertCompetitor(w http.ResponseWriter, r *http.Requ
 //	@Failure		503			{object}	swagger.ServiceUnavailableResponse
 //	@Security		BearerAuth
 //	@Router			/fis/competitor [put]
-
 func (h *CompetitorHandler) UpdateCompetitor(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
 		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
@@ -297,7 +294,6 @@ func (h *CompetitorHandler) UpdateCompetitor(w http.ResponseWriter, r *http.Requ
 //	@Failure		503	{object}	swagger.ServiceUnavailableResponse
 //	@Security		BearerAuth
 //	@Router			/fis/competitor [delete]
-
 func (h *CompetitorHandler) DeleteCompetitor(w http.ResponseWriter, r *http.Request) {
 	if !authz.Authorize(r) {
 		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
@@ -332,5 +328,3 @@ func (h *CompetitorHandler) DeleteCompetitor(w http.ResponseWriter, r *http.Requ
 
 	w.WriteHeader(http.StatusOK)
 }
-
-func sqlErrNoRows() error { return errors.New("sql: no rows in result set") }

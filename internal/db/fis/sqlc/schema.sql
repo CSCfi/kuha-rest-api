@@ -26,7 +26,7 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.a_competitor (
-    competitorid integer,
+    competitorid integer NOT NULL,
     personid integer,
     ipcid integer,
     type character varying(255),
@@ -77,7 +77,7 @@ CREATE TABLE public.a_competitor (
 --
 
 CREATE TABLE public.a_racecc (
-    raceid integer,
+    raceid integer NOT NULL,
     eventid integer,
     seasoncode integer,
     racecodex integer,
@@ -173,7 +173,7 @@ CREATE TABLE public.a_racecc (
 --
 
 CREATE TABLE public.a_racejp (
-    raceid integer,
+    raceid integer NOT NULL,
     eventid integer,
     seasoncode integer,
     racecodex integer,
@@ -269,7 +269,7 @@ CREATE TABLE public.a_racejp (
 --
 
 CREATE TABLE public.a_racenk (
-    raceid integer,
+    raceid integer NOT NULL,
     eventid integer,
     seasoncode integer,
     racecodex integer,
@@ -365,7 +365,7 @@ CREATE TABLE public.a_racenk (
 --
 
 CREATE TABLE public.a_resultcc (
-    recid integer,
+    recid integer NOT NULL,
     raceid integer,
     competitorid integer,
     status character varying(255),
@@ -402,7 +402,7 @@ CREATE TABLE public.a_resultcc (
 --
 
 CREATE TABLE public.a_resultjp (
-    recid integer,
+    recid integer NOT NULL,
     raceid integer,
     competitorid integer,
     status character varying(255),
@@ -494,7 +494,7 @@ CREATE TABLE public.a_resultjp (
 --
 
 CREATE TABLE public.a_resultnk (
-    recid integer,
+    recid integer NOT NULL,
     raceid integer,
     competitorid integer,
     status character varying(255),
@@ -562,6 +562,68 @@ CREATE TABLE public.a_resultnk (
 
 
 --
--- PostgreSQL database dump complete
+-- Name: a_competitor a_competitor_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY public.a_competitor
+    ADD CONSTRAINT a_competitor_pkey PRIMARY KEY (competitorid);
+
+
+--
+-- Name: a_racecc a_racecc_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.a_racecc
+    ADD CONSTRAINT a_racecc_pkey PRIMARY KEY (raceid);
+
+
+--
+-- Name: a_racejp a_racejp2_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.a_racejp
+    ADD CONSTRAINT a_racejp2_pkey PRIMARY KEY (raceid);
+
+
+--
+-- Name: a_racenk a_racenk2_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.a_racenk
+    ADD CONSTRAINT a_racenk2_pkey PRIMARY KEY (raceid);
+
+
+--
+-- Name: a_resultcc a_resultcc_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.a_resultcc
+    ADD CONSTRAINT a_resultcc_pkey PRIMARY KEY (recid);
+
+
+--
+-- Name: a_resultjp a_resultjp2_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.a_resultjp
+    ADD CONSTRAINT a_resultjp2_pkey PRIMARY KEY (recid);
+
+
+--
+-- Name: a_resultnk a_resultnk2_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.a_resultnk
+    ADD CONSTRAINT a_resultnk2_pkey PRIMARY KEY (recid);
+
+
+--
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: -
+--
+
+GRANT ALL ON SCHEMA public TO fisadmin;
+
+
+--
+-- PostgreSQL database dump complete
+--
