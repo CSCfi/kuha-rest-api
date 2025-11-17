@@ -876,3 +876,34 @@ WHERE recid = $1;
 -- name: DeleteResultNKByRecID :exec
 DELETE FROM a_resultnk
 WHERE recid = $1;
+
+-- name: GetAthletesBySporttiID :many
+SELECT
+  fiscode,
+  sporttiid,
+  firstname,
+  lastname
+FROM athlete
+WHERE sporttiid = $1
+ORDER BY fiscode;
+
+-- name: InsertAthlete :exec
+INSERT INTO public.athlete (
+  fiscode,
+  sporttiid,
+  firstname,
+  lastname
+) VALUES (
+  $1, $2, $3, $4
+);
+
+-- name: UpdateAthleteByFiscode :exec
+UPDATE public.athlete SET
+  sporttiid = $2,
+  firstname = $3,
+  lastname  = $4
+WHERE fiscode = $1;
+
+-- name: DeleteAthleteByFiscode :exec
+DELETE FROM public.athlete
+WHERE fiscode = $1;

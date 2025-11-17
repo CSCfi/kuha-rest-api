@@ -3,7 +3,7 @@
 --
 
 -- Dumped from database version 17.0 (Debian 17.0-1.pgdg110+1)
--- Dumped by pg_dump version 18.0 (Ubuntu 18.0-1.pgdg24.04+3)
+-- Dumped by pg_dump version 18.1 (Ubuntu 18.1-1.pgdg24.04+2)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -562,6 +562,18 @@ CREATE TABLE public.a_resultnk (
 
 
 --
+-- Name: athlete; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.athlete (
+    fiscode integer NOT NULL,
+    sporttiid integer,
+    firstname character varying(50),
+    lastname character varying(50)
+);
+
+
+--
 -- Name: a_competitor a_competitor_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -615,6 +627,14 @@ ALTER TABLE ONLY public.a_resultjp
 
 ALTER TABLE ONLY public.a_resultnk
     ADD CONSTRAINT a_resultnk2_pkey PRIMARY KEY (recid);
+
+
+--
+-- Name: athlete athlete_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.athlete
+    ADD CONSTRAINT athlete_pkey PRIMARY KEY (fiscode);
 
 
 --

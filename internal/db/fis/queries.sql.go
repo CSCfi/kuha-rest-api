@@ -12,6 +12,16 @@ import (
 	"github.com/lib/pq"
 )
 
+const deleteAthleteByFiscode = `-- name: DeleteAthleteByFiscode :exec
+DELETE FROM public.athlete
+WHERE fiscode = $1
+`
+
+func (q *Queries) DeleteAthleteByFiscode(ctx context.Context, fiscode int32) error {
+	_, err := q.exec(ctx, q.deleteAthleteByFiscodeStmt, deleteAthleteByFiscode, fiscode)
+	return err
+}
+
 const deleteCompetitorByID = `-- name: DeleteCompetitorByID :exec
 DELETE FROM a_competitor
 WHERE competitorid = $1
@@ -420,6 +430,45 @@ func (q *Queries) GetAthletesBySector(ctx context.Context, sectorcode sql.NullSt
 	for rows.Next() {
 		var i GetAthletesBySectorRow
 		if err := rows.Scan(&i.Firstname, &i.Lastname, &i.Fiscode); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAthletesBySporttiID = `-- name: GetAthletesBySporttiID :many
+SELECT
+  fiscode,
+  sporttiid,
+  firstname,
+  lastname
+FROM athlete
+WHERE sporttiid = $1
+ORDER BY fiscode
+`
+
+func (q *Queries) GetAthletesBySporttiID(ctx context.Context, sporttiid sql.NullInt32) ([]Athlete, error) {
+	rows, err := q.query(ctx, q.getAthletesBySporttiIDStmt, getAthletesBySporttiID, sporttiid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Athlete
+	for rows.Next() {
+		var i Athlete
+		if err := rows.Scan(
+			&i.Fiscode,
+			&i.Sporttiid,
+			&i.Firstname,
+			&i.Lastname,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -2003,6 +2052,34 @@ func (q *Queries) GetSkiJumpingSeasons(ctx context.Context) ([]sql.NullInt32, er
 	return items, nil
 }
 
+const insertAthlete = `-- name: InsertAthlete :exec
+INSERT INTO public.athlete (
+  fiscode,
+  sporttiid,
+  firstname,
+  lastname
+) VALUES (
+  $1, $2, $3, $4
+)
+`
+
+type InsertAthleteParams struct {
+	Fiscode   int32
+	Sporttiid sql.NullInt32
+	Firstname sql.NullString
+	Lastname  sql.NullString
+}
+
+func (q *Queries) InsertAthlete(ctx context.Context, arg InsertAthleteParams) error {
+	_, err := q.exec(ctx, q.insertAthleteStmt, insertAthlete,
+		arg.Fiscode,
+		arg.Sporttiid,
+		arg.Firstname,
+		arg.Lastname,
+	)
+	return err
+}
+
 const insertCompetitor = `-- name: InsertCompetitor :exec
 INSERT INTO public.a_competitor (
   competitorid, personid, ipcid, fiscode, birthdate, status_date,
@@ -3254,6 +3331,31 @@ func (q *Queries) InsertResultNK(ctx context.Context, arg InsertResultNKParams) 
 		arg.Cuppoints,
 		arg.Version,
 		arg.Lastupdate,
+	)
+	return err
+}
+
+const updateAthleteByFiscode = `-- name: UpdateAthleteByFiscode :exec
+UPDATE public.athlete SET
+  sporttiid = $2,
+  firstname = $3,
+  lastname  = $4
+WHERE fiscode = $1
+`
+
+type UpdateAthleteByFiscodeParams struct {
+	Fiscode   int32
+	Sporttiid sql.NullInt32
+	Firstname sql.NullString
+	Lastname  sql.NullString
+}
+
+func (q *Queries) UpdateAthleteByFiscode(ctx context.Context, arg UpdateAthleteByFiscodeParams) error {
+	_, err := q.exec(ctx, q.updateAthleteByFiscodeStmt, updateAthleteByFiscode,
+		arg.Fiscode,
+		arg.Sporttiid,
+		arg.Firstname,
+		arg.Lastname,
 	)
 	return err
 }

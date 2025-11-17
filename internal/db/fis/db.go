@@ -24,6 +24,9 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
+	if q.deleteAthleteByFiscodeStmt, err = db.PrepareContext(ctx, deleteAthleteByFiscode); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteAthleteByFiscode: %w", err)
+	}
 	if q.deleteCompetitorByIDStmt, err = db.PrepareContext(ctx, deleteCompetitorByID); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteCompetitorByID: %w", err)
 	}
@@ -56,6 +59,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.getAthletesBySectorStmt, err = db.PrepareContext(ctx, getAthletesBySector); err != nil {
 		return nil, fmt.Errorf("error preparing query GetAthletesBySector: %w", err)
+	}
+	if q.getAthletesBySporttiIDStmt, err = db.PrepareContext(ctx, getAthletesBySporttiID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetAthletesBySporttiID: %w", err)
 	}
 	if q.getCompetitorIDByFiscodeCCStmt, err = db.PrepareContext(ctx, getCompetitorIDByFiscodeCC); err != nil {
 		return nil, fmt.Errorf("error preparing query GetCompetitorIDByFiscodeCC: %w", err)
@@ -135,6 +141,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getSkiJumpingSeasonsStmt, err = db.PrepareContext(ctx, getSkiJumpingSeasons); err != nil {
 		return nil, fmt.Errorf("error preparing query GetSkiJumpingSeasons: %w", err)
 	}
+	if q.insertAthleteStmt, err = db.PrepareContext(ctx, insertAthlete); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertAthlete: %w", err)
+	}
 	if q.insertCompetitorStmt, err = db.PrepareContext(ctx, insertCompetitor); err != nil {
 		return nil, fmt.Errorf("error preparing query InsertCompetitor: %w", err)
 	}
@@ -155,6 +164,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.insertResultNKStmt, err = db.PrepareContext(ctx, insertResultNK); err != nil {
 		return nil, fmt.Errorf("error preparing query InsertResultNK: %w", err)
+	}
+	if q.updateAthleteByFiscodeStmt, err = db.PrepareContext(ctx, updateAthleteByFiscode); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateAthleteByFiscode: %w", err)
 	}
 	if q.updateCompetitorByIDStmt, err = db.PrepareContext(ctx, updateCompetitorByID); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateCompetitorByID: %w", err)
@@ -182,6 +194,11 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 
 func (q *Queries) Close() error {
 	var err error
+	if q.deleteAthleteByFiscodeStmt != nil {
+		if cerr := q.deleteAthleteByFiscodeStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteAthleteByFiscodeStmt: %w", cerr)
+		}
+	}
 	if q.deleteCompetitorByIDStmt != nil {
 		if cerr := q.deleteCompetitorByIDStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing deleteCompetitorByIDStmt: %w", cerr)
@@ -235,6 +252,11 @@ func (q *Queries) Close() error {
 	if q.getAthletesBySectorStmt != nil {
 		if cerr := q.getAthletesBySectorStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getAthletesBySectorStmt: %w", cerr)
+		}
+	}
+	if q.getAthletesBySporttiIDStmt != nil {
+		if cerr := q.getAthletesBySporttiIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getAthletesBySporttiIDStmt: %w", cerr)
 		}
 	}
 	if q.getCompetitorIDByFiscodeCCStmt != nil {
@@ -367,6 +389,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getSkiJumpingSeasonsStmt: %w", cerr)
 		}
 	}
+	if q.insertAthleteStmt != nil {
+		if cerr := q.insertAthleteStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertAthleteStmt: %w", cerr)
+		}
+	}
 	if q.insertCompetitorStmt != nil {
 		if cerr := q.insertCompetitorStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing insertCompetitorStmt: %w", cerr)
@@ -400,6 +427,11 @@ func (q *Queries) Close() error {
 	if q.insertResultNKStmt != nil {
 		if cerr := q.insertResultNKStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing insertResultNKStmt: %w", cerr)
+		}
+	}
+	if q.updateAthleteByFiscodeStmt != nil {
+		if cerr := q.updateAthleteByFiscodeStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateAthleteByFiscodeStmt: %w", cerr)
 		}
 	}
 	if q.updateCompetitorByIDStmt != nil {
@@ -476,6 +508,7 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 type Queries struct {
 	db                               DBTX
 	tx                               *sql.Tx
+	deleteAthleteByFiscodeStmt       *sql.Stmt
 	deleteCompetitorByIDStmt         *sql.Stmt
 	deleteRaceCCByIDStmt             *sql.Stmt
 	deleteRaceJPByIDStmt             *sql.Stmt
@@ -487,6 +520,7 @@ type Queries struct {
 	getAthleteResultsJPStmt          *sql.Stmt
 	getAthleteResultsNKStmt          *sql.Stmt
 	getAthletesBySectorStmt          *sql.Stmt
+	getAthletesBySporttiIDStmt       *sql.Stmt
 	getCompetitorIDByFiscodeCCStmt   *sql.Stmt
 	getCompetitorIDByFiscodeJPStmt   *sql.Stmt
 	getCompetitorIDByFiscodeNKStmt   *sql.Stmt
@@ -513,6 +547,7 @@ type Queries struct {
 	getSkiJumpingCategoriesStmt      *sql.Stmt
 	getSkiJumpingDisciplinesStmt     *sql.Stmt
 	getSkiJumpingSeasonsStmt         *sql.Stmt
+	insertAthleteStmt                *sql.Stmt
 	insertCompetitorStmt             *sql.Stmt
 	insertRaceCCStmt                 *sql.Stmt
 	insertRaceJPStmt                 *sql.Stmt
@@ -520,6 +555,7 @@ type Queries struct {
 	insertResultCCStmt               *sql.Stmt
 	insertResultJPStmt               *sql.Stmt
 	insertResultNKStmt               *sql.Stmt
+	updateAthleteByFiscodeStmt       *sql.Stmt
 	updateCompetitorByIDStmt         *sql.Stmt
 	updateRaceCCByIDStmt             *sql.Stmt
 	updateRaceJPByIDStmt             *sql.Stmt
@@ -533,6 +569,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
 		db:                               tx,
 		tx:                               tx,
+		deleteAthleteByFiscodeStmt:       q.deleteAthleteByFiscodeStmt,
 		deleteCompetitorByIDStmt:         q.deleteCompetitorByIDStmt,
 		deleteRaceCCByIDStmt:             q.deleteRaceCCByIDStmt,
 		deleteRaceJPByIDStmt:             q.deleteRaceJPByIDStmt,
@@ -544,6 +581,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getAthleteResultsJPStmt:          q.getAthleteResultsJPStmt,
 		getAthleteResultsNKStmt:          q.getAthleteResultsNKStmt,
 		getAthletesBySectorStmt:          q.getAthletesBySectorStmt,
+		getAthletesBySporttiIDStmt:       q.getAthletesBySporttiIDStmt,
 		getCompetitorIDByFiscodeCCStmt:   q.getCompetitorIDByFiscodeCCStmt,
 		getCompetitorIDByFiscodeJPStmt:   q.getCompetitorIDByFiscodeJPStmt,
 		getCompetitorIDByFiscodeNKStmt:   q.getCompetitorIDByFiscodeNKStmt,
@@ -570,6 +608,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getSkiJumpingCategoriesStmt:      q.getSkiJumpingCategoriesStmt,
 		getSkiJumpingDisciplinesStmt:     q.getSkiJumpingDisciplinesStmt,
 		getSkiJumpingSeasonsStmt:         q.getSkiJumpingSeasonsStmt,
+		insertAthleteStmt:                q.insertAthleteStmt,
 		insertCompetitorStmt:             q.insertCompetitorStmt,
 		insertRaceCCStmt:                 q.insertRaceCCStmt,
 		insertRaceJPStmt:                 q.insertRaceJPStmt,
@@ -577,6 +616,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		insertResultCCStmt:               q.insertResultCCStmt,
 		insertResultJPStmt:               q.insertResultJPStmt,
 		insertResultNKStmt:               q.insertResultNKStmt,
+		updateAthleteByFiscodeStmt:       q.updateAthleteByFiscodeStmt,
 		updateCompetitorByIDStmt:         q.updateCompetitorByIDStmt,
 		updateRaceCCByIDStmt:             q.updateRaceCCByIDStmt,
 		updateRaceJPByIDStmt:             q.updateRaceJPByIDStmt,

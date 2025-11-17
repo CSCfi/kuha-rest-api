@@ -512,3 +512,10 @@ type AResultnk struct {
 	Version        sql.NullString
 	Lastupdate     sql.NullTime
 }
+
+type Athlete struct {
+	Fiscode   int32
+	Sporttiid sql.NullInt32
+	Firstname sql.NullString
+	Lastname  sql.NullString
+}
