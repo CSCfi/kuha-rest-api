@@ -267,7 +267,7 @@ INSERT INTO public.a_competitor (
 );
 
 
--- name: UpdateCompetitorByID :exec
+-- name: UpdateCompetitorByID :one
 UPDATE public.a_competitor SET
   personid            = $2,
   ipcid               = $3,
@@ -311,11 +311,14 @@ UPDATE public.a_competitor SET
   categorycode        = $41,
   classname           = $42,
   classcode           = $43
-WHERE competitorid = $1;
+WHERE competitorid = $1
+RETURNING competitorid;
 
--- name: DeleteCompetitorByID :exec
+-- name: DeleteCompetitorByID :one
 DELETE FROM a_competitor
-WHERE competitorid = $1;
+WHERE competitorid = $1
+RETURNING competitorid;
+
 
 
 -- name: InsertRaceCC :exec
@@ -360,7 +363,7 @@ INSERT INTO public.a_racecc (
 );
 
 
--- name: UpdateRaceCCByID :exec
+-- name: UpdateRaceCCByID :one
 UPDATE public.a_racecc SET
   eventid = $2,
   seasoncode = $3,
@@ -449,12 +452,15 @@ UPDATE public.a_racecc SET
   skip_wcsl = $86,
   validforowg = $87,
   lastupdate = $88
-WHERE raceid = $1;
+WHERE raceid = $1
+RETURNING raceid;
 
 
--- name: DeleteRaceCCByID :exec
+-- name: DeleteRaceCCByID :one
 DELETE FROM a_racecc
-WHERE raceid = $1;
+WHERE raceid = $1
+RETURNING raceid;
+
 
 -- name: InsertRaceJP :exec
 INSERT INTO public.a_racejp (
@@ -502,7 +508,7 @@ INSERT INTO public.a_racejp (
 );
 
 
--- name: UpdateRaceJPByID :exec
+-- name: UpdateRaceJPByID :one
 UPDATE public.a_racejp SET
   eventid = $2,
   seasoncode = $3,
@@ -591,12 +597,15 @@ UPDATE public.a_racejp SET
   skip_wcsl = $86,
   lastupdate = $87,
   validforowg = $88
-WHERE raceid = $1;
+WHERE raceid = $1
+RETURNING raceid;
 
 
--- name: DeleteRaceJPByID :exec
+-- name: DeleteRaceJPByID :one
 DELETE FROM a_racejp
-WHERE raceid = $1;
+WHERE raceid = $1
+RETURNING raceid;
+
 
 -- name: InsertRaceNK :exec
 INSERT INTO public.a_racenk (
@@ -644,7 +653,7 @@ INSERT INTO public.a_racenk (
 );
 
 
--- name: UpdateRaceNKByID :exec
+-- name: UpdateRaceNKByID :one
 UPDATE public.a_racenk SET
   eventid = $2,
   seasoncode = $3,
@@ -733,12 +742,15 @@ UPDATE public.a_racenk SET
   skip_wcsl = $86,
   validforowg = $87,
   lastupdate = $88
-WHERE raceid = $1;
+WHERE raceid = $1
+RETURNING raceid;
 
 
--- name: DeleteRaceNKByID :exec
+-- name: DeleteRaceNKByID :one
 DELETE FROM a_racenk
-WHERE raceid = $1;
+WHERE raceid = $1
+RETURNING raceid;
+
 
 
 -- name: InsertResultCC :exec
@@ -758,7 +770,7 @@ INSERT INTO a_resultcc (
   $27, $28, $29
 );
 
--- name: UpdateResultCCByRecID :exec
+-- name: UpdateResultCCByRecID :one
 UPDATE a_resultcc SET
   raceid          = $2,
   competitorid    = $3,
@@ -788,11 +800,14 @@ UPDATE a_resultcc SET
   rg1             = $27,
   rg2             = $28,
   lastupdate      = $29
-WHERE recid = $1;
+WHERE recid = $1
+RETURNING recid;
 
--- name: DeleteResultCCByRecID :exec
+-- name: DeleteResultCCByRecID :one
 DELETE FROM a_resultcc
-WHERE recid = $1;
+WHERE recid = $1
+RETURNING recid;
+
 
 -- name: InsertResultJP :exec
 INSERT INTO a_resultjp (
@@ -821,7 +836,7 @@ INSERT INTO a_resultjp (
   $75,$76,$77,$78,$79,$80,$81,$82,$83,$84
 );
 
--- name: UpdateResultJPByRecID :exec
+-- name: UpdateResultJPByRecID :one
 UPDATE a_resultjp SET
   raceid = $2, competitorid = $3, status = $4, status2 = $5, "position" = $6, bib = $7,
   fiscode = $8, competitorname = $9, nationcode = $10, level = $11, heat = $12, stage = $13,
@@ -834,11 +849,14 @@ UPDATE a_resultjp SET
   windr1 = $67, windr2 = $68, windr3 = $69, windr4 = $70,
   windptsr1 = $71, windptsr2 = $72, windptsr3 = $73, windptsr4 = $74,
   reason = $75, totrun4 = $76, tot = $77, valid = $78, racepoints = $79, cuppoints = $80, version = $81, lastupdate = $82, posr4 = $83, statusr4 = $84
-WHERE recid = $1;
+WHERE recid = $1
+RETURNING recid;
 
--- name: DeleteResultJPByRecID :exec
+-- name: DeleteResultJPByRecID :one
 DELETE FROM a_resultjp
-WHERE recid = $1;
+WHERE recid = $1
+RETURNING recid;
+
 
 -- name: InsertResultNK :exec
 INSERT INTO a_resultnk (
@@ -861,7 +879,7 @@ INSERT INTO a_resultnk (
   $60,$61,$62,$63,$64
 );
 
--- name: UpdateResultNKByRecID :exec
+-- name: UpdateResultNKByRecID :one
 UPDATE a_resultnk SET
   raceid=$2, competitorid=$3, status=$4, status2=$5, reason=$6, "position"=$7, pf=$8, bib=$9, bibcolor=$10,
   fiscode=$11, competitorname=$12, nationcode=$13, level=$14, heat=$15, stage=$16,
@@ -871,11 +889,13 @@ UPDATE a_resultnk SET
   gater2=$42, gateptsr2=$43, windr2=$44, windptsr2=$45, totrun2=$46, posr2=$47, statusr2=$48,
   pointsjump=$49, behindjump=$50, posjump=$51, timecc=$52, timeccint=$53, poscc=$54, starttime=$55, statuscc=$56, totbehind=$57, timetot=$58, timetotint=$59,
   valid=$60, racepoints=$61, cuppoints=$62, version=$63, lastupdate=$64
-WHERE recid = $1;
+WHERE recid = $1
+RETURNING recid;
 
--- name: DeleteResultNKByRecID :exec
+--- name: DeleteResultNKByRecID :one
 DELETE FROM a_resultnk
-WHERE recid = $1;
+WHERE recid = $1
+RETURNING recid;
 
 -- name: GetAthletesBySporttiID :many
 SELECT
@@ -897,13 +917,15 @@ INSERT INTO public.athlete (
   $1, $2, $3, $4
 );
 
--- name: UpdateAthleteByFiscode :exec
+-- name: UpdateAthleteByFiscode :one
 UPDATE public.athlete SET
   sporttiid = $2,
   firstname = $3,
   lastname  = $4
-WHERE fiscode = $1;
+WHERE fiscode = $1
+RETURNING fiscode;
 
--- name: DeleteAthleteByFiscode :exec
+-- name: DeleteAthleteByFiscode :one
 DELETE FROM public.athlete
-WHERE fiscode = $1;
+WHERE fiscode = $1
+RETURNING fiscode;

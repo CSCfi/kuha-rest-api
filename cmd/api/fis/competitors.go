@@ -266,6 +266,10 @@ func (h *CompetitorHandler) UpdateCompetitor(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	if err := h.store.UpdateCompetitorByID(r.Context(), clean); err != nil {
+		if err == sql.ErrNoRows {
+			utils.NotFoundResponse(w, r, err)
+			return
+		}
 		utils.HandleDatabaseError(w, r, err)
 		return
 	}
@@ -317,6 +321,10 @@ func (h *CompetitorHandler) DeleteCompetitor(w http.ResponseWriter, r *http.Requ
 	}
 
 	if err := h.store.DeleteCompetitorByID(r.Context(), id); err != nil {
+		if err == sql.ErrNoRows {
+			utils.NotFoundResponse(w, r, err)
+			return
+		}
 		utils.HandleDatabaseError(w, r, err)
 		return
 	}

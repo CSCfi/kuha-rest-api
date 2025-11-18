@@ -71,7 +71,8 @@ func (s *CompetitorsStore) UpdateCompetitorByID(ctx context.Context, in UpdateCo
 	defer cancel()
 
 	q := fissqlc.New(s.db)
-	return q.UpdateCompetitorByID(ctx, mapUpdateToParams(in))
+	_, err := q.UpdateCompetitorByID(ctx, mapUpdateToParams(in))
+	return err
 }
 
 func (s *CompetitorsStore) DeleteCompetitorByID(ctx context.Context, competitorID int32) error {
@@ -79,7 +80,8 @@ func (s *CompetitorsStore) DeleteCompetitorByID(ctx context.Context, competitorI
 	defer cancel()
 
 	q := fissqlc.New(s.db)
-	return q.DeleteCompetitorByID(ctx, competitorID)
+	_, err := q.DeleteCompetitorByID(ctx, competitorID)
+	return err
 }
 
 func (s *CompetitorsStore) GetCompetitorIDByFiscodeCC(ctx context.Context, fiscode int32) (int32, error) {

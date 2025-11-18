@@ -12,84 +12,88 @@ import (
 	"github.com/lib/pq"
 )
 
-const deleteAthleteByFiscode = `-- name: DeleteAthleteByFiscode :exec
+const deleteAthleteByFiscode = `-- name: DeleteAthleteByFiscode :one
 DELETE FROM public.athlete
 WHERE fiscode = $1
+RETURNING fiscode
 `
 
-func (q *Queries) DeleteAthleteByFiscode(ctx context.Context, fiscode int32) error {
-	_, err := q.exec(ctx, q.deleteAthleteByFiscodeStmt, deleteAthleteByFiscode, fiscode)
-	return err
+func (q *Queries) DeleteAthleteByFiscode(ctx context.Context, fiscode int32) (int32, error) {
+	row := q.queryRow(ctx, q.deleteAthleteByFiscodeStmt, deleteAthleteByFiscode, fiscode)
+	err := row.Scan(&fiscode)
+	return fiscode, err
 }
 
-const deleteCompetitorByID = `-- name: DeleteCompetitorByID :exec
+const deleteCompetitorByID = `-- name: DeleteCompetitorByID :one
 DELETE FROM a_competitor
 WHERE competitorid = $1
+RETURNING competitorid
 `
 
-func (q *Queries) DeleteCompetitorByID(ctx context.Context, competitorid int32) error {
-	_, err := q.exec(ctx, q.deleteCompetitorByIDStmt, deleteCompetitorByID, competitorid)
-	return err
+func (q *Queries) DeleteCompetitorByID(ctx context.Context, competitorid int32) (int32, error) {
+	row := q.queryRow(ctx, q.deleteCompetitorByIDStmt, deleteCompetitorByID, competitorid)
+	err := row.Scan(&competitorid)
+	return competitorid, err
 }
 
-const deleteRaceCCByID = `-- name: DeleteRaceCCByID :exec
+const deleteRaceCCByID = `-- name: DeleteRaceCCByID :one
 DELETE FROM a_racecc
 WHERE raceid = $1
+RETURNING raceid
 `
 
-func (q *Queries) DeleteRaceCCByID(ctx context.Context, raceid int32) error {
-	_, err := q.exec(ctx, q.deleteRaceCCByIDStmt, deleteRaceCCByID, raceid)
-	return err
+func (q *Queries) DeleteRaceCCByID(ctx context.Context, raceid int32) (int32, error) {
+	row := q.queryRow(ctx, q.deleteRaceCCByIDStmt, deleteRaceCCByID, raceid)
+	err := row.Scan(&raceid)
+	return raceid, err
 }
 
-const deleteRaceJPByID = `-- name: DeleteRaceJPByID :exec
+const deleteRaceJPByID = `-- name: DeleteRaceJPByID :one
 DELETE FROM a_racejp
 WHERE raceid = $1
+RETURNING raceid
 `
 
-func (q *Queries) DeleteRaceJPByID(ctx context.Context, raceid int32) error {
-	_, err := q.exec(ctx, q.deleteRaceJPByIDStmt, deleteRaceJPByID, raceid)
-	return err
+func (q *Queries) DeleteRaceJPByID(ctx context.Context, raceid int32) (int32, error) {
+	row := q.queryRow(ctx, q.deleteRaceJPByIDStmt, deleteRaceJPByID, raceid)
+	err := row.Scan(&raceid)
+	return raceid, err
 }
 
-const deleteRaceNKByID = `-- name: DeleteRaceNKByID :exec
+const deleteRaceNKByID = `-- name: DeleteRaceNKByID :one
 DELETE FROM a_racenk
 WHERE raceid = $1
+RETURNING raceid
 `
 
-func (q *Queries) DeleteRaceNKByID(ctx context.Context, raceid int32) error {
-	_, err := q.exec(ctx, q.deleteRaceNKByIDStmt, deleteRaceNKByID, raceid)
-	return err
+func (q *Queries) DeleteRaceNKByID(ctx context.Context, raceid int32) (int32, error) {
+	row := q.queryRow(ctx, q.deleteRaceNKByIDStmt, deleteRaceNKByID, raceid)
+	err := row.Scan(&raceid)
+	return raceid, err
 }
 
-const deleteResultCCByRecID = `-- name: DeleteResultCCByRecID :exec
+const deleteResultCCByRecID = `-- name: DeleteResultCCByRecID :one
 DELETE FROM a_resultcc
 WHERE recid = $1
+RETURNING recid
 `
 
-func (q *Queries) DeleteResultCCByRecID(ctx context.Context, recid int32) error {
-	_, err := q.exec(ctx, q.deleteResultCCByRecIDStmt, deleteResultCCByRecID, recid)
-	return err
+func (q *Queries) DeleteResultCCByRecID(ctx context.Context, recid int32) (int32, error) {
+	row := q.queryRow(ctx, q.deleteResultCCByRecIDStmt, deleteResultCCByRecID, recid)
+	err := row.Scan(&recid)
+	return recid, err
 }
 
-const deleteResultJPByRecID = `-- name: DeleteResultJPByRecID :exec
+const deleteResultJPByRecID = `-- name: DeleteResultJPByRecID :one
 DELETE FROM a_resultjp
 WHERE recid = $1
+RETURNING recid
 `
 
-func (q *Queries) DeleteResultJPByRecID(ctx context.Context, recid int32) error {
-	_, err := q.exec(ctx, q.deleteResultJPByRecIDStmt, deleteResultJPByRecID, recid)
-	return err
-}
-
-const deleteResultNKByRecID = `-- name: DeleteResultNKByRecID :exec
-DELETE FROM a_resultnk
-WHERE recid = $1
-`
-
-func (q *Queries) DeleteResultNKByRecID(ctx context.Context, recid int32) error {
-	_, err := q.exec(ctx, q.deleteResultNKByRecIDStmt, deleteResultNKByRecID, recid)
-	return err
+func (q *Queries) DeleteResultJPByRecID(ctx context.Context, recid int32) (int32, error) {
+	row := q.queryRow(ctx, q.deleteResultJPByRecIDStmt, deleteResultJPByRecID, recid)
+	err := row.Scan(&recid)
+	return recid, err
 }
 
 const getAthleteResultsCC = `-- name: GetAthleteResultsCC :many
@@ -3335,12 +3339,13 @@ func (q *Queries) InsertResultNK(ctx context.Context, arg InsertResultNKParams) 
 	return err
 }
 
-const updateAthleteByFiscode = `-- name: UpdateAthleteByFiscode :exec
+const updateAthleteByFiscode = `-- name: UpdateAthleteByFiscode :one
 UPDATE public.athlete SET
   sporttiid = $2,
   firstname = $3,
   lastname  = $4
 WHERE fiscode = $1
+RETURNING fiscode
 `
 
 type UpdateAthleteByFiscodeParams struct {
@@ -3350,17 +3355,19 @@ type UpdateAthleteByFiscodeParams struct {
 	Lastname  sql.NullString
 }
 
-func (q *Queries) UpdateAthleteByFiscode(ctx context.Context, arg UpdateAthleteByFiscodeParams) error {
-	_, err := q.exec(ctx, q.updateAthleteByFiscodeStmt, updateAthleteByFiscode,
+func (q *Queries) UpdateAthleteByFiscode(ctx context.Context, arg UpdateAthleteByFiscodeParams) (int32, error) {
+	row := q.queryRow(ctx, q.updateAthleteByFiscodeStmt, updateAthleteByFiscode,
 		arg.Fiscode,
 		arg.Sporttiid,
 		arg.Firstname,
 		arg.Lastname,
 	)
-	return err
+	var fiscode int32
+	err := row.Scan(&fiscode)
+	return fiscode, err
 }
 
-const updateCompetitorByID = `-- name: UpdateCompetitorByID :exec
+const updateCompetitorByID = `-- name: UpdateCompetitorByID :one
 UPDATE public.a_competitor SET
   personid            = $2,
   ipcid               = $3,
@@ -3405,6 +3412,7 @@ UPDATE public.a_competitor SET
   classname           = $42,
   classcode           = $43
 WHERE competitorid = $1
+RETURNING competitorid
 `
 
 type UpdateCompetitorByIDParams struct {
@@ -3453,8 +3461,8 @@ type UpdateCompetitorByIDParams struct {
 	Classcode          sql.NullString
 }
 
-func (q *Queries) UpdateCompetitorByID(ctx context.Context, arg UpdateCompetitorByIDParams) error {
-	_, err := q.exec(ctx, q.updateCompetitorByIDStmt, updateCompetitorByID,
+func (q *Queries) UpdateCompetitorByID(ctx context.Context, arg UpdateCompetitorByIDParams) (int32, error) {
+	row := q.queryRow(ctx, q.updateCompetitorByIDStmt, updateCompetitorByID,
 		arg.Competitorid,
 		arg.Personid,
 		arg.Ipcid,
@@ -3499,10 +3507,12 @@ func (q *Queries) UpdateCompetitorByID(ctx context.Context, arg UpdateCompetitor
 		arg.Classname,
 		arg.Classcode,
 	)
-	return err
+	var competitorid int32
+	err := row.Scan(&competitorid)
+	return competitorid, err
 }
 
-const updateRaceCCByID = `-- name: UpdateRaceCCByID :exec
+const updateRaceCCByID = `-- name: UpdateRaceCCByID :one
 UPDATE public.a_racecc SET
   eventid = $2,
   seasoncode = $3,
@@ -3592,6 +3602,7 @@ UPDATE public.a_racecc SET
   validforowg = $87,
   lastupdate = $88
 WHERE raceid = $1
+RETURNING raceid
 `
 
 type UpdateRaceCCByIDParams struct {
@@ -3685,8 +3696,8 @@ type UpdateRaceCCByIDParams struct {
 	Lastupdate        sql.NullTime
 }
 
-func (q *Queries) UpdateRaceCCByID(ctx context.Context, arg UpdateRaceCCByIDParams) error {
-	_, err := q.exec(ctx, q.updateRaceCCByIDStmt, updateRaceCCByID,
+func (q *Queries) UpdateRaceCCByID(ctx context.Context, arg UpdateRaceCCByIDParams) (int32, error) {
+	row := q.queryRow(ctx, q.updateRaceCCByIDStmt, updateRaceCCByID,
 		arg.Raceid,
 		arg.Eventid,
 		arg.Seasoncode,
@@ -3776,10 +3787,12 @@ func (q *Queries) UpdateRaceCCByID(ctx context.Context, arg UpdateRaceCCByIDPara
 		arg.Validforowg,
 		arg.Lastupdate,
 	)
-	return err
+	var raceid int32
+	err := row.Scan(&raceid)
+	return raceid, err
 }
 
-const updateRaceJPByID = `-- name: UpdateRaceJPByID :exec
+const updateRaceJPByID = `-- name: UpdateRaceJPByID :one
 UPDATE public.a_racejp SET
   eventid = $2,
   seasoncode = $3,
@@ -3869,6 +3882,7 @@ UPDATE public.a_racejp SET
   lastupdate = $87,
   validforowg = $88
 WHERE raceid = $1
+RETURNING raceid
 `
 
 type UpdateRaceJPByIDParams struct {
@@ -3962,8 +3976,8 @@ type UpdateRaceJPByIDParams struct {
 	Validforowg       sql.NullString
 }
 
-func (q *Queries) UpdateRaceJPByID(ctx context.Context, arg UpdateRaceJPByIDParams) error {
-	_, err := q.exec(ctx, q.updateRaceJPByIDStmt, updateRaceJPByID,
+func (q *Queries) UpdateRaceJPByID(ctx context.Context, arg UpdateRaceJPByIDParams) (int32, error) {
+	row := q.queryRow(ctx, q.updateRaceJPByIDStmt, updateRaceJPByID,
 		arg.Raceid,
 		arg.Eventid,
 		arg.Seasoncode,
@@ -4053,10 +4067,12 @@ func (q *Queries) UpdateRaceJPByID(ctx context.Context, arg UpdateRaceJPByIDPara
 		arg.Lastupdate,
 		arg.Validforowg,
 	)
-	return err
+	var raceid int32
+	err := row.Scan(&raceid)
+	return raceid, err
 }
 
-const updateRaceNKByID = `-- name: UpdateRaceNKByID :exec
+const updateRaceNKByID = `-- name: UpdateRaceNKByID :one
 UPDATE public.a_racenk SET
   eventid = $2,
   seasoncode = $3,
@@ -4146,6 +4162,7 @@ UPDATE public.a_racenk SET
   validforowg = $87,
   lastupdate = $88
 WHERE raceid = $1
+RETURNING raceid
 `
 
 type UpdateRaceNKByIDParams struct {
@@ -4239,8 +4256,8 @@ type UpdateRaceNKByIDParams struct {
 	Lastupdate        sql.NullTime
 }
 
-func (q *Queries) UpdateRaceNKByID(ctx context.Context, arg UpdateRaceNKByIDParams) error {
-	_, err := q.exec(ctx, q.updateRaceNKByIDStmt, updateRaceNKByID,
+func (q *Queries) UpdateRaceNKByID(ctx context.Context, arg UpdateRaceNKByIDParams) (int32, error) {
+	row := q.queryRow(ctx, q.updateRaceNKByIDStmt, updateRaceNKByID,
 		arg.Raceid,
 		arg.Eventid,
 		arg.Seasoncode,
@@ -4330,10 +4347,12 @@ func (q *Queries) UpdateRaceNKByID(ctx context.Context, arg UpdateRaceNKByIDPara
 		arg.Validforowg,
 		arg.Lastupdate,
 	)
-	return err
+	var raceid int32
+	err := row.Scan(&raceid)
+	return raceid, err
 }
 
-const updateResultCCByRecID = `-- name: UpdateResultCCByRecID :exec
+const updateResultCCByRecID = `-- name: UpdateResultCCByRecID :one
 UPDATE a_resultcc SET
   raceid          = $2,
   competitorid    = $3,
@@ -4364,6 +4383,7 @@ UPDATE a_resultcc SET
   rg2             = $28,
   lastupdate      = $29
 WHERE recid = $1
+RETURNING recid
 `
 
 type UpdateResultCCByRecIDParams struct {
@@ -4398,8 +4418,8 @@ type UpdateResultCCByRecIDParams struct {
 	Lastupdate     sql.NullTime
 }
 
-func (q *Queries) UpdateResultCCByRecID(ctx context.Context, arg UpdateResultCCByRecIDParams) error {
-	_, err := q.exec(ctx, q.updateResultCCByRecIDStmt, updateResultCCByRecID,
+func (q *Queries) UpdateResultCCByRecID(ctx context.Context, arg UpdateResultCCByRecIDParams) (int32, error) {
+	row := q.queryRow(ctx, q.updateResultCCByRecIDStmt, updateResultCCByRecID,
 		arg.Recid,
 		arg.Raceid,
 		arg.Competitorid,
@@ -4430,10 +4450,12 @@ func (q *Queries) UpdateResultCCByRecID(ctx context.Context, arg UpdateResultCCB
 		arg.Rg2,
 		arg.Lastupdate,
 	)
-	return err
+	var recid int32
+	err := row.Scan(&recid)
+	return recid, err
 }
 
-const updateResultJPByRecID = `-- name: UpdateResultJPByRecID :exec
+const updateResultJPByRecID = `-- name: UpdateResultJPByRecID :one
 UPDATE a_resultjp SET
   raceid = $2, competitorid = $3, status = $4, status2 = $5, "position" = $6, bib = $7,
   fiscode = $8, competitorname = $9, nationcode = $10, level = $11, heat = $12, stage = $13,
@@ -4447,6 +4469,7 @@ UPDATE a_resultjp SET
   windptsr1 = $71, windptsr2 = $72, windptsr3 = $73, windptsr4 = $74,
   reason = $75, totrun4 = $76, tot = $77, valid = $78, racepoints = $79, cuppoints = $80, version = $81, lastupdate = $82, posr4 = $83, statusr4 = $84
 WHERE recid = $1
+RETURNING recid
 `
 
 type UpdateResultJPByRecIDParams struct {
@@ -4536,8 +4559,8 @@ type UpdateResultJPByRecIDParams struct {
 	Statusr4       sql.NullString
 }
 
-func (q *Queries) UpdateResultJPByRecID(ctx context.Context, arg UpdateResultJPByRecIDParams) error {
-	_, err := q.exec(ctx, q.updateResultJPByRecIDStmt, updateResultJPByRecID,
+func (q *Queries) UpdateResultJPByRecID(ctx context.Context, arg UpdateResultJPByRecIDParams) (int32, error) {
+	row := q.queryRow(ctx, q.updateResultJPByRecIDStmt, updateResultJPByRecID,
 		arg.Recid,
 		arg.Raceid,
 		arg.Competitorid,
@@ -4623,10 +4646,12 @@ func (q *Queries) UpdateResultJPByRecID(ctx context.Context, arg UpdateResultJPB
 		arg.Posr4,
 		arg.Statusr4,
 	)
-	return err
+	var recid int32
+	err := row.Scan(&recid)
+	return recid, err
 }
 
-const updateResultNKByRecID = `-- name: UpdateResultNKByRecID :exec
+const updateResultNKByRecID = `-- name: UpdateResultNKByRecID :one
 UPDATE a_resultnk SET
   raceid=$2, competitorid=$3, status=$4, status2=$5, reason=$6, "position"=$7, pf=$8, bib=$9, bibcolor=$10,
   fiscode=$11, competitorname=$12, nationcode=$13, level=$14, heat=$15, stage=$16,
@@ -4637,6 +4662,7 @@ UPDATE a_resultnk SET
   pointsjump=$49, behindjump=$50, posjump=$51, timecc=$52, timeccint=$53, poscc=$54, starttime=$55, statuscc=$56, totbehind=$57, timetot=$58, timetotint=$59,
   valid=$60, racepoints=$61, cuppoints=$62, version=$63, lastupdate=$64
 WHERE recid = $1
+RETURNING recid
 `
 
 type UpdateResultNKByRecIDParams struct {
@@ -4706,8 +4732,8 @@ type UpdateResultNKByRecIDParams struct {
 	Lastupdate     sql.NullTime
 }
 
-func (q *Queries) UpdateResultNKByRecID(ctx context.Context, arg UpdateResultNKByRecIDParams) error {
-	_, err := q.exec(ctx, q.updateResultNKByRecIDStmt, updateResultNKByRecID,
+func (q *Queries) UpdateResultNKByRecID(ctx context.Context, arg UpdateResultNKByRecIDParams) (int32, error) {
+	row := q.queryRow(ctx, q.updateResultNKByRecIDStmt, updateResultNKByRecID,
 		arg.Recid,
 		arg.Raceid,
 		arg.Competitorid,
@@ -4773,5 +4799,7 @@ func (q *Queries) UpdateResultNKByRecID(ctx context.Context, arg UpdateResultNKB
 		arg.Version,
 		arg.Lastupdate,
 	)
-	return err
+	var recid int32
+	err := row.Scan(&recid)
+	return recid, err
 }
