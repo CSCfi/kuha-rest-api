@@ -19,6 +19,7 @@ type FIS interface {
 	Ping(ctx context.Context) error
 	Competitors() fis.Competitors
 	RaceCC() fis.Racecc
+	RaceJP() fis.Racejp
 }
 
 type UTV interface {

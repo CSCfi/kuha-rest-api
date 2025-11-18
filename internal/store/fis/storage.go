@@ -19,6 +19,18 @@ type Racecc interface {
 	DeleteRaceCCByID(ctx context.Context, raceID int32) error
 }
 
+// Racejp interface
+type Racejp interface {
+	GetSkiJumpingSeasons(ctx context.Context) ([]int32, error)
+	GetSkiJumpingDisciplines(ctx context.Context) ([]string, error)
+	GetSkiJumpingCategories(ctx context.Context) ([]string, error)
+	GetRacesJP(ctx context.Context, seasons []int32, disciplines, cats []string) ([]fissqlc.ARacejp, error)
+	GetLastRowRaceJP(ctx context.Context) (fissqlc.ARacejp, error)
+	InsertRaceJP(ctx context.Context, in InsertRaceJPClean) error
+	UpdateRaceJPByID(ctx context.Context, in UpdateRaceJPClean) error
+	DeleteRaceJPByID(ctx context.Context, raceID int32) error
+}
+
 // Competitors interface
 type Competitors interface {
 	GetAthletesBySector(ctx context.Context, sector string) ([]AthleteRow, error)
@@ -39,6 +51,7 @@ type FISStorage struct {
 	db          *sql.DB
 	competitors Competitors
 	racecc      Racecc
+	racejp      Racejp
 }
 
 // Ping method
@@ -55,11 +68,16 @@ func (s *FISStorage) RaceCC() Racecc {
 	return s.racecc
 }
 
+func (s *FISStorage) RaceJP() Racejp {
+	return s.racejp
+}
+
 // Storage for FIS database tables
 func NewFISStorage(db *sql.DB) *FISStorage {
 	return &FISStorage{
 		db:          db,
 		competitors: &CompetitorsStore{db: db},
 		racecc:      &RaceCCStore{db: db},
+		racejp:      &RaceJPStore{db: db},
 	}
 }

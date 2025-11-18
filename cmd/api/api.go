@@ -283,6 +283,7 @@ func (app *api) mount() http.Handler {
 					// Register handlers
 					competitorHandler := fisapi.NewCompetitorHandler(app.store.FIS.Competitors(), app.cacheStorage)
 					raceCCHandler := fisapi.NewRaceCCHandler(app.store.FIS.RaceCC(), app.cacheStorage)
+					raceJPhandler := fisapi.NewRaceJPHandler(app.store.FIS.RaceJP(), app.cacheStorage)
 
 					// competitor routes
 					r.Get("/athlete", competitorHandler.GetAthletesBySector)
@@ -301,6 +302,16 @@ func (app *api) mount() http.Handler {
 					r.Post("/racecc", raceCCHandler.InsertRaceCC)
 					r.Put("/racecc", raceCCHandler.UpdateRaceCC)
 					r.Delete("/racecc", raceCCHandler.DeleteRaceCC)
+
+					// racejp routes
+					r.Get("/seasoncodeJP", raceJPhandler.GetSeasonCodesJP)
+					r.Get("/disciplinecodeJP", raceJPhandler.GetDisciplineCodesJP)
+					r.Get("/catcodeJP", raceJPhandler.GetCategoryCodesJP)
+					r.Get("/racejp", raceJPhandler.GetRacesJP)
+					r.Get("/lastrow/racejp", raceJPhandler.GetLastRowRaceJP)
+					r.Post("/racejp", raceJPhandler.InsertRaceJP)
+					r.Put("/racejp", raceJPhandler.UpdateRaceJP)
+					r.Delete("/racejp", raceJPhandler.DeleteRaceJP)
 
 				})
 			} else {
