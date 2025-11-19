@@ -730,6 +730,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/fis/catcodeNK": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FIS - Season Discipline \u0026 Category Codes"
+                ],
+                "summary": "Get Nordic Combined category codes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.FISCategoriesNKResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/fis/competitor": {
             "put": {
                 "security": [
@@ -1054,6 +1111,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/fis/disciplinecodeNK": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FIS - Season Discipline \u0026 Category Codes"
+                ],
+                "summary": "Get Nordic Combined discipline codes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.FISDisciplinesNKResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/fis/lastrow/competitor": {
             "get": {
                 "security": [
@@ -1199,6 +1313,70 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/swagger.FISLastRaceJPResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/fis/lastrow/racenk": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the last row in a_racenk (by RaceID DESC)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FIS - Race Management – Nordic Combined"
+                ],
+                "summary": "Get last Nordic Combined race record",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.FISLastRaceNKResponse"
                         }
                     },
                     "400": {
@@ -1900,6 +2078,303 @@ const docTemplate = `{
                 }
             }
         },
+        "/fis/racenk": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FIS - Race Data"
+                ],
+                "summary": "Get list of Nordic Combined races",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Season code (repeat or comma-separated)",
+                        "name": "seasoncode",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Discipline code (repeat or comma-separated)",
+                        "name": "disciplinecode",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Category code (repeat or comma-separated)",
+                        "name": "catcode",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.FISRacesNKResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates an existing a_racenk row",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FIS - Race Management – Nordic Combined"
+                ],
+                "summary": "Update Nordic Combined race by ID",
+                "parameters": [
+                    {
+                        "description": "Race payload",
+                        "name": "racenk",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.FISUpdateRaceNKExample"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Inserts a new a_racenk row",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FIS - Race Management – Nordic Combined"
+                ],
+                "summary": "Add new Nordic Combined race",
+                "parameters": [
+                    {
+                        "description": "Race payload",
+                        "name": "racenk",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.FISInsertRaceNKExample"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ConflictResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deletes a race by RaceID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FIS - Race Management – Nordic Combined"
+                ],
+                "summary": "Delete Nordic Combined race",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Race ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/fis/seasoncodeCC": {
             "get": {
                 "security": [
@@ -1979,6 +2454,63 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/swagger.FISSeasonsJPResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/fis/seasoncodeNK": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FIS - Season Discipline \u0026 Category Codes"
+                ],
+                "summary": "Get Nordic Combined season codes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.FISSeasonsNKResponse"
                         }
                     },
                     "400": {
@@ -8569,6 +9101,22 @@ const docTemplate = `{
                 }
             }
         },
+        "swagger.FISCategoriesNKResponse": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "WC",
+                        "WSC",
+                        "COC"
+                    ]
+                }
+            }
+        },
         "swagger.FISCompetitor": {
             "type": "object",
             "properties": {
@@ -8674,6 +9222,22 @@ const docTemplate = `{
                         "NH",
                         "LH",
                         "FH"
+                    ]
+                }
+            }
+        },
+        "swagger.FISDisciplinesNKResponse": {
+            "type": "object",
+            "properties": {
+                "disciplines": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "NH",
+                        "LH",
+                        "GH"
                     ]
                 }
             }
@@ -9472,6 +10036,340 @@ const docTemplate = `{
                 }
             }
         },
+        "swagger.FISInsertRaceNKExample": {
+            "type": "object",
+            "required": [
+                "raceid"
+            ],
+            "properties": {
+                "appliedpenalty": {
+                    "type": "string"
+                },
+                "appliedscala": {
+                    "type": "string"
+                },
+                "bottombanner": {
+                    "type": "string"
+                },
+                "bottomlogo": {
+                    "type": "string"
+                },
+                "calculatedpenalty": {
+                    "type": "string"
+                },
+                "calstatuscode": {
+                    "type": "string",
+                    "example": "OFF"
+                },
+                "catcode": {
+                    "type": "string",
+                    "example": "WC"
+                },
+                "catcode2": {
+                    "type": "string"
+                },
+                "catcode3": {
+                    "type": "string"
+                },
+                "catcode4": {
+                    "type": "string"
+                },
+                "columncount": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "description": {
+                    "type": "string",
+                    "example": "World Cup NH 10 km"
+                },
+                "discforlistcode": {
+                    "type": "string"
+                },
+                "disciplinecode": {
+                    "type": "string",
+                    "example": "NC"
+                },
+                "disciplineid": {
+                    "type": "string",
+                    "example": "NH10K"
+                },
+                "displaystatus": {
+                    "type": "string",
+                    "example": "OK"
+                },
+                "distance": {
+                    "type": "string",
+                    "example": "10km"
+                },
+                "eventid": {
+                    "type": "integer",
+                    "example": 9001
+                },
+                "finale": {
+                    "type": "string"
+                },
+                "fisinterncomment": {
+                    "type": "string"
+                },
+                "gallery": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string",
+                    "example": "M"
+                },
+                "hcet1": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T11:00:00Z"
+                },
+                "hcet2": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T11:30:00Z"
+                },
+                "hcet3": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T12:00:00Z"
+                },
+                "hill": {
+                    "type": "integer",
+                    "example": 109
+                },
+                "hloc1": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T09:30:00Z"
+                },
+                "hloc2": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T10:00:00Z"
+                },
+                "hloc3": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T10:30:00Z"
+                },
+                "homol": {
+                    "type": "string"
+                },
+                "indi": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "lastupdate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T18:30:00Z"
+                },
+                "level": {
+                    "type": "string",
+                    "example": "WC"
+                },
+                "live": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "liveinfo1": {
+                    "type": "string"
+                },
+                "liveinfo2": {
+                    "type": "string"
+                },
+                "liveinfo3": {
+                    "type": "string"
+                },
+                "livestatus1": {
+                    "type": "string",
+                    "example": "LIVE"
+                },
+                "livestatus2": {
+                    "type": "string"
+                },
+                "livestatus3": {
+                    "type": "string"
+                },
+                "masse": {
+                    "type": "string"
+                },
+                "msql7evid": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "mssql7id": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "nationcode": {
+                    "type": "string",
+                    "example": "AUT"
+                },
+                "nationraceid": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "noepr": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "passwd": {
+                    "type": "string"
+                },
+                "penscafixed": {
+                    "type": "string"
+                },
+                "place": {
+                    "type": "string",
+                    "example": "Seefeld"
+                },
+                "procstatuscode": {
+                    "type": "string",
+                    "example": "P"
+                },
+                "provraceid": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "published": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "pursuit": {
+                    "type": "string"
+                },
+                "qualif": {
+                    "type": "string",
+                    "example": "Q"
+                },
+                "racecodex": {
+                    "type": "integer",
+                    "example": 3001
+                },
+                "racedate": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2025-02-15"
+                },
+                "raceid": {
+                    "type": "integer",
+                    "example": 8801
+                },
+                "receiveddate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-10T10:00:00Z"
+                },
+                "relay": {
+                    "type": "string"
+                },
+                "seasoncode": {
+                    "type": "integer",
+                    "example": 2025
+                },
+                "skip_wcsl": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "special_cup_points": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "starteventdate": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2025-02-14"
+                },
+                "style": {
+                    "type": "string",
+                    "example": "FREE"
+                },
+                "tabcount": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "td1code": {
+                    "type": "integer",
+                    "example": 1001
+                },
+                "td1id": {
+                    "type": "integer",
+                    "example": 101
+                },
+                "td1name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "td1nation": {
+                    "type": "string",
+                    "example": "AUT"
+                },
+                "td2code": {
+                    "type": "integer",
+                    "example": 1002
+                },
+                "td2id": {
+                    "type": "integer",
+                    "example": 102
+                },
+                "td2name": {
+                    "type": "string",
+                    "example": "Jane Doe"
+                },
+                "td2nation": {
+                    "type": "string",
+                    "example": "GER"
+                },
+                "tddoc": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "team": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "timinglogo": {
+                    "type": "string"
+                },
+                "timingreport": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "tolist": {
+                    "type": "string"
+                },
+                "topbanner": {
+                    "type": "string"
+                },
+                "toplogo": {
+                    "type": "string"
+                },
+                "usedfislist": {
+                    "type": "string"
+                },
+                "validdate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-16T00:00:00Z"
+                },
+                "validforfispoints": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "validforowg": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "version": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "webcomment": {
+                    "type": "string"
+                }
+            }
+        },
         "swagger.FISLastCompetitorResponse": {
             "type": "object",
             "properties": {
@@ -9493,6 +10391,14 @@ const docTemplate = `{
             "properties": {
                 "race": {
                     "$ref": "#/definitions/swagger.FISRaceJP"
+                }
+            }
+        },
+        "swagger.FISLastRaceNKResponse": {
+            "type": "object",
+            "properties": {
+                "race": {
+                    "$ref": "#/definitions/swagger.FISRaceNK"
                 }
             }
         },
@@ -10108,6 +11014,345 @@ const docTemplate = `{
                 }
             }
         },
+        "swagger.FISRaceNK": {
+            "type": "object",
+            "properties": {
+                "appliedpenalty": {
+                    "type": "string"
+                },
+                "appliedscala": {
+                    "type": "string"
+                },
+                "bottombanner": {
+                    "type": "string"
+                },
+                "bottomlogo": {
+                    "type": "string"
+                },
+                "calculatedpenalty": {
+                    "type": "string"
+                },
+                "calstatuscode": {
+                    "type": "string",
+                    "example": "OFF"
+                },
+                "catcode": {
+                    "type": "string",
+                    "example": "WC"
+                },
+                "catcode2": {
+                    "type": "string"
+                },
+                "catcode3": {
+                    "type": "string"
+                },
+                "catcode4": {
+                    "type": "string"
+                },
+                "columncount": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "description": {
+                    "type": "string",
+                    "example": "World Cup NH 10 km"
+                },
+                "discforlistcode": {
+                    "type": "string"
+                },
+                "disciplinecode": {
+                    "type": "string",
+                    "example": "NC"
+                },
+                "disciplineid": {
+                    "type": "string",
+                    "example": "NH10K"
+                },
+                "displaystatus": {
+                    "type": "string",
+                    "example": "OK"
+                },
+                "distance": {
+                    "type": "string",
+                    "example": "10km"
+                },
+                "eventid": {
+                    "type": "integer",
+                    "example": 9001
+                },
+                "finale": {
+                    "type": "string"
+                },
+                "fisinterncomment": {
+                    "type": "string"
+                },
+                "gallery": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string",
+                    "example": "M"
+                },
+                "hcet1": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T11:00:00Z"
+                },
+                "hcet2": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T11:30:00Z"
+                },
+                "hcet3": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T12:00:00Z"
+                },
+                "hill": {
+                    "type": "integer",
+                    "example": 109
+                },
+                "hloc1": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T09:30:00Z"
+                },
+                "hloc2": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T10:00:00Z"
+                },
+                "hloc3": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T10:30:00Z"
+                },
+                "homol": {
+                    "type": "string"
+                },
+                "indi": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "lastupdate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T18:30:00Z"
+                },
+                "level": {
+                    "type": "string",
+                    "example": "WC"
+                },
+                "live": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "liveinfo1": {
+                    "type": "string"
+                },
+                "liveinfo2": {
+                    "type": "string"
+                },
+                "liveinfo3": {
+                    "type": "string"
+                },
+                "livestatus1": {
+                    "type": "string",
+                    "example": "LIVE"
+                },
+                "livestatus2": {
+                    "type": "string"
+                },
+                "livestatus3": {
+                    "type": "string"
+                },
+                "masse": {
+                    "type": "string"
+                },
+                "msql7evid": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "mssql7id": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "nationcode": {
+                    "type": "string",
+                    "example": "AUT"
+                },
+                "nationraceid": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "noepr": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "passwd": {
+                    "type": "string"
+                },
+                "pdf": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "penscafixed": {
+                    "type": "string"
+                },
+                "place": {
+                    "type": "string",
+                    "example": "Seefeld"
+                },
+                "procstatuscode": {
+                    "type": "string",
+                    "example": "P"
+                },
+                "provraceid": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "published": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "pursuit": {
+                    "type": "string"
+                },
+                "qualif": {
+                    "type": "string",
+                    "example": "Q"
+                },
+                "racecodex": {
+                    "type": "integer",
+                    "example": 3001
+                },
+                "racedate": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2025-02-15"
+                },
+                "raceid": {
+                    "type": "integer",
+                    "example": 8801
+                },
+                "receiveddate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-10T10:00:00Z"
+                },
+                "relay": {
+                    "type": "string"
+                },
+                "results": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "seasoncode": {
+                    "type": "integer",
+                    "example": 2025
+                },
+                "skip_wcsl": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "special_cup_points": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "starteventdate": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2025-02-14"
+                },
+                "style": {
+                    "type": "string",
+                    "example": "FREE"
+                },
+                "tabcount": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "td1code": {
+                    "type": "integer",
+                    "example": 1001
+                },
+                "td1id": {
+                    "type": "integer",
+                    "example": 101
+                },
+                "td1name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "td1nation": {
+                    "type": "string",
+                    "example": "AUT"
+                },
+                "td2code": {
+                    "type": "integer",
+                    "example": 1002
+                },
+                "td2id": {
+                    "type": "integer",
+                    "example": 102
+                },
+                "td2name": {
+                    "type": "string",
+                    "example": "Jane Doe"
+                },
+                "td2nation": {
+                    "type": "string",
+                    "example": "GER"
+                },
+                "tddoc": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "team": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "timinglogo": {
+                    "type": "string"
+                },
+                "timingreport": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "tolist": {
+                    "type": "string"
+                },
+                "topbanner": {
+                    "type": "string"
+                },
+                "toplogo": {
+                    "type": "string"
+                },
+                "usedfislist": {
+                    "type": "string"
+                },
+                "validdate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-16T00:00:00Z"
+                },
+                "validforfispoints": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "validforowg": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "version": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "webcomment": {
+                    "type": "string"
+                }
+            }
+        },
         "swagger.FISRacesCCResponse": {
             "type": "object",
             "properties": {
@@ -10130,6 +11375,17 @@ const docTemplate = `{
                 }
             }
         },
+        "swagger.FISRacesNKResponse": {
+            "type": "object",
+            "properties": {
+                "races": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.FISRaceNK"
+                    }
+                }
+            }
+        },
         "swagger.FISSeasonsCCResponse": {
             "type": "object",
             "properties": {
@@ -10147,6 +11403,22 @@ const docTemplate = `{
             }
         },
         "swagger.FISSeasonsJPResponse": {
+            "type": "object",
+            "properties": {
+                "seasons": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "example": [
+                        2026,
+                        2025,
+                        2024
+                    ]
+                }
+            }
+        },
+        "swagger.FISSeasonsNKResponse": {
             "type": "object",
             "properties": {
                 "seasons": {
@@ -10928,6 +12200,340 @@ const docTemplate = `{
                 },
                 "version": {
                     "type": "integer"
+                },
+                "webcomment": {
+                    "type": "string"
+                }
+            }
+        },
+        "swagger.FISUpdateRaceNKExample": {
+            "type": "object",
+            "required": [
+                "raceid"
+            ],
+            "properties": {
+                "appliedpenalty": {
+                    "type": "string"
+                },
+                "appliedscala": {
+                    "type": "string"
+                },
+                "bottombanner": {
+                    "type": "string"
+                },
+                "bottomlogo": {
+                    "type": "string"
+                },
+                "calculatedpenalty": {
+                    "type": "string"
+                },
+                "calstatuscode": {
+                    "type": "string",
+                    "example": "OFF"
+                },
+                "catcode": {
+                    "type": "string",
+                    "example": "WC"
+                },
+                "catcode2": {
+                    "type": "string"
+                },
+                "catcode3": {
+                    "type": "string"
+                },
+                "catcode4": {
+                    "type": "string"
+                },
+                "columncount": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "description": {
+                    "type": "string",
+                    "example": "World Cup NH 10 km (updated)"
+                },
+                "discforlistcode": {
+                    "type": "string"
+                },
+                "disciplinecode": {
+                    "type": "string",
+                    "example": "NC"
+                },
+                "disciplineid": {
+                    "type": "string",
+                    "example": "NH10K"
+                },
+                "displaystatus": {
+                    "type": "string",
+                    "example": "OK"
+                },
+                "distance": {
+                    "type": "string",
+                    "example": "10km"
+                },
+                "eventid": {
+                    "type": "integer",
+                    "example": 9001
+                },
+                "finale": {
+                    "type": "string"
+                },
+                "fisinterncomment": {
+                    "type": "string"
+                },
+                "gallery": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string",
+                    "example": "M"
+                },
+                "hcet1": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T11:00:00Z"
+                },
+                "hcet2": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T11:30:00Z"
+                },
+                "hcet3": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T12:00:00Z"
+                },
+                "hill": {
+                    "type": "integer",
+                    "example": 109
+                },
+                "hloc1": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T09:30:00Z"
+                },
+                "hloc2": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T10:00:00Z"
+                },
+                "hloc3": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-15T10:30:00Z"
+                },
+                "homol": {
+                    "type": "string"
+                },
+                "indi": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "lastupdate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-16T08:00:00Z"
+                },
+                "level": {
+                    "type": "string",
+                    "example": "WC"
+                },
+                "live": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "liveinfo1": {
+                    "type": "string"
+                },
+                "liveinfo2": {
+                    "type": "string"
+                },
+                "liveinfo3": {
+                    "type": "string"
+                },
+                "livestatus1": {
+                    "type": "string",
+                    "example": "LIVE"
+                },
+                "livestatus2": {
+                    "type": "string"
+                },
+                "livestatus3": {
+                    "type": "string"
+                },
+                "masse": {
+                    "type": "string"
+                },
+                "msql7evid": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "mssql7id": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "nationcode": {
+                    "type": "string",
+                    "example": "AUT"
+                },
+                "nationraceid": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "noepr": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "passwd": {
+                    "type": "string"
+                },
+                "penscafixed": {
+                    "type": "string"
+                },
+                "place": {
+                    "type": "string",
+                    "example": "Seefeld"
+                },
+                "procstatuscode": {
+                    "type": "string",
+                    "example": "P"
+                },
+                "provraceid": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "published": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "pursuit": {
+                    "type": "string"
+                },
+                "qualif": {
+                    "type": "string",
+                    "example": "Q"
+                },
+                "racecodex": {
+                    "type": "integer",
+                    "example": 3001
+                },
+                "racedate": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2025-02-15"
+                },
+                "raceid": {
+                    "type": "integer",
+                    "example": 8801
+                },
+                "receiveddate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-10T10:00:00Z"
+                },
+                "relay": {
+                    "type": "string"
+                },
+                "seasoncode": {
+                    "type": "integer",
+                    "example": 2025
+                },
+                "skip_wcsl": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "special_cup_points": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "starteventdate": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2025-02-14"
+                },
+                "style": {
+                    "type": "string",
+                    "example": "FREE"
+                },
+                "tabcount": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "td1code": {
+                    "type": "integer",
+                    "example": 1001
+                },
+                "td1id": {
+                    "type": "integer",
+                    "example": 101
+                },
+                "td1name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "td1nation": {
+                    "type": "string",
+                    "example": "AUT"
+                },
+                "td2code": {
+                    "type": "integer",
+                    "example": 1002
+                },
+                "td2id": {
+                    "type": "integer",
+                    "example": 102
+                },
+                "td2name": {
+                    "type": "string",
+                    "example": "Jane Doe"
+                },
+                "td2nation": {
+                    "type": "string",
+                    "example": "GER"
+                },
+                "tddoc": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "team": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "timinglogo": {
+                    "type": "string"
+                },
+                "timingreport": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "tolist": {
+                    "type": "string"
+                },
+                "topbanner": {
+                    "type": "string"
+                },
+                "toplogo": {
+                    "type": "string"
+                },
+                "usedfislist": {
+                    "type": "string"
+                },
+                "validdate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2025-02-16T00:00:00Z"
+                },
+                "validforfispoints": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "validforowg": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "version": {
+                    "type": "integer",
+                    "example": 1
                 },
                 "webcomment": {
                     "type": "string"

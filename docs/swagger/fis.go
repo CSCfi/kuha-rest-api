@@ -711,3 +711,328 @@ type FISUpdateRaceJPExample struct {
 	Validforowg       *string `json:"validforowg,omitempty"`
 	Lastupdate        *string `json:"lastupdate,omitempty" format:"date-time" example:"2025-01-26T08:00:00Z"`
 }
+
+type FISSeasonsNKResponse struct {
+	Seasons []int32 `json:"seasons" swaggertype:"array,integer" example:"2026,2025,2024"`
+}
+
+type FISDisciplinesNKResponse struct {
+	Disciplines []string `json:"disciplines" swaggertype:"array,string" example:"NH,LH,GH"`
+}
+
+type FISCategoriesNKResponse struct {
+	Categories []string `json:"categories" swaggertype:"array,string" example:"WC,WSC,COC"`
+}
+
+type FISRaceNK struct {
+	Raceid         int32   `json:"raceid" example:"8801"`
+	Eventid        *int32  `json:"eventid,omitempty" example:"9001"`
+	Seasoncode     *int32  `json:"seasoncode,omitempty" example:"2025"`
+	Racecodex      *int32  `json:"racecodex,omitempty" example:"3001"`
+	Disciplineid   *string `json:"disciplineid,omitempty" example:"NH10K"`
+	Disciplinecode *string `json:"disciplinecode,omitempty" example:"NC"`
+	Catcode        *string `json:"catcode,omitempty" example:"WC"`
+	Catcode2       *string `json:"catcode2,omitempty"`
+	Catcode3       *string `json:"catcode3,omitempty"`
+	Catcode4       *string `json:"catcode4,omitempty"`
+	Gender         *string `json:"gender,omitempty" example:"M"`
+	Racedate       *string `json:"racedate,omitempty" format:"date" example:"2025-02-15"`
+	Starteventdate *string `json:"starteventdate,omitempty" format:"date" example:"2025-02-14"`
+	Description    *string `json:"description,omitempty" example:"World Cup NH 10 km"`
+	Place          *string `json:"place,omitempty" example:"Seefeld"`
+	Nationcode     *string `json:"nationcode,omitempty" example:"AUT"`
+
+	Td1id          *int32  `json:"td1id,omitempty" example:"101"`
+	Td1name        *string `json:"td1name,omitempty" example:"John Doe"`
+	Td1nation      *string `json:"td1nation,omitempty" example:"AUT"`
+	Td1code        *int32  `json:"td1code,omitempty" example:"1001"`
+	Td2id          *int32  `json:"td2id,omitempty" example:"102"`
+	Td2name        *string `json:"td2name,omitempty" example:"Jane Doe"`
+	Td2nation      *string `json:"td2nation,omitempty" example:"GER"`
+	Td2code        *int32  `json:"td2code,omitempty" example:"1002"`
+	Calstatuscode  *string `json:"calstatuscode,omitempty" example:"OFF"`
+	Procstatuscode *string `json:"procstatuscode,omitempty" example:"P"`
+
+	Receiveddate *string `json:"receiveddate,omitempty" format:"date-time" example:"2025-02-10T10:00:00Z"`
+	Pursuit      *string `json:"pursuit,omitempty"`
+	Masse        *string `json:"masse,omitempty"`
+	Relay        *string `json:"relay,omitempty"`
+	Distance     *string `json:"distance,omitempty" example:"10km"`
+	Hill         *int32  `json:"hill,omitempty" example:"109"`
+	Style        *string `json:"style,omitempty" example:"FREE"`
+	Qualif       *string `json:"qualif,omitempty" example:"Q"`
+	Finale       *string `json:"finale,omitempty"`
+	Homol        *string `json:"homol,omitempty"`
+
+	Webcomment       *string `json:"webcomment,omitempty"`
+	Displaystatus    *string `json:"displaystatus,omitempty" example:"OK"`
+	Fisinterncomment *string `json:"fisinterncomment,omitempty"`
+
+	Published         *int32  `json:"published,omitempty" example:"1"`
+	Validforfispoints *int32  `json:"validforfispoints,omitempty" example:"1"`
+	Usedfislist       *string `json:"usedfislist,omitempty"`
+	Tolist            *string `json:"tolist,omitempty"`
+	Discforlistcode   *string `json:"discforlistcode,omitempty"`
+	Calculatedpenalty *string `json:"calculatedpenalty,omitempty"`
+	Appliedpenalty    *string `json:"appliedpenalty,omitempty"`
+	Appliedscala      *string `json:"appliedscala,omitempty"`
+	Penscafixed       *string `json:"penscafixed,omitempty"`
+	Version           *int32  `json:"version,omitempty" example:"1"`
+	Nationraceid      *int32  `json:"nationraceid,omitempty" example:"0"`
+	Provraceid        *int32  `json:"provraceid,omitempty" example:"0"`
+	Msql7evid         *int32  `json:"msql7evid,omitempty" example:"0"`
+	Mssql7id          *int32  `json:"mssql7id,omitempty" example:"0"`
+
+	Results      *int32  `json:"results,omitempty" example:"0"`
+	Pdf          *int32  `json:"pdf,omitempty" example:"0"`
+	Topbanner    *string `json:"topbanner,omitempty"`
+	Bottombanner *string `json:"bottombanner,omitempty"`
+	Toplogo      *string `json:"toplogo,omitempty"`
+	Bottomlogo   *string `json:"bottomlogo,omitempty"`
+	Gallery      *string `json:"gallery,omitempty"`
+
+	Indi        *int32  `json:"indi,omitempty" example:"1"`
+	Team        *int32  `json:"team,omitempty" example:"0"`
+	Tabcount    *int32  `json:"tabcount,omitempty" example:"0"`
+	Columncount *int32  `json:"columncount,omitempty" example:"0"`
+	Level       *string `json:"level,omitempty" example:"WC"`
+
+	Hloc1 *string `json:"hloc1,omitempty" format:"date-time" example:"2025-02-15T09:30:00Z"`
+	Hloc2 *string `json:"hloc2,omitempty" format:"date-time" example:"2025-02-15T10:00:00Z"`
+	Hloc3 *string `json:"hloc3,omitempty" format:"date-time" example:"2025-02-15T10:30:00Z"`
+	Hcet1 *string `json:"hcet1,omitempty" format:"date-time" example:"2025-02-15T11:00:00Z"`
+	Hcet2 *string `json:"hcet2,omitempty" format:"date-time" example:"2025-02-15T11:30:00Z"`
+	Hcet3 *string `json:"hcet3,omitempty" format:"date-time" example:"2025-02-15T12:00:00Z"`
+
+	Live        *int32  `json:"live,omitempty" example:"1"`
+	Livestatus1 *string `json:"livestatus1,omitempty" example:"LIVE"`
+	Livestatus2 *string `json:"livestatus2,omitempty"`
+	Livestatus3 *string `json:"livestatus3,omitempty"`
+	Liveinfo1   *string `json:"liveinfo1,omitempty"`
+	Liveinfo2   *string `json:"liveinfo2,omitempty"`
+	Liveinfo3   *string `json:"liveinfo3,omitempty"`
+
+	Passwd     *string `json:"passwd,omitempty"`
+	Timinglogo *string `json:"timinglogo,omitempty"`
+
+	Validdate    *string `json:"validdate,omitempty" format:"date-time" example:"2025-02-16T00:00:00Z"`
+	Noepr        *int32  `json:"noepr,omitempty" example:"0"`
+	Tddoc        *int32  `json:"tddoc,omitempty" example:"0"`
+	Timingreport *int32  `json:"timingreport,omitempty" example:"0"`
+
+	SpecialCupPoints *int32 `json:"special_cup_points,omitempty" example:"0"`
+	SkipWcsl         *int32 `json:"skip_wcsl,omitempty" example:"0"`
+	Validforowg      *int32 `json:"validforowg,omitempty" example:"1"`
+
+	Lastupdate *string `json:"lastupdate,omitempty" format:"date-time" example:"2025-02-15T18:30:00Z"`
+}
+
+type FISRacesNKResponse struct {
+	Races []FISRaceNK `json:"races"`
+}
+
+type FISLastRaceNKResponse struct {
+	Race FISRaceNK `json:"race"`
+}
+
+type FISInsertRaceNKExample struct {
+	Raceid         int32   `json:"raceid" validate:"required" example:"8801"`
+	Eventid        *int32  `json:"eventid,omitempty" example:"9001"`
+	Seasoncode     *int32  `json:"seasoncode,omitempty" example:"2025"`
+	Racecodex      *int32  `json:"racecodex,omitempty" example:"3001"`
+	Disciplineid   *string `json:"disciplineid,omitempty" example:"NH10K"`
+	Disciplinecode *string `json:"disciplinecode,omitempty" example:"NC"`
+	Catcode        *string `json:"catcode,omitempty" example:"WC"`
+	Catcode2       *string `json:"catcode2,omitempty"`
+	Catcode3       *string `json:"catcode3,omitempty"`
+	Catcode4       *string `json:"catcode4,omitempty"`
+	Gender         *string `json:"gender,omitempty" example:"M"`
+	Racedate       *string `json:"racedate,omitempty" format:"date" example:"2025-02-15"`
+	Starteventdate *string `json:"starteventdate,omitempty" format:"date" example:"2025-02-14"`
+	Description    *string `json:"description,omitempty" example:"World Cup NH 10 km"`
+	Place          *string `json:"place,omitempty" example:"Seefeld"`
+	Nationcode     *string `json:"nationcode,omitempty" example:"AUT"`
+
+	Td1id          *int32  `json:"td1id,omitempty" example:"101"`
+	Td1name        *string `json:"td1name,omitempty" example:"John Doe"`
+	Td1nation      *string `json:"td1nation,omitempty" example:"AUT"`
+	Td1code        *int32  `json:"td1code,omitempty" example:"1001"`
+	Td2id          *int32  `json:"td2id,omitempty" example:"102"`
+	Td2name        *string `json:"td2name,omitempty" example:"Jane Doe"`
+	Td2nation      *string `json:"td2nation,omitempty" example:"GER"`
+	Td2code        *int32  `json:"td2code,omitempty" example:"1002"`
+	Calstatuscode  *string `json:"calstatuscode,omitempty" example:"OFF"`
+	Procstatuscode *string `json:"procstatuscode,omitempty" example:"P"`
+
+	Receiveddate *string `json:"receiveddate,omitempty" format:"date-time" example:"2025-02-10T10:00:00Z"`
+	Pursuit      *string `json:"pursuit,omitempty"`
+	Masse        *string `json:"masse,omitempty"`
+	Relay        *string `json:"relay,omitempty"`
+	Distance     *string `json:"distance,omitempty" example:"10km"`
+	Hill         *int32  `json:"hill,omitempty" example:"109"`
+	Style        *string `json:"style,omitempty" example:"FREE"`
+	Qualif       *string `json:"qualif,omitempty" example:"Q"`
+	Finale       *string `json:"finale,omitempty"`
+	Homol        *string `json:"homol,omitempty"`
+
+	Webcomment       *string `json:"webcomment,omitempty"`
+	Displaystatus    *string `json:"displaystatus,omitempty" example:"OK"`
+	Fisinterncomment *string `json:"fisinterncomment,omitempty"`
+
+	Published         *int32  `json:"published,omitempty" example:"1"`
+	Validforfispoints *int32  `json:"validforfispoints,omitempty" example:"1"`
+	Usedfislist       *string `json:"usedfislist,omitempty"`
+	Tolist            *string `json:"tolist,omitempty"`
+	Discforlistcode   *string `json:"discforlistcode,omitempty"`
+	Calculatedpenalty *string `json:"calculatedpenalty,omitempty"`
+	Appliedpenalty    *string `json:"appliedpenalty,omitempty"`
+	Appliedscala      *string `json:"appliedscala,omitempty"`
+	Penscafixed       *string `json:"penscafixed,omitempty"`
+	Version           *int32  `json:"version,omitempty" example:"1"`
+	Nationraceid      *int32  `json:"nationraceid,omitempty" example:"0"`
+	Provraceid        *int32  `json:"provraceid,omitempty" example:"0"`
+	Msql7evid         *int32  `json:"msql7evid,omitempty" example:"0"`
+	Mssql7id          *int32  `json:"mssql7id,omitempty" example:"0"`
+
+	Topbanner    *string `json:"topbanner,omitempty"`
+	Bottombanner *string `json:"bottombanner,omitempty"`
+	Toplogo      *string `json:"toplogo,omitempty"`
+	Bottomlogo   *string `json:"bottomlogo,omitempty"`
+	Gallery      *string `json:"gallery,omitempty"`
+
+	Indi        *int32  `json:"indi,omitempty" example:"1"`
+	Team        *int32  `json:"team,omitempty" example:"0"`
+	Tabcount    *int32  `json:"tabcount,omitempty" example:"0"`
+	Columncount *int32  `json:"columncount,omitempty" example:"0"`
+	Level       *string `json:"level,omitempty" example:"WC"`
+
+	Hloc1 *string `json:"hloc1,omitempty" format:"date-time" example:"2025-02-15T09:30:00Z"`
+	Hloc2 *string `json:"hloc2,omitempty" format:"date-time" example:"2025-02-15T10:00:00Z"`
+	Hloc3 *string `json:"hloc3,omitempty" format:"date-time" example:"2025-02-15T10:30:00Z"`
+	Hcet1 *string `json:"hcet1,omitempty" format:"date-time" example:"2025-02-15T11:00:00Z"`
+	Hcet2 *string `json:"hcet2,omitempty" format:"date-time" example:"2025-02-15T11:30:00Z"`
+	Hcet3 *string `json:"hcet3,omitempty" format:"date-time" example:"2025-02-15T12:00:00Z"`
+
+	Live        *int32  `json:"live,omitempty" example:"1"`
+	Livestatus1 *string `json:"livestatus1,omitempty" example:"LIVE"`
+	Livestatus2 *string `json:"livestatus2,omitempty"`
+	Livestatus3 *string `json:"livestatus3,omitempty"`
+	Liveinfo1   *string `json:"liveinfo1,omitempty"`
+	Liveinfo2   *string `json:"liveinfo2,omitempty"`
+	Liveinfo3   *string `json:"liveinfo3,omitempty"`
+
+	Passwd     *string `json:"passwd,omitempty"`
+	Timinglogo *string `json:"timinglogo,omitempty"`
+
+	Validdate    *string `json:"validdate,omitempty" format:"date-time" example:"2025-02-16T00:00:00Z"`
+	Noepr        *int32  `json:"noepr,omitempty" example:"0"`
+	Tddoc        *int32  `json:"tddoc,omitempty" example:"0"`
+	Timingreport *int32  `json:"timingreport,omitempty" example:"0"`
+
+	SpecialCupPoints *int32 `json:"special_cup_points,omitempty" example:"0"`
+	SkipWcsl         *int32 `json:"skip_wcsl,omitempty" example:"0"`
+	Validforowg      *int32 `json:"validforowg,omitempty" example:"1"`
+
+	Lastupdate *string `json:"lastupdate,omitempty" format:"date-time" example:"2025-02-15T18:30:00Z"`
+}
+
+type FISUpdateRaceNKExample struct {
+	Raceid         int32   `json:"raceid" validate:"required" example:"8801"`
+	Eventid        *int32  `json:"eventid,omitempty" example:"9001"`
+	Seasoncode     *int32  `json:"seasoncode,omitempty" example:"2025"`
+	Racecodex      *int32  `json:"racecodex,omitempty" example:"3001"`
+	Disciplineid   *string `json:"disciplineid,omitempty" example:"NH10K"`
+	Disciplinecode *string `json:"disciplinecode,omitempty" example:"NC"`
+	Catcode        *string `json:"catcode,omitempty" example:"WC"`
+	Catcode2       *string `json:"catcode2,omitempty"`
+	Catcode3       *string `json:"catcode3,omitempty"`
+	Catcode4       *string `json:"catcode4,omitempty"`
+	Gender         *string `json:"gender,omitempty" example:"M"`
+	Racedate       *string `json:"racedate,omitempty" format:"date" example:"2025-02-15"`
+	Starteventdate *string `json:"starteventdate,omitempty" format:"date" example:"2025-02-14"`
+	Description    *string `json:"description,omitempty" example:"World Cup NH 10 km (updated)"`
+	Place          *string `json:"place,omitempty" example:"Seefeld"`
+	Nationcode     *string `json:"nationcode,omitempty" example:"AUT"`
+
+	Td1id          *int32  `json:"td1id,omitempty" example:"101"`
+	Td1name        *string `json:"td1name,omitempty" example:"John Doe"`
+	Td1nation      *string `json:"td1nation,omitempty" example:"AUT"`
+	Td1code        *int32  `json:"td1code,omitempty" example:"1001"`
+	Td2id          *int32  `json:"td2id,omitempty" example:"102"`
+	Td2name        *string `json:"td2name,omitempty" example:"Jane Doe"`
+	Td2nation      *string `json:"td2nation,omitempty" example:"GER"`
+	Td2code        *int32  `json:"td2code,omitempty" example:"1002"`
+	Calstatuscode  *string `json:"calstatuscode,omitempty" example:"OFF"`
+	Procstatuscode *string `json:"procstatuscode,omitempty" example:"P"`
+
+	Receiveddate *string `json:"receiveddate,omitempty" format:"date-time" example:"2025-02-10T10:00:00Z"`
+	Pursuit      *string `json:"pursuit,omitempty"`
+	Masse        *string `json:"masse,omitempty"`
+	Relay        *string `json:"relay,omitempty"`
+	Distance     *string `json:"distance,omitempty" example:"10km"`
+	Hill         *int32  `json:"hill,omitempty" example:"109"`
+	Style        *string `json:"style,omitempty" example:"FREE"`
+	Qualif       *string `json:"qualif,omitempty" example:"Q"`
+	Finale       *string `json:"finale,omitempty"`
+	Homol        *string `json:"homol,omitempty"`
+
+	Webcomment       *string `json:"webcomment,omitempty"`
+	Displaystatus    *string `json:"displaystatus,omitempty" example:"OK"`
+	Fisinterncomment *string `json:"fisinterncomment,omitempty"`
+
+	Published         *int32  `json:"published,omitempty" example:"1"`
+	Validforfispoints *int32  `json:"validforfispoints,omitempty" example:"1"`
+	Usedfislist       *string `json:"usedfislist,omitempty"`
+	Tolist            *string `json:"tolist,omitempty"`
+	Discforlistcode   *string `json:"discforlistcode,omitempty"`
+	Calculatedpenalty *string `json:"calculatedpenalty,omitempty"`
+	Appliedpenalty    *string `json:"appliedpenalty,omitempty"`
+	Appliedscala      *string `json:"appliedscala,omitempty"`
+	Penscafixed       *string `json:"penscafixed,omitempty"`
+	Version           *int32  `json:"version,omitempty" example:"1"`
+	Nationraceid      *int32  `json:"nationraceid,omitempty" example:"0"`
+	Provraceid        *int32  `json:"provraceid,omitempty" example:"0"`
+	Msql7evid         *int32  `json:"msql7evid,omitempty" example:"0"`
+	Mssql7id          *int32  `json:"mssql7id,omitempty" example:"0"`
+
+	Topbanner    *string `json:"topbanner,omitempty"`
+	Bottombanner *string `json:"bottombanner,omitempty"`
+	Toplogo      *string `json:"toplogo,omitempty"`
+	Bottomlogo   *string `json:"bottomlogo,omitempty"`
+	Gallery      *string `json:"gallery,omitempty"`
+
+	Indi        *int32  `json:"indi,omitempty" example:"1"`
+	Team        *int32  `json:"team,omitempty" example:"0"`
+	Tabcount    *int32  `json:"tabcount,omitempty" example:"0"`
+	Columncount *int32  `json:"columncount,omitempty" example:"0"`
+	Level       *string `json:"level,omitempty" example:"WC"`
+
+	Hloc1 *string `json:"hloc1,omitempty" format:"date-time" example:"2025-02-15T09:30:00Z"`
+	Hloc2 *string `json:"hloc2,omitempty" format:"date-time" example:"2025-02-15T10:00:00Z"`
+	Hloc3 *string `json:"hloc3,omitempty" format:"date-time" example:"2025-02-15T10:30:00Z"`
+	Hcet1 *string `json:"hcet1,omitempty" format:"date-time" example:"2025-02-15T11:00:00Z"`
+	Hcet2 *string `json:"hcet2,omitempty" format:"date-time" example:"2025-02-15T11:30:00Z"`
+	Hcet3 *string `json:"hcet3,omitempty" format:"date-time" example:"2025-02-15T12:00:00Z"`
+
+	Live        *int32  `json:"live,omitempty" example:"1"`
+	Livestatus1 *string `json:"livestatus1,omitempty" example:"LIVE"`
+	Livestatus2 *string `json:"livestatus2,omitempty"`
+	Livestatus3 *string `json:"livestatus3,omitempty"`
+	Liveinfo1   *string `json:"liveinfo1,omitempty"`
+	Liveinfo2   *string `json:"liveinfo2,omitempty"`
+	Liveinfo3   *string `json:"liveinfo3,omitempty"`
+
+	Passwd     *string `json:"passwd,omitempty"`
+	Timinglogo *string `json:"timinglogo,omitempty"`
+
+	Validdate    *string `json:"validdate,omitempty" format:"date-time" example:"2025-02-16T00:00:00Z"`
+	Noepr        *int32  `json:"noepr,omitempty" example:"0"`
+	Tddoc        *int32  `json:"tddoc,omitempty" example:"0"`
+	Timingreport *int32  `json:"timingreport,omitempty" example:"0"`
+
+	SpecialCupPoints *int32 `json:"special_cup_points,omitempty" example:"0"`
+	SkipWcsl         *int32 `json:"skip_wcsl,omitempty" example:"0"`
+	Validforowg      *int32 `json:"validforowg,omitempty" example:"1"`
+
+	Lastupdate *string `json:"lastupdate,omitempty" format:"date-time" example:"2025-02-16T08:00:00Z"`
+}
