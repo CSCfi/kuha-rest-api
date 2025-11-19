@@ -7,6 +7,16 @@ import (
 	fissqlc "github.com/DeRuina/KUHA-REST-API/internal/db/fis"
 )
 
+// Resultcc interface
+type Resultcc interface {
+	GetLastRowResultCC(ctx context.Context) (fissqlc.AResultcc, error)
+	InsertResultCC(ctx context.Context, in InsertResultCCClean) error
+	UpdateResultCCByRecID(ctx context.Context, in UpdateResultCCClean) error
+	DeleteResultCCByRecID(ctx context.Context, recid int32) error
+	GetRaceResultsCCByRaceID(ctx context.Context, raceID int32) ([]fissqlc.AResultcc, error)
+	GetAthleteResultsCC(ctx context.Context, competitorID int32, seasons []int32, disciplines, cats []string) ([]fissqlc.GetAthleteResultsCCRow, error)
+}
+
 // Racecc interface
 type Racecc interface {
 	GetCrossCountrySeasons(ctx context.Context) ([]int32, error)
@@ -65,6 +75,7 @@ type FISStorage struct {
 	racecc      Racecc
 	racejp      Racejp
 	racenk      Racenk
+	resultcc    Resultcc
 }
 
 // Ping method
@@ -89,6 +100,10 @@ func (s *FISStorage) RaceNK() Racenk {
 	return s.racenk
 }
 
+func (s *FISStorage) ResultCC() Resultcc {
+	return s.resultcc
+}
+
 // Storage for FIS database tables
 func NewFISStorage(db *sql.DB) *FISStorage {
 	return &FISStorage{
@@ -97,5 +112,6 @@ func NewFISStorage(db *sql.DB) *FISStorage {
 		racecc:      &RaceCCStore{db: db},
 		racejp:      &RaceJPStore{db: db},
 		racenk:      &RaceNKStore{db: db},
+		resultcc:    &ResultCCStore{db: db},
 	}
 }

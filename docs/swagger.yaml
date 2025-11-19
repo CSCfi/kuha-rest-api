@@ -320,6 +320,46 @@ definitions:
         example: Niskanen
         type: string
     type: object
+  swagger.FISAthleteResultCC:
+    properties:
+      catcode:
+        example: WC
+        type: string
+      competitorid:
+        example: 11111
+        type: integer
+      disciplinecode:
+        example: DSPR
+        type: string
+      place:
+        example: Oslo
+        type: string
+      position:
+        example: "1.00000"
+        type: string
+      racedate:
+        example: "2025-02-15"
+        type: string
+      raceid:
+        example: 98765
+        type: integer
+      recid:
+        example: 12345
+        type: integer
+      seasoncode:
+        example: 2025
+        type: integer
+      timetot:
+        example: "26:30.2"
+        type: string
+    type: object
+  swagger.FISAthleteResultsCCResponse:
+    properties:
+      results:
+        items:
+          $ref: '#/definitions/swagger.FISAthleteResultCC'
+        type: array
+    type: object
   swagger.FISAthletesResponse:
     properties:
       athletes:
@@ -1264,6 +1304,96 @@ definitions:
     required:
     - raceid
     type: object
+  swagger.FISInsertResultCCExample:
+    properties:
+      bib:
+        example: "10.00000"
+        type: string
+      bibcolor:
+        example: RED
+        type: string
+      bonuscuppoints:
+        example: "15"
+        type: string
+      bonustime:
+        example: "00:10.0"
+        type: string
+      competitorid:
+        example: 11111
+        type: integer
+      competitorname:
+        example: DOE John
+        type: string
+      cuppoints:
+        example: "100.00000"
+        type: string
+      fiscode:
+        example: 1234567
+        type: integer
+      heat:
+        example: "1"
+        type: string
+      lastupdate:
+        example: "2025-01-01T12:00:00Z"
+        type: string
+      level:
+        example: WC
+        type: string
+      nationcode:
+        example: NOR
+        type: string
+      pf:
+        example: 0
+        type: integer
+      position:
+        example: "1.00000"
+        type: string
+      raceid:
+        example: 98765
+        type: integer
+      racepoints:
+        example: "2.34"
+        type: string
+      reason:
+        example: ""
+        type: string
+      recid:
+        example: 12345
+        type: integer
+      rg1:
+        example: ""
+        type: string
+      rg2:
+        example: ""
+        type: string
+      stage:
+        example: F
+        type: string
+      status:
+        example: OK
+        type: string
+      status2:
+        example: ""
+        type: string
+      timer1:
+        example: "03:10.5"
+        type: string
+      timer2:
+        example: "06:22.0"
+        type: string
+      timer3:
+        example: ""
+        type: string
+      timetot:
+        example: "26:30.2"
+        type: string
+      valid:
+        example: "1.00000"
+        type: string
+      version:
+        example: "1"
+        type: string
+    type: object
   swagger.FISLastCompetitorResponse:
     properties:
       competitor:
@@ -1283,6 +1413,11 @@ definitions:
     properties:
       race:
         $ref: '#/definitions/swagger.FISRaceNK'
+    type: object
+  swagger.FISLastResultCCResponse:
+    properties:
+      result:
+        $ref: '#/definitions/swagger.FISResultCC'
     type: object
   swagger.FISNationsBySectorResponse:
     properties:
@@ -1960,6 +2095,13 @@ definitions:
       webcomment:
         type: string
     type: object
+  swagger.FISRaceResultsCCResponse:
+    properties:
+      results:
+        items:
+          $ref: '#/definitions/swagger.FISResultCC'
+        type: array
+    type: object
   swagger.FISRacesCCResponse:
     properties:
       races:
@@ -1980,6 +2122,96 @@ definitions:
         items:
           $ref: '#/definitions/swagger.FISRaceNK'
         type: array
+    type: object
+  swagger.FISResultCC:
+    properties:
+      bib:
+        example: "10.00000"
+        type: string
+      bibcolor:
+        example: RED
+        type: string
+      bonuscuppoints:
+        example: "15"
+        type: string
+      bonustime:
+        example: "00:10.0"
+        type: string
+      competitorid:
+        example: 11111
+        type: integer
+      competitorname:
+        example: DOE John
+        type: string
+      cuppoints:
+        example: "100.00000"
+        type: string
+      fiscode:
+        example: 1234567
+        type: integer
+      heat:
+        example: "1"
+        type: string
+      lastupdate:
+        example: "2025-01-01T12:00:00Z"
+        type: string
+      level:
+        example: WC
+        type: string
+      nationcode:
+        example: NOR
+        type: string
+      pf:
+        example: 0
+        type: integer
+      position:
+        example: "1.00000"
+        type: string
+      raceid:
+        example: 98765
+        type: integer
+      racepoints:
+        example: "2.34"
+        type: string
+      reason:
+        example: ""
+        type: string
+      recid:
+        example: 12345
+        type: integer
+      rg1:
+        example: ""
+        type: string
+      rg2:
+        example: ""
+        type: string
+      stage:
+        example: F
+        type: string
+      status:
+        example: OK
+        type: string
+      status2:
+        example: ""
+        type: string
+      timer1:
+        example: "03:10.5"
+        type: string
+      timer2:
+        example: "06:22.0"
+        type: string
+      timer3:
+        example: ""
+        type: string
+      timetot:
+        example: "26:30.2"
+        type: string
+      valid:
+        example: "1.00000"
+        type: string
+      version:
+        example: "1"
+        type: string
     type: object
   swagger.FISSeasonsCCResponse:
     properties:
@@ -2806,6 +3038,96 @@ definitions:
         type: string
     required:
     - raceid
+    type: object
+  swagger.FISUpdateResultCCExample:
+    properties:
+      bib:
+        example: "10.00000"
+        type: string
+      bibcolor:
+        example: RED
+        type: string
+      bonuscuppoints:
+        example: "15"
+        type: string
+      bonustime:
+        example: "00:10.0"
+        type: string
+      competitorid:
+        example: 11111
+        type: integer
+      competitorname:
+        example: DOE John
+        type: string
+      cuppoints:
+        example: "100.00000"
+        type: string
+      fiscode:
+        example: 1234567
+        type: integer
+      heat:
+        example: "1"
+        type: string
+      lastupdate:
+        example: "2025-01-01T12:00:00Z"
+        type: string
+      level:
+        example: WC
+        type: string
+      nationcode:
+        example: NOR
+        type: string
+      pf:
+        example: 0
+        type: integer
+      position:
+        example: "1.00000"
+        type: string
+      raceid:
+        example: 98765
+        type: integer
+      racepoints:
+        example: "2.34"
+        type: string
+      reason:
+        example: ""
+        type: string
+      recid:
+        example: 12345
+        type: integer
+      rg1:
+        example: ""
+        type: string
+      rg2:
+        example: ""
+        type: string
+      stage:
+        example: F
+        type: string
+      status:
+        example: OK
+        type: string
+      status2:
+        example: ""
+        type: string
+      timer1:
+        example: "03:10.5"
+        type: string
+      timer2:
+        example: "06:22.0"
+        type: string
+      timer3:
+        example: ""
+        type: string
+      timetot:
+        example: "26:30.2"
+        type: string
+      valid:
+        example: "1.00000"
+        type: string
+      version:
+        example: "1"
+        type: string
     type: object
   swagger.ForbiddenError:
     properties:
@@ -6538,6 +6860,47 @@ paths:
       summary: Get last Nordic Combined race record
       tags:
       - FIS - Race Management – Nordic Combined
+  /fis/lastrow/resultcc:
+    get:
+      consumes:
+      - application/json
+      description: Returns the last row in a_resultcc (by RecID DESC)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.FISLastResultCCResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Get last Cross-Country result record
+      tags:
+      - FIS - Result Management – Cross-Country
   /fis/nation:
     get:
       consumes:
@@ -7156,6 +7519,249 @@ paths:
       summary: Update Nordic Combined race by ID
       tags:
       - FIS - Race Management – Nordic Combined
+  /fis/resultathletecc:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: FIS Code
+        in: query
+        name: fiscode
+        required: true
+        type: integer
+      - collectionFormat: csv
+        description: Season code (repeat or comma-separated)
+        in: query
+        items:
+          type: integer
+        name: seasoncode
+        type: array
+      - collectionFormat: csv
+        description: Discipline code (repeat or comma-separated)
+        in: query
+        items:
+          type: string
+        name: disciplinecode
+        type: array
+      - collectionFormat: csv
+        description: Category code (repeat or comma-separated)
+        in: query
+        items:
+          type: string
+        name: catcode
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.FISAthleteResultsCCResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Cross-Country results for an athlete
+      tags:
+      - FIS - Athlete
+  /fis/resultcc:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a result by RecID
+      parameters:
+      - description: Result RecID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Deleted
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete Cross-Country result
+      tags:
+      - FIS - Result Management – Cross-Country
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Race ID
+        in: query
+        name: raceid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.FISRaceResultsCCResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Get results for a Cross-Country race
+      tags:
+      - FIS - Race Results
+    post:
+      consumes:
+      - application/json
+      description: Inserts a new a_resultcc row
+      parameters:
+      - description: Result payload
+        in: body
+        name: resultcc
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.FISInsertResultCCExample'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/swagger.ConflictResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Add new Cross-Country result
+      tags:
+      - FIS - Result Management – Cross-Country
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing a_resultcc row
+      parameters:
+      - description: Result payload
+        in: body
+        name: resultcc
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.FISUpdateResultCCExample'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Update Cross-Country result by RecID
+      tags:
+      - FIS - Result Management – Cross-Country
   /fis/seasoncodeCC:
     get:
       consumes:

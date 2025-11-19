@@ -1036,3 +1036,94 @@ type FISUpdateRaceNKExample struct {
 
 	Lastupdate *string `json:"lastupdate,omitempty" format:"date-time" example:"2025-02-16T08:00:00Z"`
 }
+
+type FISResultCC struct {
+	Recid          int32   `json:"recid" example:"12345"`
+	Raceid         *int32  `json:"raceid,omitempty" example:"98765"`
+	Competitorid   *int32  `json:"competitorid,omitempty" example:"11111"`
+	Status         *string `json:"status,omitempty" example:"OK"`
+	Reason         *string `json:"reason,omitempty" example:""`
+	Position       *string `json:"position,omitempty" example:"1.00000"`
+	Pf             *int32  `json:"pf,omitempty" example:"0"`
+	Status2        *string `json:"status2,omitempty" example:""`
+	Bib            *string `json:"bib,omitempty" example:"10.00000"`
+	Bibcolor       *string `json:"bibcolor,omitempty" example:"RED"`
+	Fiscode        *int32  `json:"fiscode,omitempty" example:"1234567"`
+	Competitorname *string `json:"competitorname,omitempty" example:"DOE John"`
+	Nationcode     *string `json:"nationcode,omitempty" example:"NOR"`
+	Stage          *string `json:"stage,omitempty" example:"F"`
+	Level          *string `json:"level,omitempty" example:"WC"`
+	Heat           *string `json:"heat,omitempty" example:"1"`
+	Timer1         *string `json:"timer1,omitempty" example:"03:10.5"`
+	Timer2         *string `json:"timer2,omitempty" example:"06:22.0"`
+	Timer3         *string `json:"timer3,omitempty" example:""`
+	Timetot        *string `json:"timetot,omitempty" example:"26:30.2"`
+	Valid          *string `json:"valid,omitempty" example:"1.00000"`
+	Racepoints     *string `json:"racepoints,omitempty" example:"2.34"`
+	Cuppoints      *string `json:"cuppoints,omitempty" example:"100.00000"`
+	Bonustime      *string `json:"bonustime,omitempty" example:"00:10.0"`
+	Bonuscuppoints *string `json:"bonuscuppoints,omitempty" example:"15"`
+	Version        *string `json:"version,omitempty" example:"1"`
+	Rg1            *string `json:"rg1,omitempty" example:""`
+	Rg2            *string `json:"rg2,omitempty" example:""`
+	Lastupdate     *string `json:"lastupdate,omitempty" example:"2025-01-01T12:00:00Z"`
+}
+
+type FISAthleteResultCC struct {
+	Recid          int32   `json:"recid" example:"12345"`
+	Raceid         *int32  `json:"raceid,omitempty" example:"98765"`
+	Position       *string `json:"position,omitempty" example:"1.00000"`
+	Timetot        *string `json:"timetot,omitempty" example:"26:30.2"`
+	Competitorid   *int32  `json:"competitorid,omitempty" example:"11111"`
+	Racedate       *string `json:"racedate,omitempty" example:"2025-02-15"`
+	Seasoncode     *int32  `json:"seasoncode,omitempty" example:"2025"`
+	Disciplinecode *string `json:"disciplinecode,omitempty" example:"DSPR"`
+	Catcode        *string `json:"catcode,omitempty" example:"WC"`
+	Place          *string `json:"place,omitempty" example:"Oslo"`
+}
+
+type FISLastResultCCResponse struct {
+	Result FISResultCC `json:"result"`
+}
+
+type FISRaceResultsCCResponse struct {
+	Results []FISResultCC `json:"results"`
+}
+
+type FISAthleteResultsCCResponse struct {
+	Results []FISAthleteResultCC `json:"results"`
+}
+
+type FISInsertResultCCExample struct {
+	Recid          int32   `json:"recid" example:"12345"`
+	Raceid         *int32  `json:"raceid" example:"98765"`
+	Competitorid   *int32  `json:"competitorid" example:"11111"`
+	Status         *string `json:"status" example:"OK"`
+	Reason         *string `json:"reason" example:""`
+	Position       *string `json:"position" example:"1.00000"`
+	Pf             *int32  `json:"pf" example:"0"`
+	Status2        *string `json:"status2" example:""`
+	Bib            *string `json:"bib" example:"10.00000"`
+	Bibcolor       *string `json:"bibcolor" example:"RED"`
+	Fiscode        *int32  `json:"fiscode" example:"1234567"`
+	Competitorname *string `json:"competitorname" example:"DOE John"`
+	Nationcode     *string `json:"nationcode" example:"NOR"`
+	Stage          *string `json:"stage" example:"F"`
+	Level          *string `json:"level" example:"WC"`
+	Heat           *string `json:"heat" example:"1"`
+	Timer1         *string `json:"timer1" example:"03:10.5"`
+	Timer2         *string `json:"timer2" example:"06:22.0"`
+	Timer3         *string `json:"timer3" example:""`
+	Timetot        *string `json:"timetot" example:"26:30.2"`
+	Valid          *string `json:"valid" example:"1.00000"`
+	Racepoints     *string `json:"racepoints" example:"2.34"`
+	Cuppoints      *string `json:"cuppoints" example:"100.00000"`
+	Bonustime      *string `json:"bonustime" example:"00:10.0"`
+	Bonuscuppoints *string `json:"bonuscuppoints" example:"15"`
+	Version        *string `json:"version" example:"1"`
+	Rg1            *string `json:"rg1" example:""`
+	Rg2            *string `json:"rg2" example:""`
+	Lastupdate     *string `json:"lastupdate" example:"2025-01-01T12:00:00Z"`
+}
+
+type FISUpdateResultCCExample = FISInsertResultCCExample

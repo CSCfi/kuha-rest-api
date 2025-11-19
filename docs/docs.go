@@ -1418,6 +1418,70 @@ const docTemplate = `{
                 }
             }
         },
+        "/fis/lastrow/resultcc": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the last row in a_resultcc (by RecID DESC)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FIS - Result Management – Cross-Country"
+                ],
+                "summary": "Get last Cross-Country result record",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.FISLastResultCCResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/fis/nation": {
             "get": {
                 "security": [
@@ -2327,6 +2391,382 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Race ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/fis/resultathletecc": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FIS - Athlete"
+                ],
+                "summary": "Get Cross-Country results for an athlete",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "FIS Code",
+                        "name": "fiscode",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Season code (repeat or comma-separated)",
+                        "name": "seasoncode",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Discipline code (repeat or comma-separated)",
+                        "name": "disciplinecode",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Category code (repeat or comma-separated)",
+                        "name": "catcode",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.FISAthleteResultsCCResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/fis/resultcc": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FIS - Race Results"
+                ],
+                "summary": "Get results for a Cross-Country race",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Race ID",
+                        "name": "raceid",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.FISRaceResultsCCResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates an existing a_resultcc row",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FIS - Result Management – Cross-Country"
+                ],
+                "summary": "Update Cross-Country result by RecID",
+                "parameters": [
+                    {
+                        "description": "Result payload",
+                        "name": "resultcc",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.FISUpdateResultCCExample"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Inserts a new a_resultcc row",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FIS - Result Management – Cross-Country"
+                ],
+                "summary": "Add new Cross-Country result",
+                "parameters": [
+                    {
+                        "description": "Result payload",
+                        "name": "resultcc",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.FISInsertResultCCExample"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ConflictResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deletes a result by RecID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FIS - Result Management – Cross-Country"
+                ],
+                "summary": "Delete Cross-Country result",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Result RecID",
                         "name": "id",
                         "in": "query",
                         "required": true
@@ -9058,6 +9498,62 @@ const docTemplate = `{
                 }
             }
         },
+        "swagger.FISAthleteResultCC": {
+            "type": "object",
+            "properties": {
+                "catcode": {
+                    "type": "string",
+                    "example": "WC"
+                },
+                "competitorid": {
+                    "type": "integer",
+                    "example": 11111
+                },
+                "disciplinecode": {
+                    "type": "string",
+                    "example": "DSPR"
+                },
+                "place": {
+                    "type": "string",
+                    "example": "Oslo"
+                },
+                "position": {
+                    "type": "string",
+                    "example": "1.00000"
+                },
+                "racedate": {
+                    "type": "string",
+                    "example": "2025-02-15"
+                },
+                "raceid": {
+                    "type": "integer",
+                    "example": 98765
+                },
+                "recid": {
+                    "type": "integer",
+                    "example": 12345
+                },
+                "seasoncode": {
+                    "type": "integer",
+                    "example": 2025
+                },
+                "timetot": {
+                    "type": "string",
+                    "example": "26:30.2"
+                }
+            }
+        },
+        "swagger.FISAthleteResultsCCResponse": {
+            "type": "object",
+            "properties": {
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.FISAthleteResultCC"
+                    }
+                }
+            }
+        },
         "swagger.FISAthletesResponse": {
             "type": "object",
             "properties": {
@@ -10370,6 +10866,127 @@ const docTemplate = `{
                 }
             }
         },
+        "swagger.FISInsertResultCCExample": {
+            "type": "object",
+            "properties": {
+                "bib": {
+                    "type": "string",
+                    "example": "10.00000"
+                },
+                "bibcolor": {
+                    "type": "string",
+                    "example": "RED"
+                },
+                "bonuscuppoints": {
+                    "type": "string",
+                    "example": "15"
+                },
+                "bonustime": {
+                    "type": "string",
+                    "example": "00:10.0"
+                },
+                "competitorid": {
+                    "type": "integer",
+                    "example": 11111
+                },
+                "competitorname": {
+                    "type": "string",
+                    "example": "DOE John"
+                },
+                "cuppoints": {
+                    "type": "string",
+                    "example": "100.00000"
+                },
+                "fiscode": {
+                    "type": "integer",
+                    "example": 1234567
+                },
+                "heat": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "lastupdate": {
+                    "type": "string",
+                    "example": "2025-01-01T12:00:00Z"
+                },
+                "level": {
+                    "type": "string",
+                    "example": "WC"
+                },
+                "nationcode": {
+                    "type": "string",
+                    "example": "NOR"
+                },
+                "pf": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "position": {
+                    "type": "string",
+                    "example": "1.00000"
+                },
+                "raceid": {
+                    "type": "integer",
+                    "example": 98765
+                },
+                "racepoints": {
+                    "type": "string",
+                    "example": "2.34"
+                },
+                "reason": {
+                    "type": "string",
+                    "example": ""
+                },
+                "recid": {
+                    "type": "integer",
+                    "example": 12345
+                },
+                "rg1": {
+                    "type": "string",
+                    "example": ""
+                },
+                "rg2": {
+                    "type": "string",
+                    "example": ""
+                },
+                "stage": {
+                    "type": "string",
+                    "example": "F"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                },
+                "status2": {
+                    "type": "string",
+                    "example": ""
+                },
+                "timer1": {
+                    "type": "string",
+                    "example": "03:10.5"
+                },
+                "timer2": {
+                    "type": "string",
+                    "example": "06:22.0"
+                },
+                "timer3": {
+                    "type": "string",
+                    "example": ""
+                },
+                "timetot": {
+                    "type": "string",
+                    "example": "26:30.2"
+                },
+                "valid": {
+                    "type": "string",
+                    "example": "1.00000"
+                },
+                "version": {
+                    "type": "string",
+                    "example": "1"
+                }
+            }
+        },
         "swagger.FISLastCompetitorResponse": {
             "type": "object",
             "properties": {
@@ -10399,6 +11016,14 @@ const docTemplate = `{
             "properties": {
                 "race": {
                     "$ref": "#/definitions/swagger.FISRaceNK"
+                }
+            }
+        },
+        "swagger.FISLastResultCCResponse": {
+            "type": "object",
+            "properties": {
+                "result": {
+                    "$ref": "#/definitions/swagger.FISResultCC"
                 }
             }
         },
@@ -11353,6 +11978,17 @@ const docTemplate = `{
                 }
             }
         },
+        "swagger.FISRaceResultsCCResponse": {
+            "type": "object",
+            "properties": {
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.FISResultCC"
+                    }
+                }
+            }
+        },
         "swagger.FISRacesCCResponse": {
             "type": "object",
             "properties": {
@@ -11383,6 +12019,127 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/swagger.FISRaceNK"
                     }
+                }
+            }
+        },
+        "swagger.FISResultCC": {
+            "type": "object",
+            "properties": {
+                "bib": {
+                    "type": "string",
+                    "example": "10.00000"
+                },
+                "bibcolor": {
+                    "type": "string",
+                    "example": "RED"
+                },
+                "bonuscuppoints": {
+                    "type": "string",
+                    "example": "15"
+                },
+                "bonustime": {
+                    "type": "string",
+                    "example": "00:10.0"
+                },
+                "competitorid": {
+                    "type": "integer",
+                    "example": 11111
+                },
+                "competitorname": {
+                    "type": "string",
+                    "example": "DOE John"
+                },
+                "cuppoints": {
+                    "type": "string",
+                    "example": "100.00000"
+                },
+                "fiscode": {
+                    "type": "integer",
+                    "example": 1234567
+                },
+                "heat": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "lastupdate": {
+                    "type": "string",
+                    "example": "2025-01-01T12:00:00Z"
+                },
+                "level": {
+                    "type": "string",
+                    "example": "WC"
+                },
+                "nationcode": {
+                    "type": "string",
+                    "example": "NOR"
+                },
+                "pf": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "position": {
+                    "type": "string",
+                    "example": "1.00000"
+                },
+                "raceid": {
+                    "type": "integer",
+                    "example": 98765
+                },
+                "racepoints": {
+                    "type": "string",
+                    "example": "2.34"
+                },
+                "reason": {
+                    "type": "string",
+                    "example": ""
+                },
+                "recid": {
+                    "type": "integer",
+                    "example": 12345
+                },
+                "rg1": {
+                    "type": "string",
+                    "example": ""
+                },
+                "rg2": {
+                    "type": "string",
+                    "example": ""
+                },
+                "stage": {
+                    "type": "string",
+                    "example": "F"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                },
+                "status2": {
+                    "type": "string",
+                    "example": ""
+                },
+                "timer1": {
+                    "type": "string",
+                    "example": "03:10.5"
+                },
+                "timer2": {
+                    "type": "string",
+                    "example": "06:22.0"
+                },
+                "timer3": {
+                    "type": "string",
+                    "example": ""
+                },
+                "timetot": {
+                    "type": "string",
+                    "example": "26:30.2"
+                },
+                "valid": {
+                    "type": "string",
+                    "example": "1.00000"
+                },
+                "version": {
+                    "type": "string",
+                    "example": "1"
                 }
             }
         },
@@ -12537,6 +13294,127 @@ const docTemplate = `{
                 },
                 "webcomment": {
                     "type": "string"
+                }
+            }
+        },
+        "swagger.FISUpdateResultCCExample": {
+            "type": "object",
+            "properties": {
+                "bib": {
+                    "type": "string",
+                    "example": "10.00000"
+                },
+                "bibcolor": {
+                    "type": "string",
+                    "example": "RED"
+                },
+                "bonuscuppoints": {
+                    "type": "string",
+                    "example": "15"
+                },
+                "bonustime": {
+                    "type": "string",
+                    "example": "00:10.0"
+                },
+                "competitorid": {
+                    "type": "integer",
+                    "example": 11111
+                },
+                "competitorname": {
+                    "type": "string",
+                    "example": "DOE John"
+                },
+                "cuppoints": {
+                    "type": "string",
+                    "example": "100.00000"
+                },
+                "fiscode": {
+                    "type": "integer",
+                    "example": 1234567
+                },
+                "heat": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "lastupdate": {
+                    "type": "string",
+                    "example": "2025-01-01T12:00:00Z"
+                },
+                "level": {
+                    "type": "string",
+                    "example": "WC"
+                },
+                "nationcode": {
+                    "type": "string",
+                    "example": "NOR"
+                },
+                "pf": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "position": {
+                    "type": "string",
+                    "example": "1.00000"
+                },
+                "raceid": {
+                    "type": "integer",
+                    "example": 98765
+                },
+                "racepoints": {
+                    "type": "string",
+                    "example": "2.34"
+                },
+                "reason": {
+                    "type": "string",
+                    "example": ""
+                },
+                "recid": {
+                    "type": "integer",
+                    "example": 12345
+                },
+                "rg1": {
+                    "type": "string",
+                    "example": ""
+                },
+                "rg2": {
+                    "type": "string",
+                    "example": ""
+                },
+                "stage": {
+                    "type": "string",
+                    "example": "F"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                },
+                "status2": {
+                    "type": "string",
+                    "example": ""
+                },
+                "timer1": {
+                    "type": "string",
+                    "example": "03:10.5"
+                },
+                "timer2": {
+                    "type": "string",
+                    "example": "06:22.0"
+                },
+                "timer3": {
+                    "type": "string",
+                    "example": ""
+                },
+                "timetot": {
+                    "type": "string",
+                    "example": "26:30.2"
+                },
+                "valid": {
+                    "type": "string",
+                    "example": "1.00000"
+                },
+                "version": {
+                    "type": "string",
+                    "example": "1"
                 }
             }
         },
