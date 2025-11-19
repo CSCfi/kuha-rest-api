@@ -672,3 +672,376 @@ func FISAthleteResultJPFromSqlc(row fissqlc.GetAthleteResultsJPRow) FISAthleteRe
 		Totrun2: utils.StringPtrOrNil(row.Totrun2),
 	}
 }
+
+type AthleteResultsNKQuery struct {
+	SeasonCode     []string `form:"seasoncode"`
+	DisciplineCode []string `form:"disciplinecode"`
+	CatCode        []string `form:"catcode"`
+}
+
+type InsertResultNKInput struct {
+	Recid          int32   `json:"recid" validate:"required"`
+	Raceid         *int32  `json:"raceid"`
+	Competitorid   *int32  `json:"competitorid"`
+	Status         *string `json:"status"`
+	Status2        *string `json:"status2"`
+	Reason         *string `json:"reason"`
+	Position       *int32  `json:"position"`
+	Pf             *int32  `json:"pf"`
+	Bib            *int32  `json:"bib"`
+	Bibcolor       *string `json:"bibcolor"`
+	Fiscode        *int32  `json:"fiscode"`
+	Competitorname *string `json:"competitorname"`
+	Nationcode     *string `json:"nationcode"`
+	Level          *string `json:"level"`
+	Heat           *string `json:"heat"`
+	Stage          *string `json:"stage"`
+
+	J1r1      *string `json:"j1r1"`
+	J2r1      *string `json:"j2r1"`
+	J3r1      *string `json:"j3r1"`
+	J4r1      *string `json:"j4r1"`
+	J5r1      *string `json:"j5r1"`
+	Speedr1   *string `json:"speedr1"`
+	Distr1    *string `json:"distr1"`
+	Disptsr1  *string `json:"disptsr1"`
+	Judptsr1  *string `json:"judptsr1"`
+	Gater1    *string `json:"gater1"`
+	Gateptsr1 *string `json:"gateptsr1"`
+	Windr1    *string `json:"windr1"`
+	Windptsr1 *string `json:"windptsr1"`
+	Totrun1   *string `json:"totrun1"`
+	Posr1     *string `json:"posr1"`
+	Statusr1  *string `json:"statusr1"`
+
+	J1r2      *string `json:"j1r2"`
+	J2r2      *string `json:"j2r2"`
+	J3r2      *string `json:"j3r2"`
+	J4r2      *string `json:"j4r2"`
+	J5r2      *string `json:"j5r2"`
+	Speedr2   *string `json:"speedr2"`
+	Distr2    *string `json:"distr2"`
+	Disptsr2  *string `json:"disptsr2"`
+	Judptsr2  *string `json:"judptsr2"`
+	Gater2    *string `json:"gater2"`
+	Gateptsr2 *string `json:"gateptsr2"`
+	Windr2    *string `json:"windr2"`
+	Windptsr2 *string `json:"windptsr2"`
+	Totrun2   *string `json:"totrun2"`
+	Posr2     *string `json:"posr2"`
+	Statusr2  *string `json:"statusr2"`
+
+	Pointsjump *string `json:"pointsjump"`
+	Behindjump *string `json:"behindjump"`
+	Posjump    *string `json:"posjump"`
+	Timecc     *string `json:"timecc"`
+	Timeccint  *string `json:"timeccint"`
+	Poscc      *string `json:"poscc"`
+	Starttime  *string `json:"starttime"`
+	Statuscc   *string `json:"statuscc"`
+	Totbehind  *string `json:"totbehind"`
+	Timetot    *string `json:"timetot"`
+	Timetotint *int32  `json:"timetotint"`
+	Valid      *int32  `json:"valid"`
+	Racepoints *string `json:"racepoints"`
+	Cuppoints  *string `json:"cuppoints"`
+	Version    *string `json:"version"`
+	Lastupdate *string `json:"lastupdate"` // RFC3339
+}
+
+type UpdateResultNKInput = InsertResultNKInput
+
+func mapInsertResultNKInput(in InsertResultNKInput) (fis.InsertResultNKClean, error) {
+	var lup *time.Time
+	var err error
+
+	if in.Lastupdate != nil {
+		lup, err = utils.ParseTimestampPtr(in.Lastupdate)
+		if err != nil {
+			return fis.InsertResultNKClean{}, err
+		}
+	}
+
+	return fis.InsertResultNKClean{
+		Recid:          in.Recid,
+		Raceid:         in.Raceid,
+		Competitorid:   in.Competitorid,
+		Status:         in.Status,
+		Status2:        in.Status2,
+		Reason:         in.Reason,
+		Position:       in.Position,
+		Pf:             in.Pf,
+		Bib:            in.Bib,
+		Bibcolor:       in.Bibcolor,
+		Fiscode:        in.Fiscode,
+		Competitorname: in.Competitorname,
+		Nationcode:     in.Nationcode,
+		Level:          in.Level,
+		Heat:           in.Heat,
+		Stage:          in.Stage,
+
+		J1r1:      in.J1r1,
+		J2r1:      in.J2r1,
+		J3r1:      in.J3r1,
+		J4r1:      in.J4r1,
+		J5r1:      in.J5r1,
+		Speedr1:   in.Speedr1,
+		Distr1:    in.Distr1,
+		Disptsr1:  in.Disptsr1,
+		Judptsr1:  in.Judptsr1,
+		Gater1:    in.Gater1,
+		Gateptsr1: in.Gateptsr1,
+		Windr1:    in.Windr1,
+		Windptsr1: in.Windptsr1,
+		Totrun1:   in.Totrun1,
+		Posr1:     in.Posr1,
+		Statusr1:  in.Statusr1,
+
+		J1r2:      in.J1r2,
+		J2r2:      in.J2r2,
+		J3r2:      in.J3r2,
+		J4r2:      in.J4r2,
+		J5r2:      in.J5r2,
+		Speedr2:   in.Speedr2,
+		Distr2:    in.Distr2,
+		Disptsr2:  in.Disptsr2,
+		Judptsr2:  in.Judptsr2,
+		Gater2:    in.Gater2,
+		Gateptsr2: in.Gateptsr2,
+		Windr2:    in.Windr2,
+		Windptsr2: in.Windptsr2,
+		Totrun2:   in.Totrun2,
+		Posr2:     in.Posr2,
+		Statusr2:  in.Statusr2,
+
+		Pointsjump: in.Pointsjump,
+		Behindjump: in.Behindjump,
+		Posjump:    in.Posjump,
+		Timecc:     in.Timecc,
+		Timeccint:  in.Timeccint,
+		Poscc:      in.Poscc,
+		Starttime:  in.Starttime,
+		Statuscc:   in.Statuscc,
+		Totbehind:  in.Totbehind,
+		Timetot:    in.Timetot,
+		Timetotint: in.Timetotint,
+		Valid:      in.Valid,
+		Racepoints: in.Racepoints,
+		Cuppoints:  in.Cuppoints,
+		Version:    in.Version,
+		Lastupdate: lup,
+	}, nil
+}
+
+func mapUpdateResultNKInput(in UpdateResultNKInput) (fis.UpdateResultNKClean, error) {
+	clean, err := mapInsertResultNKInput(InsertResultNKInput(in))
+	return fis.UpdateResultNKClean(clean), err
+}
+
+type FISResultNKFullResponse struct {
+	Recid          int32   `json:"recid"`
+	Raceid         *int32  `json:"raceid"`
+	Competitorid   *int32  `json:"competitorid"`
+	Status         *string `json:"status"`
+	Status2        *string `json:"status2"`
+	Reason         *string `json:"reason"`
+	Position       *int32  `json:"position"`
+	Pf             *int32  `json:"pf"`
+	Bib            *int32  `json:"bib"`
+	Bibcolor       *string `json:"bibcolor"`
+	Fiscode        *int32  `json:"fiscode"`
+	Competitorname *string `json:"competitorname"`
+	Nationcode     *string `json:"nationcode"`
+	Level          *string `json:"level"`
+	Heat           *string `json:"heat"`
+	Stage          *string `json:"stage"`
+
+	J1r1      *string `json:"j1r1"`
+	J2r1      *string `json:"j2r1"`
+	J3r1      *string `json:"j3r1"`
+	J4r1      *string `json:"j4r1"`
+	J5r1      *string `json:"j5r1"`
+	Speedr1   *string `json:"speedr1"`
+	Distr1    *string `json:"distr1"`
+	Disptsr1  *string `json:"disptsr1"`
+	Judptsr1  *string `json:"judptsr1"`
+	Gater1    *string `json:"gater1"`
+	Gateptsr1 *string `json:"gateptsr1"`
+	Windr1    *string `json:"windr1"`
+	Windptsr1 *string `json:"windptsr1"`
+	Totrun1   *string `json:"totrun1"`
+	Posr1     *string `json:"posr1"`
+	Statusr1  *string `json:"statusr1"`
+
+	J1r2      *string `json:"j1r2"`
+	J2r2      *string `json:"j2r2"`
+	J3r2      *string `json:"j3r2"`
+	J4r2      *string `json:"j4r2"`
+	J5r2      *string `json:"j5r2"`
+	Speedr2   *string `json:"speedr2"`
+	Distr2    *string `json:"distr2"`
+	Disptsr2  *string `json:"disptsr2"`
+	Judptsr2  *string `json:"judptsr2"`
+	Gater2    *string `json:"gater2"`
+	Gateptsr2 *string `json:"gateptsr2"`
+	Windr2    *string `json:"windr2"`
+	Windptsr2 *string `json:"windptsr2"`
+	Totrun2   *string `json:"totrun2"`
+	Posr2     *string `json:"posr2"`
+	Statusr2  *string `json:"statusr2"`
+
+	Pointsjump *string `json:"pointsjump"`
+	Behindjump *string `json:"behindjump"`
+	Posjump    *string `json:"posjump"`
+	Timecc     *string `json:"timecc"`
+	Timeccint  *string `json:"timeccint"`
+	Poscc      *string `json:"poscc"`
+	Starttime  *string `json:"starttime"`
+	Statuscc   *string `json:"statuscc"`
+	Totbehind  *string `json:"totbehind"`
+	Timetot    *string `json:"timetot"`
+	Timetotint *int32  `json:"timetotint"`
+	Valid      *int32  `json:"valid"`
+	Racepoints *string `json:"racepoints"`
+	Cuppoints  *string `json:"cuppoints"`
+	Version    *string `json:"version"`
+	Lastupdate *string `json:"lastupdate"`
+}
+
+func FISResultNKFullFromSqlc(row fissqlc.AResultnk) FISResultNKFullResponse {
+	var lastUpdateStr *string
+	if row.Lastupdate.Valid {
+		lastUpdateStr = utils.FormatTimestampPtr(row.Lastupdate)
+	}
+
+	return FISResultNKFullResponse{
+		Recid:          row.Recid,
+		Raceid:         utils.Int32PtrOrNil(row.Raceid),
+		Competitorid:   utils.Int32PtrOrNil(row.Competitorid),
+		Status:         utils.StringPtrOrNil(row.Status),
+		Status2:        utils.StringPtrOrNil(row.Status2),
+		Reason:         utils.StringPtrOrNil(row.Reason),
+		Position:       utils.Int32PtrOrNil(row.Position),
+		Pf:             utils.Int32PtrOrNil(row.Pf),
+		Bib:            utils.Int32PtrOrNil(row.Bib),
+		Bibcolor:       utils.StringPtrOrNil(row.Bibcolor),
+		Fiscode:        utils.Int32PtrOrNil(row.Fiscode),
+		Competitorname: utils.StringPtrOrNil(row.Competitorname),
+		Nationcode:     utils.StringPtrOrNil(row.Nationcode),
+		Level:          utils.StringPtrOrNil(row.Level),
+		Heat:           utils.StringPtrOrNil(row.Heat),
+		Stage:          utils.StringPtrOrNil(row.Stage),
+
+		J1r1:      utils.StringPtrOrNil(row.J1r1),
+		J2r1:      utils.StringPtrOrNil(row.J2r1),
+		J3r1:      utils.StringPtrOrNil(row.J3r1),
+		J4r1:      utils.StringPtrOrNil(row.J4r1),
+		J5r1:      utils.StringPtrOrNil(row.J5r1),
+		Speedr1:   utils.StringPtrOrNil(row.Speedr1),
+		Distr1:    utils.StringPtrOrNil(row.Distr1),
+		Disptsr1:  utils.StringPtrOrNil(row.Disptsr1),
+		Judptsr1:  utils.StringPtrOrNil(row.Judptsr1),
+		Gater1:    utils.StringPtrOrNil(row.Gater1),
+		Gateptsr1: utils.StringPtrOrNil(row.Gateptsr1),
+		Windr1:    utils.StringPtrOrNil(row.Windr1),
+		Windptsr1: utils.StringPtrOrNil(row.Windptsr1),
+		Totrun1:   utils.StringPtrOrNil(row.Totrun1),
+		Posr1:     utils.StringPtrOrNil(row.Posr1),
+		Statusr1:  utils.StringPtrOrNil(row.Statusr1),
+
+		J1r2:      utils.StringPtrOrNil(row.J1r2),
+		J2r2:      utils.StringPtrOrNil(row.J2r2),
+		J3r2:      utils.StringPtrOrNil(row.J3r2),
+		J4r2:      utils.StringPtrOrNil(row.J4r2),
+		J5r2:      utils.StringPtrOrNil(row.J5r2),
+		Speedr2:   utils.StringPtrOrNil(row.Speedr2),
+		Distr2:    utils.StringPtrOrNil(row.Distr2),
+		Disptsr2:  utils.StringPtrOrNil(row.Disptsr2),
+		Judptsr2:  utils.StringPtrOrNil(row.Judptsr2),
+		Gater2:    utils.StringPtrOrNil(row.Gater2),
+		Gateptsr2: utils.StringPtrOrNil(row.Gateptsr2),
+		Windr2:    utils.StringPtrOrNil(row.Windr2),
+		Windptsr2: utils.StringPtrOrNil(row.Windptsr2),
+		Totrun2:   utils.StringPtrOrNil(row.Totrun2),
+		Posr2:     utils.StringPtrOrNil(row.Posr2),
+		Statusr2:  utils.StringPtrOrNil(row.Statusr2),
+
+		Pointsjump: utils.StringPtrOrNil(row.Pointsjump),
+		Behindjump: utils.StringPtrOrNil(row.Behindjump),
+		Posjump:    utils.StringPtrOrNil(row.Posjump),
+		Timecc:     utils.StringPtrOrNil(row.Timecc),
+		Timeccint:  utils.StringPtrOrNil(row.Timeccint),
+		Poscc:      utils.StringPtrOrNil(row.Poscc),
+		Starttime:  utils.StringPtrOrNil(row.Starttime),
+		Statuscc:   utils.StringPtrOrNil(row.Statuscc),
+		Totbehind:  utils.StringPtrOrNil(row.Totbehind),
+		Timetot:    utils.StringPtrOrNil(row.Timetot),
+		Timetotint: utils.Int32PtrOrNil(row.Timetotint),
+		Valid:      utils.Int32PtrOrNil(row.Valid),
+		Racepoints: utils.StringPtrOrNil(row.Racepoints),
+		Cuppoints:  utils.StringPtrOrNil(row.Cuppoints),
+		Version:    utils.StringPtrOrNil(row.Version),
+		Lastupdate: lastUpdateStr,
+	}
+}
+
+type FISAthleteResultNKRow struct {
+	Recid          int32   `json:"recid"`
+	Raceid         *int32  `json:"raceid"`
+	Position       *int32  `json:"position"`
+	Racedate       *string `json:"racedate"`
+	Seasoncode     *int32  `json:"seasoncode"`
+	Distance       *string `json:"distance"`
+	Hill           *int32  `json:"hill"`
+	Disciplinecode *string `json:"disciplinecode"`
+	Catcode        *string `json:"catcode"`
+	Place          *string `json:"place"`
+
+	Posr1     *string `json:"posr1"`
+	Speedr1   *string `json:"speedr1"`
+	Distr1    *string `json:"distr1"`
+	Judptsr1  *string `json:"judptsr1"`
+	Windr1    *string `json:"windr1"`
+	Windptsr1 *string `json:"windptsr1"`
+	Gater1    *string `json:"gater1"`
+	Totrun1   *string `json:"totrun1"`
+
+	Poscc      *string `json:"poscc"`
+	Timetot    *string `json:"timetot"`
+	Timetotint *int32  `json:"timetotint"`
+	Pointsjump *string `json:"pointsjump"`
+}
+
+func FISAthleteResultNKFromSqlc(row fissqlc.GetAthleteResultsNKRow) FISAthleteResultNKRow {
+	var raceDateStr *string
+	if row.Racedate.Valid {
+		raceDateStr = utils.FormatDatePtr(row.Racedate)
+	}
+
+	return FISAthleteResultNKRow{
+		Recid:          row.Recid,
+		Raceid:         utils.Int32PtrOrNil(row.Raceid),
+		Position:       utils.Int32PtrOrNil(row.Position),
+		Racedate:       raceDateStr,
+		Seasoncode:     utils.Int32PtrOrNil(row.Seasoncode),
+		Distance:       utils.StringPtrOrNil(row.Distance),
+		Hill:           utils.Int32PtrOrNil(row.Hill),
+		Disciplinecode: utils.StringPtrOrNil(row.Disciplinecode),
+		Catcode:        utils.StringPtrOrNil(row.Catcode),
+		Place:          utils.StringPtrOrNil(row.Place),
+
+		Posr1:     utils.StringPtrOrNil(row.Posr1),
+		Speedr1:   utils.StringPtrOrNil(row.Speedr1),
+		Distr1:    utils.StringPtrOrNil(row.Distr1),
+		Judptsr1:  utils.StringPtrOrNil(row.Judptsr1),
+		Windr1:    utils.StringPtrOrNil(row.Windr1),
+		Windptsr1: utils.StringPtrOrNil(row.Windptsr1),
+		Gater1:    utils.StringPtrOrNil(row.Gater1),
+		Totrun1:   utils.StringPtrOrNil(row.Totrun1),
+
+		Poscc:      utils.StringPtrOrNil(row.Poscc),
+		Timetot:    utils.StringPtrOrNil(row.Timetot),
+		Timetotint: utils.Int32PtrOrNil(row.Timetotint),
+		Pointsjump: utils.StringPtrOrNil(row.Pointsjump),
+	}
+}

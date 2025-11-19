@@ -393,3 +393,217 @@ func mapUpdateResultJPToParams(in UpdateResultJPClean) fissqlc.UpdateResultJPByR
 		Statusr4:       p.Statusr4,
 	}
 }
+
+type InsertResultNKClean struct {
+	Recid          int32
+	Raceid         *int32
+	Competitorid   *int32
+	Status         *string
+	Status2        *string
+	Reason         *string
+	Position       *int32
+	Pf             *int32
+	Bib            *int32
+	Bibcolor       *string
+	Fiscode        *int32
+	Competitorname *string
+	Nationcode     *string
+	Level          *string
+	Heat           *string
+	Stage          *string
+
+	J1r1      *string
+	J2r1      *string
+	J3r1      *string
+	J4r1      *string
+	J5r1      *string
+	Speedr1   *string
+	Distr1    *string
+	Disptsr1  *string
+	Judptsr1  *string
+	Gater1    *string
+	Gateptsr1 *string
+	Windr1    *string
+	Windptsr1 *string
+	Totrun1   *string
+	Posr1     *string
+	Statusr1  *string
+
+	J1r2      *string
+	J2r2      *string
+	J3r2      *string
+	J4r2      *string
+	J5r2      *string
+	Speedr2   *string
+	Distr2    *string
+	Disptsr2  *string
+	Judptsr2  *string
+	Gater2    *string
+	Gateptsr2 *string
+	Windr2    *string
+	Windptsr2 *string
+	Totrun2   *string
+	Posr2     *string
+	Statusr2  *string
+
+	Pointsjump *string
+	Behindjump *string
+	Posjump    *string
+	Timecc     *string
+	Timeccint  *string
+	Poscc      *string
+	Starttime  *string
+	Statuscc   *string
+	Totbehind  *string
+	Timetot    *string
+	Timetotint *int32
+	Valid      *int32
+	Racepoints *string
+	Cuppoints  *string
+	Version    *string
+	Lastupdate *time.Time
+}
+
+type UpdateResultNKClean = InsertResultNKClean
+
+func mapInsertResultNKToParams(in InsertResultNKClean) fissqlc.InsertResultNKParams {
+	return fissqlc.InsertResultNKParams{
+		Recid:          in.Recid,
+		Raceid:         utils.NullInt32Ptr(in.Raceid),
+		Competitorid:   utils.NullInt32Ptr(in.Competitorid),
+		Status:         utils.NullStringPtr(in.Status),
+		Status2:        utils.NullStringPtr(in.Status2),
+		Reason:         utils.NullStringPtr(in.Reason),
+		Position:       utils.NullInt32Ptr(in.Position),
+		Pf:             utils.NullInt32Ptr(in.Pf),
+		Bib:            utils.NullInt32Ptr(in.Bib),
+		Bibcolor:       utils.NullStringPtr(in.Bibcolor),
+		Fiscode:        utils.NullInt32Ptr(in.Fiscode),
+		Competitorname: utils.NullStringPtr(in.Competitorname),
+		Nationcode:     utils.NullStringPtr(in.Nationcode),
+		Level:          utils.NullStringPtr(in.Level),
+		Heat:           utils.NullStringPtr(in.Heat),
+		Stage:          utils.NullStringPtr(in.Stage),
+
+		J1r1:      utils.NullStringPtr(in.J1r1),
+		J2r1:      utils.NullStringPtr(in.J2r1),
+		J3r1:      utils.NullStringPtr(in.J3r1),
+		J4r1:      utils.NullStringPtr(in.J4r1),
+		J5r1:      utils.NullStringPtr(in.J5r1),
+		Speedr1:   utils.NullStringPtr(in.Speedr1),
+		Distr1:    utils.NullStringPtr(in.Distr1),
+		Disptsr1:  utils.NullStringPtr(in.Disptsr1),
+		Judptsr1:  utils.NullStringPtr(in.Judptsr1),
+		Gater1:    utils.NullStringPtr(in.Gater1),
+		Gateptsr1: utils.NullStringPtr(in.Gateptsr1),
+		Windr1:    utils.NullStringPtr(in.Windr1),
+		Windptsr1: utils.NullStringPtr(in.Windptsr1),
+		Totrun1:   utils.NullStringPtr(in.Totrun1),
+		Posr1:     utils.NullStringPtr(in.Posr1),
+		Statusr1:  utils.NullStringPtr(in.Statusr1),
+
+		J1r2:      utils.NullStringPtr(in.J1r2),
+		J2r2:      utils.NullStringPtr(in.J2r2),
+		J3r2:      utils.NullStringPtr(in.J3r2),
+		J4r2:      utils.NullStringPtr(in.J4r2),
+		J5r2:      utils.NullStringPtr(in.J5r2),
+		Speedr2:   utils.NullStringPtr(in.Speedr2),
+		Distr2:    utils.NullStringPtr(in.Distr2),
+		Disptsr2:  utils.NullStringPtr(in.Disptsr2),
+		Judptsr2:  utils.NullStringPtr(in.Judptsr2),
+		Gater2:    utils.NullStringPtr(in.Gater2),
+		Gateptsr2: utils.NullStringPtr(in.Gateptsr2),
+		Windr2:    utils.NullStringPtr(in.Windr2),
+		Windptsr2: utils.NullStringPtr(in.Windptsr2),
+		Totrun2:   utils.NullStringPtr(in.Totrun2),
+		Posr2:     utils.NullStringPtr(in.Posr2),
+		Statusr2:  utils.NullStringPtr(in.Statusr2),
+
+		Pointsjump: utils.NullStringPtr(in.Pointsjump),
+		Behindjump: utils.NullStringPtr(in.Behindjump),
+		Posjump:    utils.NullStringPtr(in.Posjump),
+		Timecc:     utils.NullStringPtr(in.Timecc),
+		Timeccint:  utils.NullStringPtr(in.Timeccint),
+		Poscc:      utils.NullStringPtr(in.Poscc),
+		Starttime:  utils.NullStringPtr(in.Starttime),
+		Statuscc:   utils.NullStringPtr(in.Statuscc),
+		Totbehind:  utils.NullStringPtr(in.Totbehind),
+		Timetot:    utils.NullStringPtr(in.Timetot),
+		Timetotint: utils.NullInt32Ptr(in.Timetotint),
+		Valid:      utils.NullInt32Ptr(in.Valid),
+		Racepoints: utils.NullStringPtr(in.Racepoints),
+		Cuppoints:  utils.NullStringPtr(in.Cuppoints),
+		Version:    utils.NullStringPtr(in.Version),
+		Lastupdate: utils.NullTimePtr(in.Lastupdate),
+	}
+}
+
+func mapUpdateResultNKToParams(in UpdateResultNKClean) fissqlc.UpdateResultNKByRecIDParams {
+	p := mapInsertResultNKToParams(InsertResultNKClean(in))
+	return fissqlc.UpdateResultNKByRecIDParams{
+		Recid:          p.Recid,
+		Raceid:         p.Raceid,
+		Competitorid:   p.Competitorid,
+		Status:         p.Status,
+		Status2:        p.Status2,
+		Reason:         p.Reason,
+		Position:       p.Position,
+		Pf:             p.Pf,
+		Bib:            p.Bib,
+		Bibcolor:       p.Bibcolor,
+		Fiscode:        p.Fiscode,
+		Competitorname: p.Competitorname,
+		Nationcode:     p.Nationcode,
+		Level:          p.Level,
+		Heat:           p.Heat,
+		Stage:          p.Stage,
+		J1r1:           p.J1r1,
+		J2r1:           p.J2r1,
+		J3r1:           p.J3r1,
+		J4r1:           p.J4r1,
+		J5r1:           p.J5r1,
+		Speedr1:        p.Speedr1,
+		Distr1:         p.Distr1,
+		Disptsr1:       p.Disptsr1,
+		Judptsr1:       p.Judptsr1,
+		Gater1:         p.Gater1,
+		Gateptsr1:      p.Gateptsr1,
+		Windr1:         p.Windr1,
+		Windptsr1:      p.Windptsr1,
+		Totrun1:        p.Totrun1,
+		Posr1:          p.Posr1,
+		Statusr1:       p.Statusr1,
+		J1r2:           p.J1r2,
+		J2r2:           p.J2r2,
+		J3r2:           p.J3r2,
+		J4r2:           p.J4r2,
+		J5r2:           p.J5r2,
+		Speedr2:        p.Speedr2,
+		Distr2:         p.Distr2,
+		Disptsr2:       p.Disptsr2,
+		Judptsr2:       p.Judptsr2,
+		Gater2:         p.Gater2,
+		Gateptsr2:      p.Gateptsr2,
+		Windr2:         p.Windr2,
+		Windptsr2:      p.Windptsr2,
+		Totrun2:        p.Totrun2,
+		Posr2:          p.Posr2,
+		Statusr2:       p.Statusr2,
+		Pointsjump:     p.Pointsjump,
+		Behindjump:     p.Behindjump,
+		Posjump:        p.Posjump,
+		Timecc:         p.Timecc,
+		Timeccint:      p.Timeccint,
+		Poscc:          p.Poscc,
+		Starttime:      p.Starttime,
+		Statuscc:       p.Statuscc,
+		Totbehind:      p.Totbehind,
+		Timetot:        p.Timetot,
+		Timetotint:     p.Timetotint,
+		Valid:          p.Valid,
+		Racepoints:     p.Racepoints,
+		Cuppoints:      p.Cuppoints,
+		Version:        p.Version,
+		Lastupdate:     p.Lastupdate,
+	}
+}

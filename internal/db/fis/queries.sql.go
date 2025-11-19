@@ -96,6 +96,18 @@ func (q *Queries) DeleteResultJPByRecID(ctx context.Context, recid int32) (int32
 	return recid, err
 }
 
+const deleteResultNKByRecID = `-- name: DeleteResultNKByRecID :one
+DELETE FROM a_resultnk
+WHERE recid = $1
+RETURNING recid
+`
+
+func (q *Queries) DeleteResultNKByRecID(ctx context.Context, recid int32) (int32, error) {
+	row := q.queryRow(ctx, q.deleteResultNKByRecIDStmt, deleteResultNKByRecID, recid)
+	err := row.Scan(&recid)
+	return recid, err
+}
+
 const getAthleteResultsCC = `-- name: GetAthleteResultsCC :many
 SELECT
     rCC.RecID,

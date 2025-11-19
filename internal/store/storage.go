@@ -23,6 +23,7 @@ type FIS interface {
 	RaceNK() fis.Racenk
 	ResultCC() fis.Resultcc
 	ResultJP() fis.Resultjp
+	ResultNK() fis.Resultnk
 }
 
 type UTV interface {

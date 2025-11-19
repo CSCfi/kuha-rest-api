@@ -892,7 +892,7 @@ UPDATE a_resultnk SET
 WHERE recid = $1
 RETURNING recid;
 
---- name: DeleteResultNKByRecID :one
+-- name: DeleteResultNKByRecID :one
 DELETE FROM a_resultnk
 WHERE recid = $1
 RETURNING recid;

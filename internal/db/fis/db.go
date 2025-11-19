@@ -45,6 +45,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.deleteResultJPByRecIDStmt, err = db.PrepareContext(ctx, deleteResultJPByRecID); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteResultJPByRecID: %w", err)
 	}
+	if q.deleteResultNKByRecIDStmt, err = db.PrepareContext(ctx, deleteResultNKByRecID); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteResultNKByRecID: %w", err)
+	}
 	if q.getAthleteResultsCCStmt, err = db.PrepareContext(ctx, getAthleteResultsCC); err != nil {
 		return nil, fmt.Errorf("error preparing query GetAthleteResultsCC: %w", err)
 	}
@@ -224,6 +227,11 @@ func (q *Queries) Close() error {
 	if q.deleteResultJPByRecIDStmt != nil {
 		if cerr := q.deleteResultJPByRecIDStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing deleteResultJPByRecIDStmt: %w", cerr)
+		}
+	}
+	if q.deleteResultNKByRecIDStmt != nil {
+		if cerr := q.deleteResultNKByRecIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteResultNKByRecIDStmt: %w", cerr)
 		}
 	}
 	if q.getAthleteResultsCCStmt != nil {
@@ -507,6 +515,7 @@ type Queries struct {
 	deleteRaceNKByIDStmt             *sql.Stmt
 	deleteResultCCByRecIDStmt        *sql.Stmt
 	deleteResultJPByRecIDStmt        *sql.Stmt
+	deleteResultNKByRecIDStmt        *sql.Stmt
 	getAthleteResultsCCStmt          *sql.Stmt
 	getAthleteResultsJPStmt          *sql.Stmt
 	getAthleteResultsNKStmt          *sql.Stmt
@@ -567,6 +576,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		deleteRaceNKByIDStmt:             q.deleteRaceNKByIDStmt,
 		deleteResultCCByRecIDStmt:        q.deleteResultCCByRecIDStmt,
 		deleteResultJPByRecIDStmt:        q.deleteResultJPByRecIDStmt,
+		deleteResultNKByRecIDStmt:        q.deleteResultNKByRecIDStmt,
 		getAthleteResultsCCStmt:          q.getAthleteResultsCCStmt,
 		getAthleteResultsJPStmt:          q.getAthleteResultsJPStmt,
 		getAthleteResultsNKStmt:          q.getAthleteResultsNKStmt,
