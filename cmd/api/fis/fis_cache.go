@@ -47,7 +47,7 @@ func invalidateCompetitor(ctx context.Context, c *cache.Storage, competitorID in
 	}
 	_ = c.DeleteByPrefixes(
 		ctx,
-		fmt.Sprintf("%s", fisLastRowPrefix),
+		fisLastRowPrefix,
 		fmt.Sprintf("%s:%d", fisCompetitorPrefix, competitorID),
 	)
 }
