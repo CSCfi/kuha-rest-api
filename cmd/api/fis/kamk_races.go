@@ -564,3 +564,186 @@ func (h *RaceSearchHandler) GetRaceCategoryCounts(w http.ResponseWriter, r *http
 
 	utils.WriteJSON(w, http.StatusOK, body)
 }
+
+type RaceNationCountItem struct {
+	Nationcode string `json:"nationcode" example:"FIN"`
+	Total      int64  `json:"total" example:"42"`
+}
+
+// GetRaceCountsByNation godoc
+//
+//	@Summary		Get race counts by nation
+//	@Description	Get counts of races grouped by Nationcodes for a given season and one or more sectors (CC, JP, NK). Optional filters: gender, catcode.
+//	@Tags			FIS - KAMK
+//	@Accept			json
+//	@Produce		json
+//	@Param			sector		query		[]string	true	"Sector code(s) (CC,JP,NK – repeat or comma-separated, e.g. sector=CC&sector=JP or sector=CC,JP)"
+//	@Param			seasoncode	query		int32		true	"Season code"
+//	@Param			gender		query		string		false	"Gender (M/W)"
+//	@Param			catcode		query		string		false	"Category code (e.g. WC)"
+//	@Success		200			{object}	swagger.FISRacesNationCountsResponse
+//	@Failure		400			{object}	swagger.ValidationErrorResponse
+//	@Failure		401			{object}	swagger.UnauthorizedResponse
+//	@Failure		403			{object}	swagger.ForbiddenResponse
+//	@Failure		500			{object}	swagger.InternalServerErrorResponse
+//	@Failure		503			{object}	swagger.ServiceUnavailableResponse
+//	@Security		BearerAuth
+//	@Router			/fis/races/count-by-nation [get]
+func (h *RaceSearchHandler) GetRaceCountsByNation(w http.ResponseWriter, r *http.Request) {
+	if !authz.Authorize(r) {
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
+		return
+	}
+
+	if err := utils.ValidateParams(r, []string{
+		"sector", "seasoncode", "gender", "catcode",
+	}); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	parseList := func(key string) []string {
+		vals := r.URL.Query()[key]
+		if len(vals) == 1 && strings.Contains(vals[0], ",") {
+			return strings.Split(vals[0], ",")
+		}
+		return vals
+	}
+
+	rawSeason := strings.TrimSpace(r.URL.Query().Get("seasoncode"))
+	if rawSeason == "" {
+		utils.BadRequestResponse(w, r, fmt.Errorf("missing required query param: seasoncode"))
+		return
+	}
+	season, err := utils.ParsePositiveInt32(rawSeason)
+	if err != nil {
+		utils.BadRequestResponse(w, r, fmt.Errorf("invalid seasoncode: %s", rawSeason))
+		return
+	}
+
+	sectorsRaw := parseList("sector")
+	if len(sectorsRaw) == 0 {
+		utils.BadRequestResponse(w, r, fmt.Errorf("missing required query param: sector"))
+		return
+	}
+
+	sectorSet := make(map[string]struct{})
+	for _, s := range sectorsRaw {
+		s = strings.TrimSpace(strings.ToUpper(s))
+		if s == "" {
+			continue
+		}
+		switch s {
+		case "CC", "JP", "NK":
+			sectorSet[s] = struct{}{}
+		default:
+			utils.BadRequestResponse(w, r, fmt.Errorf("invalid sector: %s", s))
+			return
+		}
+	}
+	if len(sectorSet) == 0 {
+		utils.BadRequestResponse(w, r, fmt.Errorf("no valid sector values provided"))
+		return
+	}
+
+	sectors := make([]string, 0, len(sectorSet))
+	for _, s := range []string{"CC", "JP", "NK"} {
+		if _, ok := sectorSet[s]; ok {
+			sectors = append(sectors, s)
+		}
+	}
+
+	var genderPtr *string
+	if gv := strings.TrimSpace(r.URL.Query().Get("gender")); gv != "" {
+		gv = strings.ToUpper(gv)
+		genderPtr = &gv
+	}
+
+	var catPtr *string
+	if cv := strings.TrimSpace(r.URL.Query().Get("catcode")); cv != "" {
+		cv = strings.ToUpper(cv)
+		catPtr = &cv
+	}
+
+	counts := make(map[string]int64)
+
+	for _, sector := range sectors {
+		switch sector {
+		case "CC":
+			if h.raceCC == nil {
+				utils.InternalServerError(w, r, fmt.Errorf("raceCC store not configured"))
+				return
+			}
+			rows, err := h.raceCC.GetRaceCountsByNationCC(r.Context(), season, catPtr, genderPtr)
+			if err != nil {
+				utils.InternalServerError(w, r, err)
+				return
+			}
+			for _, row := range rows {
+				if !row.Nationcode.Valid || row.Nationcode.String == "" {
+					continue
+				}
+				counts[row.Nationcode.String] += row.Total
+			}
+
+		case "JP":
+			if h.raceJP == nil {
+				utils.InternalServerError(w, r, fmt.Errorf("raceJP store not configured"))
+				return
+			}
+			rows, err := h.raceJP.GetRaceCountsByNationJP(r.Context(), season, catPtr, genderPtr)
+			if err != nil {
+				utils.InternalServerError(w, r, err)
+				return
+			}
+			for _, row := range rows {
+				if !row.Nationcode.Valid || row.Nationcode.String == "" {
+					continue
+				}
+				counts[row.Nationcode.String] += row.Total
+			}
+
+		case "NK":
+			if h.raceNK == nil {
+				utils.InternalServerError(w, r, fmt.Errorf("raceNK store not configured"))
+				return
+			}
+			rows, err := h.raceNK.GetRaceCountsByNationNK(r.Context(), season, catPtr, genderPtr)
+			if err != nil {
+				utils.InternalServerError(w, r, err)
+				return
+			}
+			for _, row := range rows {
+				if !row.Nationcode.Valid || row.Nationcode.String == "" {
+					continue
+				}
+				counts[row.Nationcode.String] += row.Total
+			}
+		}
+	}
+
+	items := make([]RaceNationCountItem, 0, len(counts))
+	for code, total := range counts {
+		items = append(items, RaceNationCountItem{
+			Nationcode: code,
+			Total:      total,
+		})
+	}
+
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].Total == items[j].Total {
+			return items[i].Nationcode < items[j].Nationcode
+		}
+		return items[i].Total > items[j].Total
+	})
+
+	body := map[string]any{
+		"seasoncode": season,
+		"sectors":    sectors,
+		"gender":     genderPtr,
+		"catcode":    catPtr,
+		"nations":    items,
+	}
+
+	utils.WriteJSON(w, http.StatusOK, body)
+}

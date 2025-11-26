@@ -295,6 +295,7 @@ func (app *api) mount() http.Handler {
 					r.Get("/races/search", kamkRacesHandler.SearchRaces)
 					r.Get("/races/by-ids", kamkRacesHandler.GetRacesByIDs)
 					r.Get("/races/count-by-category", kamkRacesHandler.GetRaceCategoryCounts)
+					r.Get("/races/count-by-nation", kamkRacesHandler.GetRaceCountsByNation)
 
 					// athlete routes
 					r.Get("/fiscode", athleteHandler.GetAthletesBySporttiID)

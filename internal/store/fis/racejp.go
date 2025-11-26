@@ -189,3 +189,29 @@ func (s *RaceJPStore) GetRaceCountsByCategoryJP(
 
 	return q.GetRaceCountsByCategoryJP(ctx, params)
 }
+
+func (s *RaceJPStore) GetRaceCountsByNationJP(
+	ctx context.Context,
+	seasoncode int32,
+	catcode, gender *string,
+) ([]fissqlc.GetRaceCountsByNationJPRow, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	q := fissqlc.New(s.db)
+
+	params := fissqlc.GetRaceCountsByNationJPParams{
+		Column1: seasoncode,
+		Column2: "",
+		Column3: "",
+	}
+
+	if catcode != nil {
+		params.Column2 = *catcode
+	}
+	if gender != nil {
+		params.Column3 = *gender
+	}
+
+	return q.GetRaceCountsByNationJP(ctx, params)
+}

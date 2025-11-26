@@ -2998,6 +2998,38 @@ definitions:
           $ref: '#/definitions/swagger.FISRaceNK'
         type: array
     type: object
+  swagger.FISRacesNationCountItem:
+    properties:
+      nationcode:
+        example: FIN
+        type: string
+      total:
+        example: 42
+        type: integer
+    type: object
+  swagger.FISRacesNationCountsResponse:
+    properties:
+      catcode:
+        example: WC
+        type: string
+      gender:
+        example: M
+        type: string
+      nations:
+        items:
+          $ref: '#/definitions/swagger.FISRacesNationCountItem'
+        type: array
+      seasoncode:
+        example: 2025
+        type: integer
+      sectors:
+        example:
+        - CC
+        - JP
+        items:
+          type: string
+        type: array
+    type: object
   swagger.FISRacesSearchItem:
     properties:
       catcode:
@@ -9650,6 +9682,67 @@ paths:
       security:
       - BearerAuth: []
       summary: Get race counts by category
+      tags:
+      - FIS - KAMK
+  /fis/races/count-by-nation:
+    get:
+      consumes:
+      - application/json
+      description: 'Get counts of races grouped by Nationcodes for a given season
+        and one or more sectors (CC, JP, NK). Optional filters: gender, catcode.'
+      parameters:
+      - collectionFormat: csv
+        description: Sector code(s) (CC,JP,NK – repeat or comma-separated, e.g. sector=CC&sector=JP
+          or sector=CC,JP)
+        in: query
+        items:
+          type: string
+        name: sector
+        required: true
+        type: array
+      - description: Season code
+        in: query
+        name: seasoncode
+        required: true
+        type: integer
+      - description: Gender (M/W)
+        in: query
+        name: gender
+        type: string
+      - description: Category code (e.g. WC)
+        in: query
+        name: catcode
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.FISRacesNationCountsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Get race counts by nation
       tags:
       - FIS - KAMK
   /fis/races/search:

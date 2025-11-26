@@ -189,3 +189,29 @@ func (s *RaceCCStore) GetRaceCountsByCategoryCC(
 
 	return q.GetRaceCountsByCategoryCC(ctx, params)
 }
+
+func (s *RaceCCStore) GetRaceCountsByNationCC(
+	ctx context.Context,
+	seasoncode int32,
+	catcode, gender *string,
+) ([]fissqlc.GetRaceCountsByNationCCRow, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	q := fissqlc.New(s.db)
+
+	params := fissqlc.GetRaceCountsByNationCCParams{
+		Column1: seasoncode,
+		Column2: "",
+		Column3: "",
+	}
+
+	if catcode != nil {
+		params.Column2 = *catcode
+	}
+	if gender != nil {
+		params.Column3 = *gender
+	}
+
+	return q.GetRaceCountsByNationCC(ctx, params)
+}

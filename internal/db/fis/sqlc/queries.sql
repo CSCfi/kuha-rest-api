@@ -1209,31 +1209,33 @@ ORDER BY competitors DESC;
 SELECT
   nationcode,
   COUNT(*) AS total
-FROM A_raceCC
-WHERE seasoncode = $1
-  AND ($2::text IS NULL OR catcode = $2)
-  AND ($3::text IS NULL OR gender  = $3)
+FROM a_racecc
+WHERE seasoncode = $1::int4
+  AND ($2::text = '' OR catcode = $2::text)
+  AND ($3::text = '' OR gender  = $3::text)
 GROUP BY nationcode
 ORDER BY total DESC;
+
 
 -- name: GetRaceCountsByNationJP :many
 SELECT
   nationcode,
   COUNT(*) AS total
-FROM A_raceJP
-WHERE seasoncode = $1
-  AND ($2::text IS NULL OR catcode = $2)
-  AND ($3::text IS NULL OR gender  = $3)
+FROM a_racejp
+WHERE seasoncode = $1::int4
+  AND ($2::text = '' OR catcode = $2::text)
+  AND ($3::text = '' OR gender  = $3::text)
 GROUP BY nationcode
 ORDER BY total DESC;
+
 
 -- name: GetRaceCountsByNationNK :many
 SELECT
   nationcode,
   COUNT(*) AS total
-FROM A_raceNK
-WHERE seasoncode = $1
-  AND ($2::text IS NULL OR catcode = $2)
-  AND ($3::text IS NULL OR gender  = $3)
+FROM a_racenk
+WHERE seasoncode = $1::int4
+  AND ($2::text = '' OR catcode = $2::text)
+  AND ($3::text = '' OR gender  = $3::text)
 GROUP BY nationcode
 ORDER BY total DESC;

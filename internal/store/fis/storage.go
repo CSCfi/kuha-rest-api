@@ -50,6 +50,7 @@ type Racecc interface {
 	SearchRacesCC(ctx context.Context, seasoncode *int32, nationcode, gender, catcode *string) ([]fissqlc.SearchRacesCCRow, error)
 	GetRacesByIDsCC(ctx context.Context, raceIDs []int32) ([]fissqlc.ARacecc, error)
 	GetRaceCountsByCategoryCC(ctx context.Context, seasoncode int32, nationcode, gender *string) ([]fissqlc.GetRaceCountsByCategoryCCRow, error)
+	GetRaceCountsByNationCC(ctx context.Context, seasoncode int32, catcode, gender *string) ([]fissqlc.GetRaceCountsByNationCCRow, error)
 }
 
 // Racejp interface
@@ -65,6 +66,7 @@ type Racejp interface {
 	SearchRacesJP(ctx context.Context, seasoncode *int32, nationcode, gender, catcode *string) ([]fissqlc.SearchRacesJPRow, error)
 	GetRacesByIDsJP(ctx context.Context, raceIDs []int32) ([]fissqlc.ARacejp, error)
 	GetRaceCountsByCategoryJP(ctx context.Context, seasoncode int32, nationcode, gender *string) ([]fissqlc.GetRaceCountsByCategoryJPRow, error)
+	GetRaceCountsByNationJP(ctx context.Context, seasoncode int32, catcode, gender *string) ([]fissqlc.GetRaceCountsByNationJPRow, error)
 }
 
 // Racenk interface
@@ -80,6 +82,7 @@ type Racenk interface {
 	SearchRacesNK(ctx context.Context, seasoncode *int32, nationcode, gender, catcode *string) ([]fissqlc.SearchRacesNKRow, error)
 	GetRacesByIDsNK(ctx context.Context, raceIDs []int32) ([]fissqlc.ARacenk, error)
 	GetRaceCountsByCategoryNK(ctx context.Context, seasoncode int32, nationcode, gender *string) ([]fissqlc.GetRaceCountsByCategoryNKRow, error)
+	GetRaceCountsByNationNK(ctx context.Context, seasoncode int32, catcode, gender *string) ([]fissqlc.GetRaceCountsByNationNKRow, error)
 }
 
 // Competitors interface
