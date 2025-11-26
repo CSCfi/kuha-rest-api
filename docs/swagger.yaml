@@ -612,6 +612,28 @@ definitions:
         example: ATHLETE
         type: string
     type: object
+  swagger.FISCompetitorSeasonCatcodeItem:
+    properties:
+      catcode:
+        example: WC
+        type: string
+      seasoncode:
+        example: 2025
+        type: integer
+    type: object
+  swagger.FISCompetitorSeasonsCatcodesResponse:
+    properties:
+      competitorid:
+        example: 123456
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/swagger.FISCompetitorSeasonCatcodeItem'
+        type: array
+      sector:
+        example: CC
+        type: string
+    type: object
   swagger.FISDisciplinesCCResponse:
     properties:
       disciplines:
@@ -8538,6 +8560,56 @@ paths:
       summary: Update competitor by ID
       tags:
       - FIS - Competitor Management
+  /fis/competitor/seasons-catcodes:
+    get:
+      consumes:
+      - application/json
+      description: Gets distinct (Seasoncode, Catcode) combinations for the races
+        a competitor has actually competed in, for a given sector (CC, JP, NK). Uses
+        both race and result tables.
+      parameters:
+      - description: Competitor ID
+        in: query
+        name: competitorid
+        required: true
+        type: integer
+      - description: Sector code (CC,JP,NK)
+        in: query
+        name: sector
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.FISCompetitorSeasonsCatcodesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Get competitor seasons and categories
+      tags:
+      - FIS - KAMK
   /fis/disciplinecodeCC:
     get:
       consumes:

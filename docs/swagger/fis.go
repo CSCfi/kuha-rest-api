@@ -1738,3 +1738,14 @@ type FISRacesTotalsResponse struct {
 	Gender     *string  `json:"gender,omitempty" example:"M"`
 	Total      int64    `json:"total" example:"123"`
 }
+
+type FISCompetitorSeasonCatcodeItem struct {
+	Seasoncode int32   `json:"seasoncode" example:"2025"`
+	Catcode    *string `json:"catcode,omitempty" example:"WC"`
+}
+
+type FISCompetitorSeasonsCatcodesResponse struct {
+	Competitorid int32                            `json:"competitorid" example:"123456"`
+	Sector       string                           `json:"sector" example:"CC"`
+	Items        []FISCompetitorSeasonCatcodeItem `json:"items"`
+}

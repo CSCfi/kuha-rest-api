@@ -1197,6 +1197,80 @@
                 }
             }
         },
+        "/fis/competitor/seasons-catcodes": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Gets distinct (Seasoncode, Catcode) combinations for the races a competitor has actually competed in, for a given sector (CC, JP, NK). Uses both race and result tables.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FIS - KAMK"
+                ],
+                "summary": "Get competitor seasons and categories",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Competitor ID",
+                        "name": "competitorid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sector code (CC,JP,NK)",
+                        "name": "sector",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.FISCompetitorSeasonsCatcodesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/fis/disciplinecodeCC": {
             "get": {
                 "security": [
@@ -11493,6 +11567,38 @@
                 "type": {
                     "type": "string",
                     "example": "ATHLETE"
+                }
+            }
+        },
+        "swagger.FISCompetitorSeasonCatcodeItem": {
+            "type": "object",
+            "properties": {
+                "catcode": {
+                    "type": "string",
+                    "example": "WC"
+                },
+                "seasoncode": {
+                    "type": "integer",
+                    "example": 2025
+                }
+            }
+        },
+        "swagger.FISCompetitorSeasonsCatcodesResponse": {
+            "type": "object",
+            "properties": {
+                "competitorid": {
+                    "type": "integer",
+                    "example": 123456
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.FISCompetitorSeasonCatcodeItem"
+                    }
+                },
+                "sector": {
+                    "type": "string",
+                    "example": "CC"
                 }
             }
         },

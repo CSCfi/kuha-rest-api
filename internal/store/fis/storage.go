@@ -15,6 +15,7 @@ type Resultcc interface {
 	DeleteResultCCByRecID(ctx context.Context, recid int32) error
 	GetRaceResultsCCByRaceID(ctx context.Context, raceID int32) ([]fissqlc.AResultcc, error)
 	GetAthleteResultsCC(ctx context.Context, competitorID int32, seasons []int32, disciplines, cats []string) ([]fissqlc.GetAthleteResultsCCRow, error)
+	GetSeasonsCatcodesCCByCompetitor(ctx context.Context, competitorID int32) ([]fissqlc.GetSeasonsCatcodesCCByCompetitorRow, error)
 }
 
 // Resultjp interface
@@ -25,6 +26,7 @@ type Resultjp interface {
 	DeleteResultJPByRecID(ctx context.Context, recid int32) error
 	GetRaceResultsJPByRaceID(ctx context.Context, raceID int32) ([]fissqlc.AResultjp, error)
 	GetAthleteResultsJP(ctx context.Context, competitorID int32, seasons []int32, disciplines, cats []string) ([]fissqlc.GetAthleteResultsJPRow, error)
+	GetSeasonsCatcodesJPByCompetitor(ctx context.Context, competitorID int32) ([]fissqlc.GetSeasonsCatcodesJPByCompetitorRow, error)
 }
 
 // Resultnk interface
@@ -35,6 +37,7 @@ type Resultnk interface {
 	DeleteResultNKByRecID(ctx context.Context, recid int32) error
 	GetRaceResultsNKByRaceID(ctx context.Context, raceID int32) ([]fissqlc.AResultnk, error)
 	GetAthleteResultsNK(ctx context.Context, competitorID int32, seasons []int32, disciplines, cats []string) ([]fissqlc.GetAthleteResultsNKRow, error)
+	GetSeasonsCatcodesNKByCompetitor(ctx context.Context, competitorID int32) ([]fissqlc.GetSeasonsCatcodesNKByCompetitorRow, error)
 }
 
 // Racecc interface

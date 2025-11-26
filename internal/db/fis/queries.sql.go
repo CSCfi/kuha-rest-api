@@ -3057,12 +3057,13 @@ func (q *Queries) GetRacesNK(ctx context.Context, arg GetRacesNKParams) ([]ARace
 
 const getSeasonsCatcodesCCByCompetitor = `-- name: GetSeasonsCatcodesCCByCompetitor :many
 SELECT DISTINCT
-    aCC.SeasonCode,
-    aCC.CatCode
-FROM A_raceCC   aCC
-JOIN A_resultCC rCC ON aCC.RaceID = rCC.RaceID
-WHERE rCC.CompetitorID = $1
-ORDER BY aCC.SeasonCode DESC, aCC.CatCode ASC
+  rcc.seasoncode,
+  rcc.catcode
+FROM a_racecc   AS rcc
+JOIN a_resultcc AS res
+  ON rcc.raceid = res.raceid
+WHERE res.competitorid = $1::int4
+ORDER BY rcc.seasoncode DESC, rcc.catcode ASC
 `
 
 type GetSeasonsCatcodesCCByCompetitorRow struct {
@@ -3070,8 +3071,8 @@ type GetSeasonsCatcodesCCByCompetitorRow struct {
 	Catcode    sql.NullString
 }
 
-func (q *Queries) GetSeasonsCatcodesCCByCompetitor(ctx context.Context, competitorid sql.NullInt32) ([]GetSeasonsCatcodesCCByCompetitorRow, error) {
-	rows, err := q.query(ctx, q.getSeasonsCatcodesCCByCompetitorStmt, getSeasonsCatcodesCCByCompetitor, competitorid)
+func (q *Queries) GetSeasonsCatcodesCCByCompetitor(ctx context.Context, dollar_1 int32) ([]GetSeasonsCatcodesCCByCompetitorRow, error) {
+	rows, err := q.query(ctx, q.getSeasonsCatcodesCCByCompetitorStmt, getSeasonsCatcodesCCByCompetitor, dollar_1)
 	if err != nil {
 		return nil, err
 	}
@@ -3095,12 +3096,13 @@ func (q *Queries) GetSeasonsCatcodesCCByCompetitor(ctx context.Context, competit
 
 const getSeasonsCatcodesJPByCompetitor = `-- name: GetSeasonsCatcodesJPByCompetitor :many
 SELECT DISTINCT
-    aJP.SeasonCode,
-    aJP.CatCode
-FROM A_raceJP   aJP
-JOIN A_resultJP rJP ON aJP.RaceID = rJP.RaceID
-WHERE rJP.CompetitorID = $1
-ORDER BY aJP.SeasonCode DESC, aJP.CatCode ASC
+  rjp.seasoncode,
+  rjp.catcode
+FROM a_racejp   AS rjp
+JOIN a_resultjp AS res
+  ON rjp.raceid = res.raceid
+WHERE res.competitorid = $1::int4
+ORDER BY rjp.seasoncode DESC, rjp.catcode ASC
 `
 
 type GetSeasonsCatcodesJPByCompetitorRow struct {
@@ -3108,8 +3110,8 @@ type GetSeasonsCatcodesJPByCompetitorRow struct {
 	Catcode    sql.NullString
 }
 
-func (q *Queries) GetSeasonsCatcodesJPByCompetitor(ctx context.Context, competitorid sql.NullInt32) ([]GetSeasonsCatcodesJPByCompetitorRow, error) {
-	rows, err := q.query(ctx, q.getSeasonsCatcodesJPByCompetitorStmt, getSeasonsCatcodesJPByCompetitor, competitorid)
+func (q *Queries) GetSeasonsCatcodesJPByCompetitor(ctx context.Context, dollar_1 int32) ([]GetSeasonsCatcodesJPByCompetitorRow, error) {
+	rows, err := q.query(ctx, q.getSeasonsCatcodesJPByCompetitorStmt, getSeasonsCatcodesJPByCompetitor, dollar_1)
 	if err != nil {
 		return nil, err
 	}
@@ -3133,12 +3135,13 @@ func (q *Queries) GetSeasonsCatcodesJPByCompetitor(ctx context.Context, competit
 
 const getSeasonsCatcodesNKByCompetitor = `-- name: GetSeasonsCatcodesNKByCompetitor :many
 SELECT DISTINCT
-    aNK.SeasonCode,
-    aNK.CatCode
-FROM A_raceNK   aNK
-JOIN A_resultNK rNK ON aNK.RaceID = rNK.RaceID
-WHERE rNK.CompetitorID = $1
-ORDER BY aNK.SeasonCode DESC, aNK.CatCode ASC
+  rnk.seasoncode,
+  rnk.catcode
+FROM a_racenk   AS rnk
+JOIN a_resultnk AS res
+  ON rnk.raceid = res.raceid
+WHERE res.competitorid = $1::int4
+ORDER BY rnk.seasoncode DESC, rnk.catcode ASC
 `
 
 type GetSeasonsCatcodesNKByCompetitorRow struct {
@@ -3146,8 +3149,8 @@ type GetSeasonsCatcodesNKByCompetitorRow struct {
 	Catcode    sql.NullString
 }
 
-func (q *Queries) GetSeasonsCatcodesNKByCompetitor(ctx context.Context, competitorid sql.NullInt32) ([]GetSeasonsCatcodesNKByCompetitorRow, error) {
-	rows, err := q.query(ctx, q.getSeasonsCatcodesNKByCompetitorStmt, getSeasonsCatcodesNKByCompetitor, competitorid)
+func (q *Queries) GetSeasonsCatcodesNKByCompetitor(ctx context.Context, dollar_1 int32) ([]GetSeasonsCatcodesNKByCompetitorRow, error) {
+	rows, err := q.query(ctx, q.getSeasonsCatcodesNKByCompetitorStmt, getSeasonsCatcodesNKByCompetitor, dollar_1)
 	if err != nil {
 		return nil, err
 	}

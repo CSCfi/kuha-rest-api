@@ -290,6 +290,7 @@ func (app *api) mount() http.Handler {
 					resultNKHandler := fisapi.NewResultNKHandler(app.store.FIS.ResultNK(), app.store.FIS.Competitors(), app.cacheStorage)
 					athleteHandler := fisapi.NewAthleteHandler(app.store.FIS.Athlete(), app.cacheStorage)
 					kamkRacesHandler := fisapi.NewRaceSearchHandler(app.store.FIS.RaceCC(), app.store.FIS.RaceJP(), app.store.FIS.RaceNK(), app.cacheStorage)
+					kamkResultsHandler := fisapi.NewResultKAMKHandler(app.store.FIS.ResultCC(), app.store.FIS.ResultJP(), app.store.FIS.ResultNK(), app.cacheStorage)
 
 					// kamk endpoints
 					r.Get("/races/search", kamkRacesHandler.SearchRaces)
@@ -297,6 +298,7 @@ func (app *api) mount() http.Handler {
 					r.Get("/races/count-by-category", kamkRacesHandler.GetRaceCategoryCounts)
 					r.Get("/races/count-by-nation", kamkRacesHandler.GetRaceCountsByNation)
 					r.Get("/races/count-total", kamkRacesHandler.GetRaceTotals)
+					r.Get("/competitor/seasons-catcodes", kamkResultsHandler.GetCompetitorSeasonsCatcodes)
 
 					// athlete routes
 					r.Get("/fiscode", athleteHandler.GetAthletesBySporttiID)

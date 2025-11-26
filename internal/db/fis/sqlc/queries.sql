@@ -1112,30 +1112,35 @@ ORDER BY raceid;
 
 -- name: GetSeasonsCatcodesCCByCompetitor :many
 SELECT DISTINCT
-    aCC.SeasonCode,
-    aCC.CatCode
-FROM A_raceCC   aCC
-JOIN A_resultCC rCC ON aCC.RaceID = rCC.RaceID
-WHERE rCC.CompetitorID = $1
-ORDER BY aCC.SeasonCode DESC, aCC.CatCode ASC;
+  rcc.seasoncode,
+  rcc.catcode
+FROM a_racecc   AS rcc
+JOIN a_resultcc AS res
+  ON rcc.raceid = res.raceid
+WHERE res.competitorid = $1::int4
+ORDER BY rcc.seasoncode DESC, rcc.catcode ASC;
+
 
 -- name: GetSeasonsCatcodesJPByCompetitor :many
 SELECT DISTINCT
-    aJP.SeasonCode,
-    aJP.CatCode
-FROM A_raceJP   aJP
-JOIN A_resultJP rJP ON aJP.RaceID = rJP.RaceID
-WHERE rJP.CompetitorID = $1
-ORDER BY aJP.SeasonCode DESC, aJP.CatCode ASC;
+  rjp.seasoncode,
+  rjp.catcode
+FROM a_racejp   AS rjp
+JOIN a_resultjp AS res
+  ON rjp.raceid = res.raceid
+WHERE res.competitorid = $1::int4
+ORDER BY rjp.seasoncode DESC, rjp.catcode ASC;
+
 
 -- name: GetSeasonsCatcodesNKByCompetitor :many
 SELECT DISTINCT
-    aNK.SeasonCode,
-    aNK.CatCode
-FROM A_raceNK   aNK
-JOIN A_resultNK rNK ON aNK.RaceID = rNK.RaceID
-WHERE rNK.CompetitorID = $1
-ORDER BY aNK.SeasonCode DESC, aNK.CatCode ASC;
+  rnk.seasoncode,
+  rnk.catcode
+FROM a_racenk   AS rnk
+JOIN a_resultnk AS res
+  ON rnk.raceid = res.raceid
+WHERE res.competitorid = $1::int4
+ORDER BY rnk.seasoncode DESC, rnk.catcode ASC;
 
 -- name: GetRaceCountsByCategoryCC :many
 SELECT

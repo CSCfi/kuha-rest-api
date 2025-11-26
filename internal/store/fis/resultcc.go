@@ -72,3 +72,14 @@ func (s *ResultCCStore) GetAthleteResultsCC(
 	}
 	return q.GetAthleteResultsCC(ctx, params)
 }
+
+func (s *ResultCCStore) GetSeasonsCatcodesCCByCompetitor(
+	ctx context.Context,
+	competitorID int32,
+) ([]fissqlc.GetSeasonsCatcodesCCByCompetitorRow, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	q := fissqlc.New(s.db)
+	return q.GetSeasonsCatcodesCCByCompetitor(ctx, competitorID)
+}
