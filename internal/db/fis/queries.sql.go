@@ -8,6 +8,7 @@ package fissqlc
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/lib/pq"
 )
@@ -485,6 +486,59 @@ func (q *Queries) GetAthletesBySporttiID(ctx context.Context, sporttiid sql.Null
 			&i.Firstname,
 			&i.Lastname,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getCompetitorCountsByNation = `-- name: GetCompetitorCountsByNation :many
+SELECT
+  nationcode,
+  COUNT(*) AS competitors
+FROM A_competitor
+WHERE ($1::text IS NULL OR sectorcode = $1)
+  AND ($2::text IS NULL OR gender     = $2)
+  AND ($3::date IS NULL OR birthdate >= $3)
+  AND ($4::date IS NULL OR birthdate <= $4)
+GROUP BY nationcode
+ORDER BY competitors DESC
+`
+
+type GetCompetitorCountsByNationParams struct {
+	Column1 string
+	Column2 string
+	Column3 time.Time
+	Column4 time.Time
+}
+
+type GetCompetitorCountsByNationRow struct {
+	Nationcode  sql.NullString
+	Competitors int64
+}
+
+func (q *Queries) GetCompetitorCountsByNation(ctx context.Context, arg GetCompetitorCountsByNationParams) ([]GetCompetitorCountsByNationRow, error) {
+	rows, err := q.query(ctx, q.getCompetitorCountsByNationStmt, getCompetitorCountsByNation,
+		arg.Column1,
+		arg.Column2,
+		arg.Column3,
+		arg.Column4,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetCompetitorCountsByNationRow
+	for rows.Next() {
+		var i GetCompetitorCountsByNationRow
+		if err := rows.Scan(&i.Nationcode, &i.Competitors); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -1213,6 +1267,330 @@ func (q *Queries) GetLastRowResultNK(ctx context.Context) (AResultnk, error) {
 	return i, err
 }
 
+const getLatestResultsCC = `-- name: GetLatestResultsCC :many
+SELECT
+    rCC.RecID,
+    rCC.RaceID,
+    rCC.Position,
+    rCC.TimeTot,
+    rCC.CompetitorID,
+    aCC.RaceDate,
+    aCC.SeasonCode,
+    aCC.DisciplineCode,
+    aCC.CatCode,
+    aCC.Place,
+    aCC.NationCode
+FROM A_resultCC rCC
+JOIN A_raceCC   aCC ON rCC.RaceID = aCC.RaceID
+WHERE rCC.CompetitorID = $1
+  AND ($2::int    IS NULL OR aCC.SeasonCode     = $2)
+  AND ($3::text[] IS NULL OR aCC.CatCode        = ANY($3))
+ORDER BY aCC.RaceDate DESC
+LIMIT $4
+`
+
+type GetLatestResultsCCParams struct {
+	Competitorid sql.NullInt32
+	Column2      int32
+	Column3      []string
+	Limit        int32
+}
+
+type GetLatestResultsCCRow struct {
+	Recid          int32
+	Raceid         sql.NullInt32
+	Position       sql.NullString
+	Timetot        sql.NullString
+	Competitorid   sql.NullInt32
+	Racedate       sql.NullTime
+	Seasoncode     sql.NullInt32
+	Disciplinecode sql.NullString
+	Catcode        sql.NullString
+	Place          sql.NullString
+	Nationcode     sql.NullString
+}
+
+func (q *Queries) GetLatestResultsCC(ctx context.Context, arg GetLatestResultsCCParams) ([]GetLatestResultsCCRow, error) {
+	rows, err := q.query(ctx, q.getLatestResultsCCStmt, getLatestResultsCC,
+		arg.Competitorid,
+		arg.Column2,
+		pq.Array(arg.Column3),
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetLatestResultsCCRow
+	for rows.Next() {
+		var i GetLatestResultsCCRow
+		if err := rows.Scan(
+			&i.Recid,
+			&i.Raceid,
+			&i.Position,
+			&i.Timetot,
+			&i.Competitorid,
+			&i.Racedate,
+			&i.Seasoncode,
+			&i.Disciplinecode,
+			&i.Catcode,
+			&i.Place,
+			&i.Nationcode,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getLatestResultsJP = `-- name: GetLatestResultsJP :many
+SELECT 
+    rJP.RaceID,
+    rJP.Position,
+    aJP.RaceDate,
+    aJP.SeasonCode,
+    aJP.DisciplineCode,
+    aJP.CatCode,
+    aJP.Place,
+    aJP.NationCode,
+    rJP.PosR1,
+    rJP.SpeedR1,
+    rJP.DistR1,
+    rJP.JudPtsR1,
+    rJP.WindR1,
+    rJP.WindPtsR1,
+    rJP.GateR1,
+    rJP.PosR2,
+    rJP.SpeedR2,
+    rJP.DistR2,
+    rJP.JudPtsR2,
+    rJP.WindR2,
+    rJP.WindPtsR2,
+    rJP.GateR2,
+    rJP.TotRun1,
+    rJP.TotRun2
+FROM A_resultJP rJP
+JOIN A_raceJP   aJP ON rJP.RaceID = aJP.RaceID
+WHERE rJP.CompetitorID = $1
+  AND ($2::int    IS NULL OR aJP.SeasonCode     = $2)
+  AND ($3::text[] IS NULL OR aJP.CatCode        = ANY($3))
+ORDER BY aJP.RaceDate DESC
+LIMIT $4
+`
+
+type GetLatestResultsJPParams struct {
+	Competitorid sql.NullInt32
+	Column2      int32
+	Column3      []string
+	Limit        int32
+}
+
+type GetLatestResultsJPRow struct {
+	Raceid         sql.NullInt32
+	Position       sql.NullInt32
+	Racedate       sql.NullTime
+	Seasoncode     sql.NullInt32
+	Disciplinecode sql.NullString
+	Catcode        sql.NullString
+	Place          sql.NullString
+	Nationcode     sql.NullString
+	Posr1          sql.NullString
+	Speedr1        sql.NullString
+	Distr1         sql.NullString
+	Judptsr1       sql.NullString
+	Windr1         sql.NullString
+	Windptsr1      sql.NullString
+	Gater1         sql.NullString
+	Posr2          sql.NullString
+	Speedr2        sql.NullString
+	Distr2         sql.NullString
+	Judptsr2       sql.NullString
+	Windr2         sql.NullString
+	Windptsr2      sql.NullString
+	Gater2         sql.NullString
+	Totrun1        sql.NullString
+	Totrun2        sql.NullString
+}
+
+func (q *Queries) GetLatestResultsJP(ctx context.Context, arg GetLatestResultsJPParams) ([]GetLatestResultsJPRow, error) {
+	rows, err := q.query(ctx, q.getLatestResultsJPStmt, getLatestResultsJP,
+		arg.Competitorid,
+		arg.Column2,
+		pq.Array(arg.Column3),
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetLatestResultsJPRow
+	for rows.Next() {
+		var i GetLatestResultsJPRow
+		if err := rows.Scan(
+			&i.Raceid,
+			&i.Position,
+			&i.Racedate,
+			&i.Seasoncode,
+			&i.Disciplinecode,
+			&i.Catcode,
+			&i.Place,
+			&i.Nationcode,
+			&i.Posr1,
+			&i.Speedr1,
+			&i.Distr1,
+			&i.Judptsr1,
+			&i.Windr1,
+			&i.Windptsr1,
+			&i.Gater1,
+			&i.Posr2,
+			&i.Speedr2,
+			&i.Distr2,
+			&i.Judptsr2,
+			&i.Windr2,
+			&i.Windptsr2,
+			&i.Gater2,
+			&i.Totrun1,
+			&i.Totrun2,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getLatestResultsNK = `-- name: GetLatestResultsNK :many
+SELECT 
+    rNK.RecID,
+    rNK.RaceID,
+    rNK.Position,
+    aNK.RaceDate,
+    aNK.SeasonCode,
+    aNK.Distance,
+    aNK.Hill,
+    aNK.DisciplineCode,
+    aNK.CatCode,
+    aNK.Place,
+    aNK.NationCode,
+    rNK.PosR1,
+    rNK.SpeedR1,
+    rNK.DistR1,
+    rNK.JudPtsR1,
+    rNK.WindR1,
+    rNK.WindPtsR1,
+    rNK.GateR1,
+    rNK.TotRun1,
+    rNK.PosCC,
+    rNK.TimeTot,
+    rNK.TimeTotInt,
+    rNK.PointsJump
+FROM A_resultNK rNK
+JOIN A_raceNK   aNK ON rNK.RaceID = aNK.RaceID
+WHERE rNK.CompetitorID = $1
+  AND ($2::int    IS NULL OR aNK.SeasonCode     = $2)
+  AND ($3::text[] IS NULL OR aNK.CatCode        = ANY($3))
+ORDER BY aNK.RaceDate DESC
+LIMIT $4
+`
+
+type GetLatestResultsNKParams struct {
+	Competitorid sql.NullInt32
+	Column2      int32
+	Column3      []string
+	Limit        int32
+}
+
+type GetLatestResultsNKRow struct {
+	Recid          int32
+	Raceid         sql.NullInt32
+	Position       sql.NullInt32
+	Racedate       sql.NullTime
+	Seasoncode     sql.NullInt32
+	Distance       sql.NullString
+	Hill           sql.NullInt32
+	Disciplinecode sql.NullString
+	Catcode        sql.NullString
+	Place          sql.NullString
+	Nationcode     sql.NullString
+	Posr1          sql.NullString
+	Speedr1        sql.NullString
+	Distr1         sql.NullString
+	Judptsr1       sql.NullString
+	Windr1         sql.NullString
+	Windptsr1      sql.NullString
+	Gater1         sql.NullString
+	Totrun1        sql.NullString
+	Poscc          sql.NullString
+	Timetot        sql.NullString
+	Timetotint     sql.NullInt32
+	Pointsjump     sql.NullString
+}
+
+func (q *Queries) GetLatestResultsNK(ctx context.Context, arg GetLatestResultsNKParams) ([]GetLatestResultsNKRow, error) {
+	rows, err := q.query(ctx, q.getLatestResultsNKStmt, getLatestResultsNK,
+		arg.Competitorid,
+		arg.Column2,
+		pq.Array(arg.Column3),
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetLatestResultsNKRow
+	for rows.Next() {
+		var i GetLatestResultsNKRow
+		if err := rows.Scan(
+			&i.Recid,
+			&i.Raceid,
+			&i.Position,
+			&i.Racedate,
+			&i.Seasoncode,
+			&i.Distance,
+			&i.Hill,
+			&i.Disciplinecode,
+			&i.Catcode,
+			&i.Place,
+			&i.Nationcode,
+			&i.Posr1,
+			&i.Speedr1,
+			&i.Distr1,
+			&i.Judptsr1,
+			&i.Windr1,
+			&i.Windptsr1,
+			&i.Gater1,
+			&i.Totrun1,
+			&i.Poscc,
+			&i.Timetot,
+			&i.Timetotint,
+			&i.Pointsjump,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getNationsBySector = `-- name: GetNationsBySector :many
 SELECT DISTINCT NationCode
 FROM A_competitor
@@ -1320,6 +1698,282 @@ func (q *Queries) GetNordicCombinedSeasons(ctx context.Context) ([]sql.NullInt32
 			return nil, err
 		}
 		items = append(items, seasoncode)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRaceCountsByCategoryCC = `-- name: GetRaceCountsByCategoryCC :many
+SELECT
+  catcode,
+  COUNT(*) AS total
+FROM A_raceCC
+WHERE seasoncode = $1
+  AND ($2::text IS NULL OR nationcode = $2)
+  AND ($3::text IS NULL OR gender     = $3)
+GROUP BY catcode
+ORDER BY total DESC
+`
+
+type GetRaceCountsByCategoryCCParams struct {
+	Seasoncode sql.NullInt32
+	Column2    string
+	Column3    string
+}
+
+type GetRaceCountsByCategoryCCRow struct {
+	Catcode sql.NullString
+	Total   int64
+}
+
+func (q *Queries) GetRaceCountsByCategoryCC(ctx context.Context, arg GetRaceCountsByCategoryCCParams) ([]GetRaceCountsByCategoryCCRow, error) {
+	rows, err := q.query(ctx, q.getRaceCountsByCategoryCCStmt, getRaceCountsByCategoryCC, arg.Seasoncode, arg.Column2, arg.Column3)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetRaceCountsByCategoryCCRow
+	for rows.Next() {
+		var i GetRaceCountsByCategoryCCRow
+		if err := rows.Scan(&i.Catcode, &i.Total); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRaceCountsByCategoryJP = `-- name: GetRaceCountsByCategoryJP :many
+SELECT
+  catcode,
+  COUNT(*) AS total
+FROM A_raceJP
+WHERE seasoncode = $1
+  AND ($2::text IS NULL OR nationcode = $2)
+  AND ($3::text IS NULL OR gender     = $3)
+GROUP BY catcode
+ORDER BY total DESC
+`
+
+type GetRaceCountsByCategoryJPParams struct {
+	Seasoncode sql.NullInt32
+	Column2    string
+	Column3    string
+}
+
+type GetRaceCountsByCategoryJPRow struct {
+	Catcode sql.NullString
+	Total   int64
+}
+
+func (q *Queries) GetRaceCountsByCategoryJP(ctx context.Context, arg GetRaceCountsByCategoryJPParams) ([]GetRaceCountsByCategoryJPRow, error) {
+	rows, err := q.query(ctx, q.getRaceCountsByCategoryJPStmt, getRaceCountsByCategoryJP, arg.Seasoncode, arg.Column2, arg.Column3)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetRaceCountsByCategoryJPRow
+	for rows.Next() {
+		var i GetRaceCountsByCategoryJPRow
+		if err := rows.Scan(&i.Catcode, &i.Total); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRaceCountsByCategoryNK = `-- name: GetRaceCountsByCategoryNK :many
+SELECT
+  catcode,
+  COUNT(*) AS total
+FROM A_raceNK
+WHERE seasoncode = $1
+  AND ($2::text IS NULL OR nationcode = $2)
+  AND ($3::text IS NULL OR gender     = $3)
+GROUP BY catcode
+ORDER BY total DESC
+`
+
+type GetRaceCountsByCategoryNKParams struct {
+	Seasoncode sql.NullInt32
+	Column2    string
+	Column3    string
+}
+
+type GetRaceCountsByCategoryNKRow struct {
+	Catcode sql.NullString
+	Total   int64
+}
+
+func (q *Queries) GetRaceCountsByCategoryNK(ctx context.Context, arg GetRaceCountsByCategoryNKParams) ([]GetRaceCountsByCategoryNKRow, error) {
+	rows, err := q.query(ctx, q.getRaceCountsByCategoryNKStmt, getRaceCountsByCategoryNK, arg.Seasoncode, arg.Column2, arg.Column3)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetRaceCountsByCategoryNKRow
+	for rows.Next() {
+		var i GetRaceCountsByCategoryNKRow
+		if err := rows.Scan(&i.Catcode, &i.Total); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRaceCountsByNationCC = `-- name: GetRaceCountsByNationCC :many
+SELECT
+  nationcode,
+  COUNT(*) AS total
+FROM A_raceCC
+WHERE seasoncode = $1
+  AND ($2::text IS NULL OR catcode = $2)
+  AND ($3::text IS NULL OR gender  = $3)
+GROUP BY nationcode
+ORDER BY total DESC
+`
+
+type GetRaceCountsByNationCCParams struct {
+	Seasoncode sql.NullInt32
+	Column2    string
+	Column3    string
+}
+
+type GetRaceCountsByNationCCRow struct {
+	Nationcode sql.NullString
+	Total      int64
+}
+
+func (q *Queries) GetRaceCountsByNationCC(ctx context.Context, arg GetRaceCountsByNationCCParams) ([]GetRaceCountsByNationCCRow, error) {
+	rows, err := q.query(ctx, q.getRaceCountsByNationCCStmt, getRaceCountsByNationCC, arg.Seasoncode, arg.Column2, arg.Column3)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetRaceCountsByNationCCRow
+	for rows.Next() {
+		var i GetRaceCountsByNationCCRow
+		if err := rows.Scan(&i.Nationcode, &i.Total); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRaceCountsByNationJP = `-- name: GetRaceCountsByNationJP :many
+SELECT
+  nationcode,
+  COUNT(*) AS total
+FROM A_raceJP
+WHERE seasoncode = $1
+  AND ($2::text IS NULL OR catcode = $2)
+  AND ($3::text IS NULL OR gender  = $3)
+GROUP BY nationcode
+ORDER BY total DESC
+`
+
+type GetRaceCountsByNationJPParams struct {
+	Seasoncode sql.NullInt32
+	Column2    string
+	Column3    string
+}
+
+type GetRaceCountsByNationJPRow struct {
+	Nationcode sql.NullString
+	Total      int64
+}
+
+func (q *Queries) GetRaceCountsByNationJP(ctx context.Context, arg GetRaceCountsByNationJPParams) ([]GetRaceCountsByNationJPRow, error) {
+	rows, err := q.query(ctx, q.getRaceCountsByNationJPStmt, getRaceCountsByNationJP, arg.Seasoncode, arg.Column2, arg.Column3)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetRaceCountsByNationJPRow
+	for rows.Next() {
+		var i GetRaceCountsByNationJPRow
+		if err := rows.Scan(&i.Nationcode, &i.Total); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRaceCountsByNationNK = `-- name: GetRaceCountsByNationNK :many
+SELECT
+  nationcode,
+  COUNT(*) AS total
+FROM A_raceNK
+WHERE seasoncode = $1
+  AND ($2::text IS NULL OR catcode = $2)
+  AND ($3::text IS NULL OR gender  = $3)
+GROUP BY nationcode
+ORDER BY total DESC
+`
+
+type GetRaceCountsByNationNKParams struct {
+	Seasoncode sql.NullInt32
+	Column2    string
+	Column3    string
+}
+
+type GetRaceCountsByNationNKRow struct {
+	Nationcode sql.NullString
+	Total      int64
+}
+
+func (q *Queries) GetRaceCountsByNationNK(ctx context.Context, arg GetRaceCountsByNationNKParams) ([]GetRaceCountsByNationNKRow, error) {
+	rows, err := q.query(ctx, q.getRaceCountsByNationNKStmt, getRaceCountsByNationNK, arg.Seasoncode, arg.Column2, arg.Column3)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetRaceCountsByNationNKRow
+	for rows.Next() {
+		var i GetRaceCountsByNationNKRow
+		if err := rows.Scan(&i.Nationcode, &i.Total); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -1585,6 +2239,426 @@ func (q *Queries) GetRaceResultsNKByRaceID(ctx context.Context, raceid sql.NullI
 			&i.Racepoints,
 			&i.Cuppoints,
 			&i.Version,
+			&i.Lastupdate,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRaceTotalCC = `-- name: GetRaceTotalCC :one
+SELECT COUNT(*) AS total
+FROM A_raceCC
+WHERE seasoncode = $1
+  AND ($2::text IS NULL OR catcode = $2)
+  AND ($3::text IS NULL OR gender  = $3)
+`
+
+type GetRaceTotalCCParams struct {
+	Seasoncode sql.NullInt32
+	Column2    string
+	Column3    string
+}
+
+func (q *Queries) GetRaceTotalCC(ctx context.Context, arg GetRaceTotalCCParams) (int64, error) {
+	row := q.queryRow(ctx, q.getRaceTotalCCStmt, getRaceTotalCC, arg.Seasoncode, arg.Column2, arg.Column3)
+	var total int64
+	err := row.Scan(&total)
+	return total, err
+}
+
+const getRaceTotalJP = `-- name: GetRaceTotalJP :one
+SELECT COUNT(*) AS total
+FROM A_raceJP
+WHERE seasoncode = $1
+  AND ($2::text IS NULL OR catcode = $2)
+  AND ($3::text IS NULL OR gender  = $3)
+`
+
+type GetRaceTotalJPParams struct {
+	Seasoncode sql.NullInt32
+	Column2    string
+	Column3    string
+}
+
+func (q *Queries) GetRaceTotalJP(ctx context.Context, arg GetRaceTotalJPParams) (int64, error) {
+	row := q.queryRow(ctx, q.getRaceTotalJPStmt, getRaceTotalJP, arg.Seasoncode, arg.Column2, arg.Column3)
+	var total int64
+	err := row.Scan(&total)
+	return total, err
+}
+
+const getRaceTotalNK = `-- name: GetRaceTotalNK :one
+SELECT COUNT(*) AS total
+FROM A_raceNK
+WHERE seasoncode = $1
+  AND ($2::text IS NULL OR catcode = $2)
+  AND ($3::text IS NULL OR gender  = $3)
+`
+
+type GetRaceTotalNKParams struct {
+	Seasoncode sql.NullInt32
+	Column2    string
+	Column3    string
+}
+
+func (q *Queries) GetRaceTotalNK(ctx context.Context, arg GetRaceTotalNKParams) (int64, error) {
+	row := q.queryRow(ctx, q.getRaceTotalNKStmt, getRaceTotalNK, arg.Seasoncode, arg.Column2, arg.Column3)
+	var total int64
+	err := row.Scan(&total)
+	return total, err
+}
+
+const getRacesByIDsCC = `-- name: GetRacesByIDsCC :many
+SELECT raceid, eventid, seasoncode, racecodex, disciplineid, disciplinecode, catcode, catcode2, catcode3, catcode4, gender, racedate, starteventdate, description, place, nationcode, td1id, td1name, td1nation, td1code, td2id, td2name, td2nation, td2code, calstatuscode, procstatuscode, receiveddate, pursuit, masse, relay, distance, hill, style, qualif, finale, homol, webcomment, displaystatus, fisinterncomment, published, validforfispoints, usedfislist, tolist, discforlistcode, calculatedpenalty, appliedpenalty, appliedscala, penscafixed, version, nationraceid, provraceid, msql7evid, mssql7id, results, pdf, topbanner, bottombanner, toplogo, bottomlogo, gallery, indi, team, tabcount, columncount, level, hloc1, hloc2, hloc3, hcet1, hcet2, hcet3, live, livestatus1, livestatus2, livestatus3, liveinfo1, liveinfo2, liveinfo3, passwd, timinglogo, validdate, noepr, tddoc, timingreport, special_cup_points, skip_wcsl, validforowg, lastupdate
+FROM A_raceCC
+WHERE raceid = ANY($1::int[])
+ORDER BY raceid
+`
+
+func (q *Queries) GetRacesByIDsCC(ctx context.Context, dollar_1 []int32) ([]ARacecc, error) {
+	rows, err := q.query(ctx, q.getRacesByIDsCCStmt, getRacesByIDsCC, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ARacecc
+	for rows.Next() {
+		var i ARacecc
+		if err := rows.Scan(
+			&i.Raceid,
+			&i.Eventid,
+			&i.Seasoncode,
+			&i.Racecodex,
+			&i.Disciplineid,
+			&i.Disciplinecode,
+			&i.Catcode,
+			&i.Catcode2,
+			&i.Catcode3,
+			&i.Catcode4,
+			&i.Gender,
+			&i.Racedate,
+			&i.Starteventdate,
+			&i.Description,
+			&i.Place,
+			&i.Nationcode,
+			&i.Td1id,
+			&i.Td1name,
+			&i.Td1nation,
+			&i.Td1code,
+			&i.Td2id,
+			&i.Td2name,
+			&i.Td2nation,
+			&i.Td2code,
+			&i.Calstatuscode,
+			&i.Procstatuscode,
+			&i.Receiveddate,
+			&i.Pursuit,
+			&i.Masse,
+			&i.Relay,
+			&i.Distance,
+			&i.Hill,
+			&i.Style,
+			&i.Qualif,
+			&i.Finale,
+			&i.Homol,
+			&i.Webcomment,
+			&i.Displaystatus,
+			&i.Fisinterncomment,
+			&i.Published,
+			&i.Validforfispoints,
+			&i.Usedfislist,
+			&i.Tolist,
+			&i.Discforlistcode,
+			&i.Calculatedpenalty,
+			&i.Appliedpenalty,
+			&i.Appliedscala,
+			&i.Penscafixed,
+			&i.Version,
+			&i.Nationraceid,
+			&i.Provraceid,
+			&i.Msql7evid,
+			&i.Mssql7id,
+			&i.Results,
+			&i.Pdf,
+			&i.Topbanner,
+			&i.Bottombanner,
+			&i.Toplogo,
+			&i.Bottomlogo,
+			&i.Gallery,
+			&i.Indi,
+			&i.Team,
+			&i.Tabcount,
+			&i.Columncount,
+			&i.Level,
+			&i.Hloc1,
+			&i.Hloc2,
+			&i.Hloc3,
+			&i.Hcet1,
+			&i.Hcet2,
+			&i.Hcet3,
+			&i.Live,
+			&i.Livestatus1,
+			&i.Livestatus2,
+			&i.Livestatus3,
+			&i.Liveinfo1,
+			&i.Liveinfo2,
+			&i.Liveinfo3,
+			&i.Passwd,
+			&i.Timinglogo,
+			&i.Validdate,
+			&i.Noepr,
+			&i.Tddoc,
+			&i.Timingreport,
+			&i.SpecialCupPoints,
+			&i.SkipWcsl,
+			&i.Validforowg,
+			&i.Lastupdate,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRacesByIDsJP = `-- name: GetRacesByIDsJP :many
+SELECT raceid, eventid, seasoncode, racecodex, disciplineid, disciplinecode, catcode, catcode2, catcode3, catcode4, gender, racedate, starteventdate, description, place, nationcode, td1id, td1name, td1nation, td1code, td2id, td2name, td2nation, td2code, calstatuscode, procstatuscode, receiveddate, pursuit, masse, relay, distance, hill, style, qualif, finale, homol, webcomment, displaystatus, fisinterncomment, published, validforfispoints, usedfislist, tolist, discforlistcode, calculatedpenalty, appliedpenalty, appliedscala, penscafixed, version, nationraceid, provraceid, msql7evid, mssql7id, results, pdf, topbanner, bottombanner, toplogo, bottomlogo, gallery, indi, team, tabcount, columncount, level, hloc1, hloc2, hloc3, hcet1, hcet2, hcet3, live, livestatus1, livestatus2, livestatus3, liveinfo1, liveinfo2, liveinfo3, passwd, timinglogo, validdate, noepr, tddoc, timingreport, special_cup_points, skip_wcsl, lastupdate, validforowg
+FROM A_raceJP
+WHERE raceid = ANY($1::int[])
+ORDER BY raceid
+`
+
+func (q *Queries) GetRacesByIDsJP(ctx context.Context, dollar_1 []int32) ([]ARacejp, error) {
+	rows, err := q.query(ctx, q.getRacesByIDsJPStmt, getRacesByIDsJP, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ARacejp
+	for rows.Next() {
+		var i ARacejp
+		if err := rows.Scan(
+			&i.Raceid,
+			&i.Eventid,
+			&i.Seasoncode,
+			&i.Racecodex,
+			&i.Disciplineid,
+			&i.Disciplinecode,
+			&i.Catcode,
+			&i.Catcode2,
+			&i.Catcode3,
+			&i.Catcode4,
+			&i.Gender,
+			&i.Racedate,
+			&i.Starteventdate,
+			&i.Description,
+			&i.Place,
+			&i.Nationcode,
+			&i.Td1id,
+			&i.Td1name,
+			&i.Td1nation,
+			&i.Td1code,
+			&i.Td2id,
+			&i.Td2name,
+			&i.Td2nation,
+			&i.Td2code,
+			&i.Calstatuscode,
+			&i.Procstatuscode,
+			&i.Receiveddate,
+			&i.Pursuit,
+			&i.Masse,
+			&i.Relay,
+			&i.Distance,
+			&i.Hill,
+			&i.Style,
+			&i.Qualif,
+			&i.Finale,
+			&i.Homol,
+			&i.Webcomment,
+			&i.Displaystatus,
+			&i.Fisinterncomment,
+			&i.Published,
+			&i.Validforfispoints,
+			&i.Usedfislist,
+			&i.Tolist,
+			&i.Discforlistcode,
+			&i.Calculatedpenalty,
+			&i.Appliedpenalty,
+			&i.Appliedscala,
+			&i.Penscafixed,
+			&i.Version,
+			&i.Nationraceid,
+			&i.Provraceid,
+			&i.Msql7evid,
+			&i.Mssql7id,
+			&i.Results,
+			&i.Pdf,
+			&i.Topbanner,
+			&i.Bottombanner,
+			&i.Toplogo,
+			&i.Bottomlogo,
+			&i.Gallery,
+			&i.Indi,
+			&i.Team,
+			&i.Tabcount,
+			&i.Columncount,
+			&i.Level,
+			&i.Hloc1,
+			&i.Hloc2,
+			&i.Hloc3,
+			&i.Hcet1,
+			&i.Hcet2,
+			&i.Hcet3,
+			&i.Live,
+			&i.Livestatus1,
+			&i.Livestatus2,
+			&i.Livestatus3,
+			&i.Liveinfo1,
+			&i.Liveinfo2,
+			&i.Liveinfo3,
+			&i.Passwd,
+			&i.Timinglogo,
+			&i.Validdate,
+			&i.Noepr,
+			&i.Tddoc,
+			&i.Timingreport,
+			&i.SpecialCupPoints,
+			&i.SkipWcsl,
+			&i.Lastupdate,
+			&i.Validforowg,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getRacesByIDsNK = `-- name: GetRacesByIDsNK :many
+SELECT raceid, eventid, seasoncode, racecodex, disciplineid, disciplinecode, catcode, catcode2, catcode3, catcode4, gender, racedate, starteventdate, description, place, nationcode, td1id, td1name, td1nation, td1code, td2id, td2name, td2nation, td2code, calstatuscode, procstatuscode, receiveddate, pursuit, masse, relay, distance, hill, style, qualif, finale, homol, webcomment, displaystatus, fisinterncomment, published, validforfispoints, usedfislist, tolist, discforlistcode, calculatedpenalty, appliedpenalty, appliedscala, penscafixed, version, nationraceid, provraceid, msql7evid, mssql7id, results, pdf, topbanner, bottombanner, toplogo, bottomlogo, gallery, indi, team, tabcount, columncount, level, hloc1, hloc2, hloc3, hcet1, hcet2, hcet3, live, livestatus1, livestatus2, livestatus3, liveinfo1, liveinfo2, liveinfo3, passwd, timinglogo, validdate, noepr, tddoc, timingreport, special_cup_points, skip_wcsl, validforowg, lastupdate
+FROM A_raceNK
+WHERE raceid = ANY($1::int[])
+ORDER BY raceid
+`
+
+func (q *Queries) GetRacesByIDsNK(ctx context.Context, dollar_1 []int32) ([]ARacenk, error) {
+	rows, err := q.query(ctx, q.getRacesByIDsNKStmt, getRacesByIDsNK, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ARacenk
+	for rows.Next() {
+		var i ARacenk
+		if err := rows.Scan(
+			&i.Raceid,
+			&i.Eventid,
+			&i.Seasoncode,
+			&i.Racecodex,
+			&i.Disciplineid,
+			&i.Disciplinecode,
+			&i.Catcode,
+			&i.Catcode2,
+			&i.Catcode3,
+			&i.Catcode4,
+			&i.Gender,
+			&i.Racedate,
+			&i.Starteventdate,
+			&i.Description,
+			&i.Place,
+			&i.Nationcode,
+			&i.Td1id,
+			&i.Td1name,
+			&i.Td1nation,
+			&i.Td1code,
+			&i.Td2id,
+			&i.Td2name,
+			&i.Td2nation,
+			&i.Td2code,
+			&i.Calstatuscode,
+			&i.Procstatuscode,
+			&i.Receiveddate,
+			&i.Pursuit,
+			&i.Masse,
+			&i.Relay,
+			&i.Distance,
+			&i.Hill,
+			&i.Style,
+			&i.Qualif,
+			&i.Finale,
+			&i.Homol,
+			&i.Webcomment,
+			&i.Displaystatus,
+			&i.Fisinterncomment,
+			&i.Published,
+			&i.Validforfispoints,
+			&i.Usedfislist,
+			&i.Tolist,
+			&i.Discforlistcode,
+			&i.Calculatedpenalty,
+			&i.Appliedpenalty,
+			&i.Appliedscala,
+			&i.Penscafixed,
+			&i.Version,
+			&i.Nationraceid,
+			&i.Provraceid,
+			&i.Msql7evid,
+			&i.Mssql7id,
+			&i.Results,
+			&i.Pdf,
+			&i.Topbanner,
+			&i.Bottombanner,
+			&i.Toplogo,
+			&i.Bottomlogo,
+			&i.Gallery,
+			&i.Indi,
+			&i.Team,
+			&i.Tabcount,
+			&i.Columncount,
+			&i.Level,
+			&i.Hloc1,
+			&i.Hloc2,
+			&i.Hloc3,
+			&i.Hcet1,
+			&i.Hcet2,
+			&i.Hcet3,
+			&i.Live,
+			&i.Livestatus1,
+			&i.Livestatus2,
+			&i.Livestatus3,
+			&i.Liveinfo1,
+			&i.Liveinfo2,
+			&i.Liveinfo3,
+			&i.Passwd,
+			&i.Timinglogo,
+			&i.Validdate,
+			&i.Noepr,
+			&i.Tddoc,
+			&i.Timingreport,
+			&i.SpecialCupPoints,
+			&i.SkipWcsl,
+			&i.Validforowg,
 			&i.Lastupdate,
 		); err != nil {
 			return nil, err
@@ -1968,6 +3042,120 @@ func (q *Queries) GetRacesNK(ctx context.Context, arg GetRacesNKParams) ([]ARace
 			&i.Validforowg,
 			&i.Lastupdate,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSeasonsCatcodesCCByCompetitor = `-- name: GetSeasonsCatcodesCCByCompetitor :many
+SELECT DISTINCT
+    aCC.SeasonCode,
+    aCC.CatCode
+FROM A_raceCC   aCC
+JOIN A_resultCC rCC ON aCC.RaceID = rCC.RaceID
+WHERE rCC.CompetitorID = $1
+ORDER BY aCC.SeasonCode DESC, aCC.CatCode ASC
+`
+
+type GetSeasonsCatcodesCCByCompetitorRow struct {
+	Seasoncode sql.NullInt32
+	Catcode    sql.NullString
+}
+
+func (q *Queries) GetSeasonsCatcodesCCByCompetitor(ctx context.Context, competitorid sql.NullInt32) ([]GetSeasonsCatcodesCCByCompetitorRow, error) {
+	rows, err := q.query(ctx, q.getSeasonsCatcodesCCByCompetitorStmt, getSeasonsCatcodesCCByCompetitor, competitorid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSeasonsCatcodesCCByCompetitorRow
+	for rows.Next() {
+		var i GetSeasonsCatcodesCCByCompetitorRow
+		if err := rows.Scan(&i.Seasoncode, &i.Catcode); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSeasonsCatcodesJPByCompetitor = `-- name: GetSeasonsCatcodesJPByCompetitor :many
+SELECT DISTINCT
+    aJP.SeasonCode,
+    aJP.CatCode
+FROM A_raceJP   aJP
+JOIN A_resultJP rJP ON aJP.RaceID = rJP.RaceID
+WHERE rJP.CompetitorID = $1
+ORDER BY aJP.SeasonCode DESC, aJP.CatCode ASC
+`
+
+type GetSeasonsCatcodesJPByCompetitorRow struct {
+	Seasoncode sql.NullInt32
+	Catcode    sql.NullString
+}
+
+func (q *Queries) GetSeasonsCatcodesJPByCompetitor(ctx context.Context, competitorid sql.NullInt32) ([]GetSeasonsCatcodesJPByCompetitorRow, error) {
+	rows, err := q.query(ctx, q.getSeasonsCatcodesJPByCompetitorStmt, getSeasonsCatcodesJPByCompetitor, competitorid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSeasonsCatcodesJPByCompetitorRow
+	for rows.Next() {
+		var i GetSeasonsCatcodesJPByCompetitorRow
+		if err := rows.Scan(&i.Seasoncode, &i.Catcode); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSeasonsCatcodesNKByCompetitor = `-- name: GetSeasonsCatcodesNKByCompetitor :many
+SELECT DISTINCT
+    aNK.SeasonCode,
+    aNK.CatCode
+FROM A_raceNK   aNK
+JOIN A_resultNK rNK ON aNK.RaceID = rNK.RaceID
+WHERE rNK.CompetitorID = $1
+ORDER BY aNK.SeasonCode DESC, aNK.CatCode ASC
+`
+
+type GetSeasonsCatcodesNKByCompetitorRow struct {
+	Seasoncode sql.NullInt32
+	Catcode    sql.NullString
+}
+
+func (q *Queries) GetSeasonsCatcodesNKByCompetitor(ctx context.Context, competitorid sql.NullInt32) ([]GetSeasonsCatcodesNKByCompetitorRow, error) {
+	rows, err := q.query(ctx, q.getSeasonsCatcodesNKByCompetitorStmt, getSeasonsCatcodesNKByCompetitor, competitorid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSeasonsCatcodesNKByCompetitorRow
+	for rows.Next() {
+		var i GetSeasonsCatcodesNKByCompetitorRow
+		if err := rows.Scan(&i.Seasoncode, &i.Catcode); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -3349,6 +4537,337 @@ func (q *Queries) InsertResultNK(ctx context.Context, arg InsertResultNKParams) 
 		arg.Lastupdate,
 	)
 	return err
+}
+
+const searchCompetitors = `-- name: SearchCompetitors :many
+SELECT competitorid, personid, ipcid, type, sectorcode, fiscode, lastname, firstname, gender, birthdate, nationcode, nationalcode, skiclub, association, status, status_old, status_by, status_date, statusnextlist, alternatenamecheck, fee, dateofcreation, createdby, injury, version, compidmssql, carving, photo, notallowed, natteam, tragroup, published, doped, team, photo_big, data, lastupdateby, disciplines, lastupdate, deletedat, categorycode, classname, classcode
+FROM A_competitor
+WHERE ($1::text IS NULL OR nationcode = $1)
+  AND ($2::text IS NULL OR sectorcode = $2)
+  AND ($3::text IS NULL OR gender     = $3)
+  AND ($4::date IS NULL OR birthdate >= $4)
+  AND ($5::date IS NULL OR birthdate <= $5)
+ORDER BY competitorid
+LIMIT $6 OFFSET $7
+`
+
+type SearchCompetitorsParams struct {
+	Column1 string
+	Column2 string
+	Column3 string
+	Column4 time.Time
+	Column5 time.Time
+	Limit   int32
+	Offset  int32
+}
+
+func (q *Queries) SearchCompetitors(ctx context.Context, arg SearchCompetitorsParams) ([]ACompetitor, error) {
+	rows, err := q.query(ctx, q.searchCompetitorsStmt, searchCompetitors,
+		arg.Column1,
+		arg.Column2,
+		arg.Column3,
+		arg.Column4,
+		arg.Column5,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ACompetitor
+	for rows.Next() {
+		var i ACompetitor
+		if err := rows.Scan(
+			&i.Competitorid,
+			&i.Personid,
+			&i.Ipcid,
+			&i.Type,
+			&i.Sectorcode,
+			&i.Fiscode,
+			&i.Lastname,
+			&i.Firstname,
+			&i.Gender,
+			&i.Birthdate,
+			&i.Nationcode,
+			&i.Nationalcode,
+			&i.Skiclub,
+			&i.Association,
+			&i.Status,
+			&i.StatusOld,
+			&i.StatusBy,
+			&i.StatusDate,
+			&i.Statusnextlist,
+			&i.Alternatenamecheck,
+			&i.Fee,
+			&i.Dateofcreation,
+			&i.Createdby,
+			&i.Injury,
+			&i.Version,
+			&i.Compidmssql,
+			&i.Carving,
+			&i.Photo,
+			&i.Notallowed,
+			&i.Natteam,
+			&i.Tragroup,
+			&i.Published,
+			&i.Doped,
+			&i.Team,
+			&i.PhotoBig,
+			&i.Data,
+			&i.Lastupdateby,
+			&i.Disciplines,
+			&i.Lastupdate,
+			&i.Deletedat,
+			&i.Categorycode,
+			&i.Classname,
+			&i.Classcode,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchRacesCC = `-- name: SearchRacesCC :many
+SELECT
+  gender,
+  raceid,
+  racedate,
+  catcode,
+  description,
+  place,
+  nationcode,
+  disciplinecode,
+  'CC'::text AS sectorcode
+FROM a_racecc
+WHERE
+  ($1::int4 = 0 OR seasoncode = $1::int4)
+  AND ($2::text = '' OR nationcode = $2::text)
+  AND ($3::text = '' OR gender = $3::text)
+  AND ($4::text = '' OR catcode = $4::text)
+  AND calstatuscode = 'O'
+ORDER BY racedate
+`
+
+type SearchRacesCCParams struct {
+	Column1 int32
+	Column2 string
+	Column3 string
+	Column4 string
+}
+
+type SearchRacesCCRow struct {
+	Gender         sql.NullString
+	Raceid         int32
+	Racedate       sql.NullTime
+	Catcode        sql.NullString
+	Description    sql.NullString
+	Place          sql.NullString
+	Nationcode     sql.NullString
+	Disciplinecode sql.NullString
+	Sectorcode     string
+}
+
+func (q *Queries) SearchRacesCC(ctx context.Context, arg SearchRacesCCParams) ([]SearchRacesCCRow, error) {
+	rows, err := q.query(ctx, q.searchRacesCCStmt, searchRacesCC,
+		arg.Column1,
+		arg.Column2,
+		arg.Column3,
+		arg.Column4,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SearchRacesCCRow
+	for rows.Next() {
+		var i SearchRacesCCRow
+		if err := rows.Scan(
+			&i.Gender,
+			&i.Raceid,
+			&i.Racedate,
+			&i.Catcode,
+			&i.Description,
+			&i.Place,
+			&i.Nationcode,
+			&i.Disciplinecode,
+			&i.Sectorcode,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchRacesJP = `-- name: SearchRacesJP :many
+SELECT
+  gender,
+  raceid,
+  racedate,
+  catcode,
+  description,
+  place,
+  nationcode,
+  disciplinecode,
+  'JP'::text AS sectorcode
+FROM a_racejp
+WHERE
+  ($1::int4 = 0 OR seasoncode = $1::int4)
+  AND ($2::text = '' OR nationcode = $2::text)
+  AND ($3::text = '' OR gender = $3::text)
+  AND ($4::text = '' OR catcode = $4::text)
+  AND calstatuscode = 'O'
+ORDER BY racedate
+`
+
+type SearchRacesJPParams struct {
+	Column1 int32
+	Column2 string
+	Column3 string
+	Column4 string
+}
+
+type SearchRacesJPRow struct {
+	Gender         sql.NullString
+	Raceid         int32
+	Racedate       sql.NullTime
+	Catcode        sql.NullString
+	Description    sql.NullString
+	Place          sql.NullString
+	Nationcode     sql.NullString
+	Disciplinecode sql.NullString
+	Sectorcode     string
+}
+
+func (q *Queries) SearchRacesJP(ctx context.Context, arg SearchRacesJPParams) ([]SearchRacesJPRow, error) {
+	rows, err := q.query(ctx, q.searchRacesJPStmt, searchRacesJP,
+		arg.Column1,
+		arg.Column2,
+		arg.Column3,
+		arg.Column4,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SearchRacesJPRow
+	for rows.Next() {
+		var i SearchRacesJPRow
+		if err := rows.Scan(
+			&i.Gender,
+			&i.Raceid,
+			&i.Racedate,
+			&i.Catcode,
+			&i.Description,
+			&i.Place,
+			&i.Nationcode,
+			&i.Disciplinecode,
+			&i.Sectorcode,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchRacesNK = `-- name: SearchRacesNK :many
+SELECT
+  gender,
+  raceid,
+  racedate,
+  catcode,
+  description,
+  place,
+  nationcode,
+  disciplinecode,
+  'NK'::text AS sectorcode
+FROM a_racenk
+WHERE
+  ($1::int4 = 0 OR seasoncode = $1::int4)
+  AND ($2::text = '' OR nationcode = $2::text)
+  AND ($3::text = '' OR gender = $3::text)
+  AND ($4::text = '' OR catcode = $4::text)
+  AND calstatuscode = 'O'
+ORDER BY racedate
+`
+
+type SearchRacesNKParams struct {
+	Column1 int32
+	Column2 string
+	Column3 string
+	Column4 string
+}
+
+type SearchRacesNKRow struct {
+	Gender         sql.NullString
+	Raceid         int32
+	Racedate       sql.NullTime
+	Catcode        sql.NullString
+	Description    sql.NullString
+	Place          sql.NullString
+	Nationcode     sql.NullString
+	Disciplinecode sql.NullString
+	Sectorcode     string
+}
+
+func (q *Queries) SearchRacesNK(ctx context.Context, arg SearchRacesNKParams) ([]SearchRacesNKRow, error) {
+	rows, err := q.query(ctx, q.searchRacesNKStmt, searchRacesNK,
+		arg.Column1,
+		arg.Column2,
+		arg.Column3,
+		arg.Column4,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SearchRacesNKRow
+	for rows.Next() {
+		var i SearchRacesNKRow
+		if err := rows.Scan(
+			&i.Gender,
+			&i.Raceid,
+			&i.Racedate,
+			&i.Catcode,
+			&i.Description,
+			&i.Place,
+			&i.Nationcode,
+			&i.Disciplinecode,
+			&i.Sectorcode,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateAthleteByFiscode = `-- name: UpdateAthleteByFiscode :one

@@ -63,6 +63,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getAthletesBySporttiIDStmt, err = db.PrepareContext(ctx, getAthletesBySporttiID); err != nil {
 		return nil, fmt.Errorf("error preparing query GetAthletesBySporttiID: %w", err)
 	}
+	if q.getCompetitorCountsByNationStmt, err = db.PrepareContext(ctx, getCompetitorCountsByNation); err != nil {
+		return nil, fmt.Errorf("error preparing query GetCompetitorCountsByNation: %w", err)
+	}
 	if q.getCompetitorIDByFiscodeCCStmt, err = db.PrepareContext(ctx, getCompetitorIDByFiscodeCC); err != nil {
 		return nil, fmt.Errorf("error preparing query GetCompetitorIDByFiscodeCC: %w", err)
 	}
@@ -102,6 +105,15 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getLastRowResultNKStmt, err = db.PrepareContext(ctx, getLastRowResultNK); err != nil {
 		return nil, fmt.Errorf("error preparing query GetLastRowResultNK: %w", err)
 	}
+	if q.getLatestResultsCCStmt, err = db.PrepareContext(ctx, getLatestResultsCC); err != nil {
+		return nil, fmt.Errorf("error preparing query GetLatestResultsCC: %w", err)
+	}
+	if q.getLatestResultsJPStmt, err = db.PrepareContext(ctx, getLatestResultsJP); err != nil {
+		return nil, fmt.Errorf("error preparing query GetLatestResultsJP: %w", err)
+	}
+	if q.getLatestResultsNKStmt, err = db.PrepareContext(ctx, getLatestResultsNK); err != nil {
+		return nil, fmt.Errorf("error preparing query GetLatestResultsNK: %w", err)
+	}
 	if q.getNationsBySectorStmt, err = db.PrepareContext(ctx, getNationsBySector); err != nil {
 		return nil, fmt.Errorf("error preparing query GetNationsBySector: %w", err)
 	}
@@ -114,6 +126,24 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getNordicCombinedSeasonsStmt, err = db.PrepareContext(ctx, getNordicCombinedSeasons); err != nil {
 		return nil, fmt.Errorf("error preparing query GetNordicCombinedSeasons: %w", err)
 	}
+	if q.getRaceCountsByCategoryCCStmt, err = db.PrepareContext(ctx, getRaceCountsByCategoryCC); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRaceCountsByCategoryCC: %w", err)
+	}
+	if q.getRaceCountsByCategoryJPStmt, err = db.PrepareContext(ctx, getRaceCountsByCategoryJP); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRaceCountsByCategoryJP: %w", err)
+	}
+	if q.getRaceCountsByCategoryNKStmt, err = db.PrepareContext(ctx, getRaceCountsByCategoryNK); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRaceCountsByCategoryNK: %w", err)
+	}
+	if q.getRaceCountsByNationCCStmt, err = db.PrepareContext(ctx, getRaceCountsByNationCC); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRaceCountsByNationCC: %w", err)
+	}
+	if q.getRaceCountsByNationJPStmt, err = db.PrepareContext(ctx, getRaceCountsByNationJP); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRaceCountsByNationJP: %w", err)
+	}
+	if q.getRaceCountsByNationNKStmt, err = db.PrepareContext(ctx, getRaceCountsByNationNK); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRaceCountsByNationNK: %w", err)
+	}
 	if q.getRaceResultsCCByRaceIDStmt, err = db.PrepareContext(ctx, getRaceResultsCCByRaceID); err != nil {
 		return nil, fmt.Errorf("error preparing query GetRaceResultsCCByRaceID: %w", err)
 	}
@@ -123,6 +153,24 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getRaceResultsNKByRaceIDStmt, err = db.PrepareContext(ctx, getRaceResultsNKByRaceID); err != nil {
 		return nil, fmt.Errorf("error preparing query GetRaceResultsNKByRaceID: %w", err)
 	}
+	if q.getRaceTotalCCStmt, err = db.PrepareContext(ctx, getRaceTotalCC); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRaceTotalCC: %w", err)
+	}
+	if q.getRaceTotalJPStmt, err = db.PrepareContext(ctx, getRaceTotalJP); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRaceTotalJP: %w", err)
+	}
+	if q.getRaceTotalNKStmt, err = db.PrepareContext(ctx, getRaceTotalNK); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRaceTotalNK: %w", err)
+	}
+	if q.getRacesByIDsCCStmt, err = db.PrepareContext(ctx, getRacesByIDsCC); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRacesByIDsCC: %w", err)
+	}
+	if q.getRacesByIDsJPStmt, err = db.PrepareContext(ctx, getRacesByIDsJP); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRacesByIDsJP: %w", err)
+	}
+	if q.getRacesByIDsNKStmt, err = db.PrepareContext(ctx, getRacesByIDsNK); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRacesByIDsNK: %w", err)
+	}
 	if q.getRacesCCStmt, err = db.PrepareContext(ctx, getRacesCC); err != nil {
 		return nil, fmt.Errorf("error preparing query GetRacesCC: %w", err)
 	}
@@ -131,6 +179,15 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.getRacesNKStmt, err = db.PrepareContext(ctx, getRacesNK); err != nil {
 		return nil, fmt.Errorf("error preparing query GetRacesNK: %w", err)
+	}
+	if q.getSeasonsCatcodesCCByCompetitorStmt, err = db.PrepareContext(ctx, getSeasonsCatcodesCCByCompetitor); err != nil {
+		return nil, fmt.Errorf("error preparing query GetSeasonsCatcodesCCByCompetitor: %w", err)
+	}
+	if q.getSeasonsCatcodesJPByCompetitorStmt, err = db.PrepareContext(ctx, getSeasonsCatcodesJPByCompetitor); err != nil {
+		return nil, fmt.Errorf("error preparing query GetSeasonsCatcodesJPByCompetitor: %w", err)
+	}
+	if q.getSeasonsCatcodesNKByCompetitorStmt, err = db.PrepareContext(ctx, getSeasonsCatcodesNKByCompetitor); err != nil {
+		return nil, fmt.Errorf("error preparing query GetSeasonsCatcodesNKByCompetitor: %w", err)
 	}
 	if q.getSkiJumpingCategoriesStmt, err = db.PrepareContext(ctx, getSkiJumpingCategories); err != nil {
 		return nil, fmt.Errorf("error preparing query GetSkiJumpingCategories: %w", err)
@@ -164,6 +221,18 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.insertResultNKStmt, err = db.PrepareContext(ctx, insertResultNK); err != nil {
 		return nil, fmt.Errorf("error preparing query InsertResultNK: %w", err)
+	}
+	if q.searchCompetitorsStmt, err = db.PrepareContext(ctx, searchCompetitors); err != nil {
+		return nil, fmt.Errorf("error preparing query SearchCompetitors: %w", err)
+	}
+	if q.searchRacesCCStmt, err = db.PrepareContext(ctx, searchRacesCC); err != nil {
+		return nil, fmt.Errorf("error preparing query SearchRacesCC: %w", err)
+	}
+	if q.searchRacesJPStmt, err = db.PrepareContext(ctx, searchRacesJP); err != nil {
+		return nil, fmt.Errorf("error preparing query SearchRacesJP: %w", err)
+	}
+	if q.searchRacesNKStmt, err = db.PrepareContext(ctx, searchRacesNK); err != nil {
+		return nil, fmt.Errorf("error preparing query SearchRacesNK: %w", err)
 	}
 	if q.updateAthleteByFiscodeStmt, err = db.PrepareContext(ctx, updateAthleteByFiscode); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateAthleteByFiscode: %w", err)
@@ -259,6 +328,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getAthletesBySporttiIDStmt: %w", cerr)
 		}
 	}
+	if q.getCompetitorCountsByNationStmt != nil {
+		if cerr := q.getCompetitorCountsByNationStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getCompetitorCountsByNationStmt: %w", cerr)
+		}
+	}
 	if q.getCompetitorIDByFiscodeCCStmt != nil {
 		if cerr := q.getCompetitorIDByFiscodeCCStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getCompetitorIDByFiscodeCCStmt: %w", cerr)
@@ -324,6 +398,21 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getLastRowResultNKStmt: %w", cerr)
 		}
 	}
+	if q.getLatestResultsCCStmt != nil {
+		if cerr := q.getLatestResultsCCStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getLatestResultsCCStmt: %w", cerr)
+		}
+	}
+	if q.getLatestResultsJPStmt != nil {
+		if cerr := q.getLatestResultsJPStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getLatestResultsJPStmt: %w", cerr)
+		}
+	}
+	if q.getLatestResultsNKStmt != nil {
+		if cerr := q.getLatestResultsNKStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getLatestResultsNKStmt: %w", cerr)
+		}
+	}
 	if q.getNationsBySectorStmt != nil {
 		if cerr := q.getNationsBySectorStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getNationsBySectorStmt: %w", cerr)
@@ -344,6 +433,36 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getNordicCombinedSeasonsStmt: %w", cerr)
 		}
 	}
+	if q.getRaceCountsByCategoryCCStmt != nil {
+		if cerr := q.getRaceCountsByCategoryCCStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRaceCountsByCategoryCCStmt: %w", cerr)
+		}
+	}
+	if q.getRaceCountsByCategoryJPStmt != nil {
+		if cerr := q.getRaceCountsByCategoryJPStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRaceCountsByCategoryJPStmt: %w", cerr)
+		}
+	}
+	if q.getRaceCountsByCategoryNKStmt != nil {
+		if cerr := q.getRaceCountsByCategoryNKStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRaceCountsByCategoryNKStmt: %w", cerr)
+		}
+	}
+	if q.getRaceCountsByNationCCStmt != nil {
+		if cerr := q.getRaceCountsByNationCCStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRaceCountsByNationCCStmt: %w", cerr)
+		}
+	}
+	if q.getRaceCountsByNationJPStmt != nil {
+		if cerr := q.getRaceCountsByNationJPStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRaceCountsByNationJPStmt: %w", cerr)
+		}
+	}
+	if q.getRaceCountsByNationNKStmt != nil {
+		if cerr := q.getRaceCountsByNationNKStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRaceCountsByNationNKStmt: %w", cerr)
+		}
+	}
 	if q.getRaceResultsCCByRaceIDStmt != nil {
 		if cerr := q.getRaceResultsCCByRaceIDStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getRaceResultsCCByRaceIDStmt: %w", cerr)
@@ -359,6 +478,36 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getRaceResultsNKByRaceIDStmt: %w", cerr)
 		}
 	}
+	if q.getRaceTotalCCStmt != nil {
+		if cerr := q.getRaceTotalCCStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRaceTotalCCStmt: %w", cerr)
+		}
+	}
+	if q.getRaceTotalJPStmt != nil {
+		if cerr := q.getRaceTotalJPStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRaceTotalJPStmt: %w", cerr)
+		}
+	}
+	if q.getRaceTotalNKStmt != nil {
+		if cerr := q.getRaceTotalNKStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRaceTotalNKStmt: %w", cerr)
+		}
+	}
+	if q.getRacesByIDsCCStmt != nil {
+		if cerr := q.getRacesByIDsCCStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRacesByIDsCCStmt: %w", cerr)
+		}
+	}
+	if q.getRacesByIDsJPStmt != nil {
+		if cerr := q.getRacesByIDsJPStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRacesByIDsJPStmt: %w", cerr)
+		}
+	}
+	if q.getRacesByIDsNKStmt != nil {
+		if cerr := q.getRacesByIDsNKStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRacesByIDsNKStmt: %w", cerr)
+		}
+	}
 	if q.getRacesCCStmt != nil {
 		if cerr := q.getRacesCCStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getRacesCCStmt: %w", cerr)
@@ -372,6 +521,21 @@ func (q *Queries) Close() error {
 	if q.getRacesNKStmt != nil {
 		if cerr := q.getRacesNKStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getRacesNKStmt: %w", cerr)
+		}
+	}
+	if q.getSeasonsCatcodesCCByCompetitorStmt != nil {
+		if cerr := q.getSeasonsCatcodesCCByCompetitorStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getSeasonsCatcodesCCByCompetitorStmt: %w", cerr)
+		}
+	}
+	if q.getSeasonsCatcodesJPByCompetitorStmt != nil {
+		if cerr := q.getSeasonsCatcodesJPByCompetitorStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getSeasonsCatcodesJPByCompetitorStmt: %w", cerr)
+		}
+	}
+	if q.getSeasonsCatcodesNKByCompetitorStmt != nil {
+		if cerr := q.getSeasonsCatcodesNKByCompetitorStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getSeasonsCatcodesNKByCompetitorStmt: %w", cerr)
 		}
 	}
 	if q.getSkiJumpingCategoriesStmt != nil {
@@ -427,6 +591,26 @@ func (q *Queries) Close() error {
 	if q.insertResultNKStmt != nil {
 		if cerr := q.insertResultNKStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing insertResultNKStmt: %w", cerr)
+		}
+	}
+	if q.searchCompetitorsStmt != nil {
+		if cerr := q.searchCompetitorsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing searchCompetitorsStmt: %w", cerr)
+		}
+	}
+	if q.searchRacesCCStmt != nil {
+		if cerr := q.searchRacesCCStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing searchRacesCCStmt: %w", cerr)
+		}
+	}
+	if q.searchRacesJPStmt != nil {
+		if cerr := q.searchRacesJPStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing searchRacesJPStmt: %w", cerr)
+		}
+	}
+	if q.searchRacesNKStmt != nil {
+		if cerr := q.searchRacesNKStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing searchRacesNKStmt: %w", cerr)
 		}
 	}
 	if q.updateAthleteByFiscodeStmt != nil {
@@ -506,123 +690,169 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db                               DBTX
-	tx                               *sql.Tx
-	deleteAthleteByFiscodeStmt       *sql.Stmt
-	deleteCompetitorByIDStmt         *sql.Stmt
-	deleteRaceCCByIDStmt             *sql.Stmt
-	deleteRaceJPByIDStmt             *sql.Stmt
-	deleteRaceNKByIDStmt             *sql.Stmt
-	deleteResultCCByRecIDStmt        *sql.Stmt
-	deleteResultJPByRecIDStmt        *sql.Stmt
-	deleteResultNKByRecIDStmt        *sql.Stmt
-	getAthleteResultsCCStmt          *sql.Stmt
-	getAthleteResultsJPStmt          *sql.Stmt
-	getAthleteResultsNKStmt          *sql.Stmt
-	getAthletesBySectorStmt          *sql.Stmt
-	getAthletesBySporttiIDStmt       *sql.Stmt
-	getCompetitorIDByFiscodeCCStmt   *sql.Stmt
-	getCompetitorIDByFiscodeJPStmt   *sql.Stmt
-	getCompetitorIDByFiscodeNKStmt   *sql.Stmt
-	getCrossCountryCategoriesStmt    *sql.Stmt
-	getCrossCountryDisciplinesStmt   *sql.Stmt
-	getCrossCountrySeasonsStmt       *sql.Stmt
-	getLastRowCompetitorStmt         *sql.Stmt
-	getLastRowRaceCCStmt             *sql.Stmt
-	getLastRowRaceJPStmt             *sql.Stmt
-	getLastRowRaceNKStmt             *sql.Stmt
-	getLastRowResultCCStmt           *sql.Stmt
-	getLastRowResultJPStmt           *sql.Stmt
-	getLastRowResultNKStmt           *sql.Stmt
-	getNationsBySectorStmt           *sql.Stmt
-	getNordicCombinedCategoriesStmt  *sql.Stmt
-	getNordicCombinedDisciplinesStmt *sql.Stmt
-	getNordicCombinedSeasonsStmt     *sql.Stmt
-	getRaceResultsCCByRaceIDStmt     *sql.Stmt
-	getRaceResultsJPByRaceIDStmt     *sql.Stmt
-	getRaceResultsNKByRaceIDStmt     *sql.Stmt
-	getRacesCCStmt                   *sql.Stmt
-	getRacesJPStmt                   *sql.Stmt
-	getRacesNKStmt                   *sql.Stmt
-	getSkiJumpingCategoriesStmt      *sql.Stmt
-	getSkiJumpingDisciplinesStmt     *sql.Stmt
-	getSkiJumpingSeasonsStmt         *sql.Stmt
-	insertAthleteStmt                *sql.Stmt
-	insertCompetitorStmt             *sql.Stmt
-	insertRaceCCStmt                 *sql.Stmt
-	insertRaceJPStmt                 *sql.Stmt
-	insertRaceNKStmt                 *sql.Stmt
-	insertResultCCStmt               *sql.Stmt
-	insertResultJPStmt               *sql.Stmt
-	insertResultNKStmt               *sql.Stmt
-	updateAthleteByFiscodeStmt       *sql.Stmt
-	updateCompetitorByIDStmt         *sql.Stmt
-	updateRaceCCByIDStmt             *sql.Stmt
-	updateRaceJPByIDStmt             *sql.Stmt
-	updateRaceNKByIDStmt             *sql.Stmt
-	updateResultCCByRecIDStmt        *sql.Stmt
-	updateResultJPByRecIDStmt        *sql.Stmt
-	updateResultNKByRecIDStmt        *sql.Stmt
+	db                                   DBTX
+	tx                                   *sql.Tx
+	deleteAthleteByFiscodeStmt           *sql.Stmt
+	deleteCompetitorByIDStmt             *sql.Stmt
+	deleteRaceCCByIDStmt                 *sql.Stmt
+	deleteRaceJPByIDStmt                 *sql.Stmt
+	deleteRaceNKByIDStmt                 *sql.Stmt
+	deleteResultCCByRecIDStmt            *sql.Stmt
+	deleteResultJPByRecIDStmt            *sql.Stmt
+	deleteResultNKByRecIDStmt            *sql.Stmt
+	getAthleteResultsCCStmt              *sql.Stmt
+	getAthleteResultsJPStmt              *sql.Stmt
+	getAthleteResultsNKStmt              *sql.Stmt
+	getAthletesBySectorStmt              *sql.Stmt
+	getAthletesBySporttiIDStmt           *sql.Stmt
+	getCompetitorCountsByNationStmt      *sql.Stmt
+	getCompetitorIDByFiscodeCCStmt       *sql.Stmt
+	getCompetitorIDByFiscodeJPStmt       *sql.Stmt
+	getCompetitorIDByFiscodeNKStmt       *sql.Stmt
+	getCrossCountryCategoriesStmt        *sql.Stmt
+	getCrossCountryDisciplinesStmt       *sql.Stmt
+	getCrossCountrySeasonsStmt           *sql.Stmt
+	getLastRowCompetitorStmt             *sql.Stmt
+	getLastRowRaceCCStmt                 *sql.Stmt
+	getLastRowRaceJPStmt                 *sql.Stmt
+	getLastRowRaceNKStmt                 *sql.Stmt
+	getLastRowResultCCStmt               *sql.Stmt
+	getLastRowResultJPStmt               *sql.Stmt
+	getLastRowResultNKStmt               *sql.Stmt
+	getLatestResultsCCStmt               *sql.Stmt
+	getLatestResultsJPStmt               *sql.Stmt
+	getLatestResultsNKStmt               *sql.Stmt
+	getNationsBySectorStmt               *sql.Stmt
+	getNordicCombinedCategoriesStmt      *sql.Stmt
+	getNordicCombinedDisciplinesStmt     *sql.Stmt
+	getNordicCombinedSeasonsStmt         *sql.Stmt
+	getRaceCountsByCategoryCCStmt        *sql.Stmt
+	getRaceCountsByCategoryJPStmt        *sql.Stmt
+	getRaceCountsByCategoryNKStmt        *sql.Stmt
+	getRaceCountsByNationCCStmt          *sql.Stmt
+	getRaceCountsByNationJPStmt          *sql.Stmt
+	getRaceCountsByNationNKStmt          *sql.Stmt
+	getRaceResultsCCByRaceIDStmt         *sql.Stmt
+	getRaceResultsJPByRaceIDStmt         *sql.Stmt
+	getRaceResultsNKByRaceIDStmt         *sql.Stmt
+	getRaceTotalCCStmt                   *sql.Stmt
+	getRaceTotalJPStmt                   *sql.Stmt
+	getRaceTotalNKStmt                   *sql.Stmt
+	getRacesByIDsCCStmt                  *sql.Stmt
+	getRacesByIDsJPStmt                  *sql.Stmt
+	getRacesByIDsNKStmt                  *sql.Stmt
+	getRacesCCStmt                       *sql.Stmt
+	getRacesJPStmt                       *sql.Stmt
+	getRacesNKStmt                       *sql.Stmt
+	getSeasonsCatcodesCCByCompetitorStmt *sql.Stmt
+	getSeasonsCatcodesJPByCompetitorStmt *sql.Stmt
+	getSeasonsCatcodesNKByCompetitorStmt *sql.Stmt
+	getSkiJumpingCategoriesStmt          *sql.Stmt
+	getSkiJumpingDisciplinesStmt         *sql.Stmt
+	getSkiJumpingSeasonsStmt             *sql.Stmt
+	insertAthleteStmt                    *sql.Stmt
+	insertCompetitorStmt                 *sql.Stmt
+	insertRaceCCStmt                     *sql.Stmt
+	insertRaceJPStmt                     *sql.Stmt
+	insertRaceNKStmt                     *sql.Stmt
+	insertResultCCStmt                   *sql.Stmt
+	insertResultJPStmt                   *sql.Stmt
+	insertResultNKStmt                   *sql.Stmt
+	searchCompetitorsStmt                *sql.Stmt
+	searchRacesCCStmt                    *sql.Stmt
+	searchRacesJPStmt                    *sql.Stmt
+	searchRacesNKStmt                    *sql.Stmt
+	updateAthleteByFiscodeStmt           *sql.Stmt
+	updateCompetitorByIDStmt             *sql.Stmt
+	updateRaceCCByIDStmt                 *sql.Stmt
+	updateRaceJPByIDStmt                 *sql.Stmt
+	updateRaceNKByIDStmt                 *sql.Stmt
+	updateResultCCByRecIDStmt            *sql.Stmt
+	updateResultJPByRecIDStmt            *sql.Stmt
+	updateResultNKByRecIDStmt            *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:                               tx,
-		tx:                               tx,
-		deleteAthleteByFiscodeStmt:       q.deleteAthleteByFiscodeStmt,
-		deleteCompetitorByIDStmt:         q.deleteCompetitorByIDStmt,
-		deleteRaceCCByIDStmt:             q.deleteRaceCCByIDStmt,
-		deleteRaceJPByIDStmt:             q.deleteRaceJPByIDStmt,
-		deleteRaceNKByIDStmt:             q.deleteRaceNKByIDStmt,
-		deleteResultCCByRecIDStmt:        q.deleteResultCCByRecIDStmt,
-		deleteResultJPByRecIDStmt:        q.deleteResultJPByRecIDStmt,
-		deleteResultNKByRecIDStmt:        q.deleteResultNKByRecIDStmt,
-		getAthleteResultsCCStmt:          q.getAthleteResultsCCStmt,
-		getAthleteResultsJPStmt:          q.getAthleteResultsJPStmt,
-		getAthleteResultsNKStmt:          q.getAthleteResultsNKStmt,
-		getAthletesBySectorStmt:          q.getAthletesBySectorStmt,
-		getAthletesBySporttiIDStmt:       q.getAthletesBySporttiIDStmt,
-		getCompetitorIDByFiscodeCCStmt:   q.getCompetitorIDByFiscodeCCStmt,
-		getCompetitorIDByFiscodeJPStmt:   q.getCompetitorIDByFiscodeJPStmt,
-		getCompetitorIDByFiscodeNKStmt:   q.getCompetitorIDByFiscodeNKStmt,
-		getCrossCountryCategoriesStmt:    q.getCrossCountryCategoriesStmt,
-		getCrossCountryDisciplinesStmt:   q.getCrossCountryDisciplinesStmt,
-		getCrossCountrySeasonsStmt:       q.getCrossCountrySeasonsStmt,
-		getLastRowCompetitorStmt:         q.getLastRowCompetitorStmt,
-		getLastRowRaceCCStmt:             q.getLastRowRaceCCStmt,
-		getLastRowRaceJPStmt:             q.getLastRowRaceJPStmt,
-		getLastRowRaceNKStmt:             q.getLastRowRaceNKStmt,
-		getLastRowResultCCStmt:           q.getLastRowResultCCStmt,
-		getLastRowResultJPStmt:           q.getLastRowResultJPStmt,
-		getLastRowResultNKStmt:           q.getLastRowResultNKStmt,
-		getNationsBySectorStmt:           q.getNationsBySectorStmt,
-		getNordicCombinedCategoriesStmt:  q.getNordicCombinedCategoriesStmt,
-		getNordicCombinedDisciplinesStmt: q.getNordicCombinedDisciplinesStmt,
-		getNordicCombinedSeasonsStmt:     q.getNordicCombinedSeasonsStmt,
-		getRaceResultsCCByRaceIDStmt:     q.getRaceResultsCCByRaceIDStmt,
-		getRaceResultsJPByRaceIDStmt:     q.getRaceResultsJPByRaceIDStmt,
-		getRaceResultsNKByRaceIDStmt:     q.getRaceResultsNKByRaceIDStmt,
-		getRacesCCStmt:                   q.getRacesCCStmt,
-		getRacesJPStmt:                   q.getRacesJPStmt,
-		getRacesNKStmt:                   q.getRacesNKStmt,
-		getSkiJumpingCategoriesStmt:      q.getSkiJumpingCategoriesStmt,
-		getSkiJumpingDisciplinesStmt:     q.getSkiJumpingDisciplinesStmt,
-		getSkiJumpingSeasonsStmt:         q.getSkiJumpingSeasonsStmt,
-		insertAthleteStmt:                q.insertAthleteStmt,
-		insertCompetitorStmt:             q.insertCompetitorStmt,
-		insertRaceCCStmt:                 q.insertRaceCCStmt,
-		insertRaceJPStmt:                 q.insertRaceJPStmt,
-		insertRaceNKStmt:                 q.insertRaceNKStmt,
-		insertResultCCStmt:               q.insertResultCCStmt,
-		insertResultJPStmt:               q.insertResultJPStmt,
-		insertResultNKStmt:               q.insertResultNKStmt,
-		updateAthleteByFiscodeStmt:       q.updateAthleteByFiscodeStmt,
-		updateCompetitorByIDStmt:         q.updateCompetitorByIDStmt,
-		updateRaceCCByIDStmt:             q.updateRaceCCByIDStmt,
-		updateRaceJPByIDStmt:             q.updateRaceJPByIDStmt,
-		updateRaceNKByIDStmt:             q.updateRaceNKByIDStmt,
-		updateResultCCByRecIDStmt:        q.updateResultCCByRecIDStmt,
-		updateResultJPByRecIDStmt:        q.updateResultJPByRecIDStmt,
-		updateResultNKByRecIDStmt:        q.updateResultNKByRecIDStmt,
+		db:                                   tx,
+		tx:                                   tx,
+		deleteAthleteByFiscodeStmt:           q.deleteAthleteByFiscodeStmt,
+		deleteCompetitorByIDStmt:             q.deleteCompetitorByIDStmt,
+		deleteRaceCCByIDStmt:                 q.deleteRaceCCByIDStmt,
+		deleteRaceJPByIDStmt:                 q.deleteRaceJPByIDStmt,
+		deleteRaceNKByIDStmt:                 q.deleteRaceNKByIDStmt,
+		deleteResultCCByRecIDStmt:            q.deleteResultCCByRecIDStmt,
+		deleteResultJPByRecIDStmt:            q.deleteResultJPByRecIDStmt,
+		deleteResultNKByRecIDStmt:            q.deleteResultNKByRecIDStmt,
+		getAthleteResultsCCStmt:              q.getAthleteResultsCCStmt,
+		getAthleteResultsJPStmt:              q.getAthleteResultsJPStmt,
+		getAthleteResultsNKStmt:              q.getAthleteResultsNKStmt,
+		getAthletesBySectorStmt:              q.getAthletesBySectorStmt,
+		getAthletesBySporttiIDStmt:           q.getAthletesBySporttiIDStmt,
+		getCompetitorCountsByNationStmt:      q.getCompetitorCountsByNationStmt,
+		getCompetitorIDByFiscodeCCStmt:       q.getCompetitorIDByFiscodeCCStmt,
+		getCompetitorIDByFiscodeJPStmt:       q.getCompetitorIDByFiscodeJPStmt,
+		getCompetitorIDByFiscodeNKStmt:       q.getCompetitorIDByFiscodeNKStmt,
+		getCrossCountryCategoriesStmt:        q.getCrossCountryCategoriesStmt,
+		getCrossCountryDisciplinesStmt:       q.getCrossCountryDisciplinesStmt,
+		getCrossCountrySeasonsStmt:           q.getCrossCountrySeasonsStmt,
+		getLastRowCompetitorStmt:             q.getLastRowCompetitorStmt,
+		getLastRowRaceCCStmt:                 q.getLastRowRaceCCStmt,
+		getLastRowRaceJPStmt:                 q.getLastRowRaceJPStmt,
+		getLastRowRaceNKStmt:                 q.getLastRowRaceNKStmt,
+		getLastRowResultCCStmt:               q.getLastRowResultCCStmt,
+		getLastRowResultJPStmt:               q.getLastRowResultJPStmt,
+		getLastRowResultNKStmt:               q.getLastRowResultNKStmt,
+		getLatestResultsCCStmt:               q.getLatestResultsCCStmt,
+		getLatestResultsJPStmt:               q.getLatestResultsJPStmt,
+		getLatestResultsNKStmt:               q.getLatestResultsNKStmt,
+		getNationsBySectorStmt:               q.getNationsBySectorStmt,
+		getNordicCombinedCategoriesStmt:      q.getNordicCombinedCategoriesStmt,
+		getNordicCombinedDisciplinesStmt:     q.getNordicCombinedDisciplinesStmt,
+		getNordicCombinedSeasonsStmt:         q.getNordicCombinedSeasonsStmt,
+		getRaceCountsByCategoryCCStmt:        q.getRaceCountsByCategoryCCStmt,
+		getRaceCountsByCategoryJPStmt:        q.getRaceCountsByCategoryJPStmt,
+		getRaceCountsByCategoryNKStmt:        q.getRaceCountsByCategoryNKStmt,
+		getRaceCountsByNationCCStmt:          q.getRaceCountsByNationCCStmt,
+		getRaceCountsByNationJPStmt:          q.getRaceCountsByNationJPStmt,
+		getRaceCountsByNationNKStmt:          q.getRaceCountsByNationNKStmt,
+		getRaceResultsCCByRaceIDStmt:         q.getRaceResultsCCByRaceIDStmt,
+		getRaceResultsJPByRaceIDStmt:         q.getRaceResultsJPByRaceIDStmt,
+		getRaceResultsNKByRaceIDStmt:         q.getRaceResultsNKByRaceIDStmt,
+		getRaceTotalCCStmt:                   q.getRaceTotalCCStmt,
+		getRaceTotalJPStmt:                   q.getRaceTotalJPStmt,
+		getRaceTotalNKStmt:                   q.getRaceTotalNKStmt,
+		getRacesByIDsCCStmt:                  q.getRacesByIDsCCStmt,
+		getRacesByIDsJPStmt:                  q.getRacesByIDsJPStmt,
+		getRacesByIDsNKStmt:                  q.getRacesByIDsNKStmt,
+		getRacesCCStmt:                       q.getRacesCCStmt,
+		getRacesJPStmt:                       q.getRacesJPStmt,
+		getRacesNKStmt:                       q.getRacesNKStmt,
+		getSeasonsCatcodesCCByCompetitorStmt: q.getSeasonsCatcodesCCByCompetitorStmt,
+		getSeasonsCatcodesJPByCompetitorStmt: q.getSeasonsCatcodesJPByCompetitorStmt,
+		getSeasonsCatcodesNKByCompetitorStmt: q.getSeasonsCatcodesNKByCompetitorStmt,
+		getSkiJumpingCategoriesStmt:          q.getSkiJumpingCategoriesStmt,
+		getSkiJumpingDisciplinesStmt:         q.getSkiJumpingDisciplinesStmt,
+		getSkiJumpingSeasonsStmt:             q.getSkiJumpingSeasonsStmt,
+		insertAthleteStmt:                    q.insertAthleteStmt,
+		insertCompetitorStmt:                 q.insertCompetitorStmt,
+		insertRaceCCStmt:                     q.insertRaceCCStmt,
+		insertRaceJPStmt:                     q.insertRaceJPStmt,
+		insertRaceNKStmt:                     q.insertRaceNKStmt,
+		insertResultCCStmt:                   q.insertResultCCStmt,
+		insertResultJPStmt:                   q.insertResultJPStmt,
+		insertResultNKStmt:                   q.insertResultNKStmt,
+		searchCompetitorsStmt:                q.searchCompetitorsStmt,
+		searchRacesCCStmt:                    q.searchRacesCCStmt,
+		searchRacesJPStmt:                    q.searchRacesJPStmt,
+		searchRacesNKStmt:                    q.searchRacesNKStmt,
+		updateAthleteByFiscodeStmt:           q.updateAthleteByFiscodeStmt,
+		updateCompetitorByIDStmt:             q.updateCompetitorByIDStmt,
+		updateRaceCCByIDStmt:                 q.updateRaceCCByIDStmt,
+		updateRaceJPByIDStmt:                 q.updateRaceJPByIDStmt,
+		updateRaceNKByIDStmt:                 q.updateRaceNKByIDStmt,
+		updateResultCCByRecIDStmt:            q.updateResultCCByRecIDStmt,
+		updateResultJPByRecIDStmt:            q.updateResultJPByRecIDStmt,
+		updateResultNKByRecIDStmt:            q.updateResultNKByRecIDStmt,
 	}
 }

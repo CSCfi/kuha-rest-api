@@ -1576,3 +1576,19 @@ type FISUpdateAthleteExample struct {
 	Firstname *string `json:"firstname,omitempty" example:"Iivo"`
 	Lastname  *string `json:"lastname,omitempty" example:"Niskanen"`
 }
+
+type FISRacesSearchItem struct {
+	Sectorcode     string  `json:"sectorcode" example:"CC"`
+	Gender         *string `json:"gender,omitempty" example:"M"`
+	Raceid         int32   `json:"raceid" example:"123456"`
+	Racedate       *string `json:"racedate,omitempty" example:"2025-02-15"`
+	Catcode        *string `json:"catcode,omitempty" example:"WC"`
+	Description    *string `json:"description,omitempty" example:"World Cup Sprint"`
+	Place          *string `json:"place,omitempty" example:"Lahti"`
+	Nationcode     *string `json:"nationcode,omitempty" example:"FIN"`
+	Disciplinecode *string `json:"disciplinecode,omitempty" example:"DSPR"`
+}
+
+type FISRacesSearchResponse struct {
+	Races []FISRacesSearchItem `json:"races"`
+}

@@ -47,6 +47,7 @@ type Racecc interface {
 	InsertRaceCC(ctx context.Context, in InsertRaceCCClean) error
 	UpdateRaceCCByID(ctx context.Context, in UpdateRaceCCClean) error
 	DeleteRaceCCByID(ctx context.Context, raceID int32) error
+	SearchRacesCC(ctx context.Context, seasoncode *int32, nationcode, gender, catcode *string) ([]fissqlc.SearchRacesCCRow, error)
 }
 
 // Racejp interface
@@ -59,6 +60,7 @@ type Racejp interface {
 	InsertRaceJP(ctx context.Context, in InsertRaceJPClean) error
 	UpdateRaceJPByID(ctx context.Context, in UpdateRaceJPClean) error
 	DeleteRaceJPByID(ctx context.Context, raceID int32) error
+	SearchRacesJP(ctx context.Context, seasoncode *int32, nationcode, gender, catcode *string) ([]fissqlc.SearchRacesJPRow, error)
 }
 
 // Racenk interface
@@ -71,6 +73,7 @@ type Racenk interface {
 	InsertRaceNK(ctx context.Context, in InsertRaceNKClean) error
 	UpdateRaceNKByID(ctx context.Context, in UpdateRaceNKClean) error
 	DeleteRaceNKByID(ctx context.Context, raceID int32) error
+	SearchRacesNK(ctx context.Context, seasoncode *int32, nationcode, gender, catcode *string) ([]fissqlc.SearchRacesNKRow, error)
 }
 
 // Competitors interface

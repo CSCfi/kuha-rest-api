@@ -2839,6 +2839,100 @@
                 }
             }
         },
+        "/fis/races/search": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Gets all Races with optional filters (Nationcode, Seasoncode, Gender, Catcode) for each selected sector (NK, CC, JP). If sector is omitted, all sectors are used.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FIS - KAMK"
+                ],
+                "summary": "Search races across sectors",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Sector code (CC,JP,NK – repeat or comma-separated; if omitted, all sectors are used)",
+                        "name": "sector",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Season code",
+                        "name": "seasoncode",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Nation code (e.g. FIN)",
+                        "name": "nationcode",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gender (M/W)",
+                        "name": "gender",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Category code (e.g. WC)",
+                        "name": "catcode",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.FISRacesSearchResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/fis/resultathletecc": {
             "get": {
                 "security": [
@@ -14011,6 +14105,58 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/swagger.FISRaceNK"
+                    }
+                }
+            }
+        },
+        "swagger.FISRacesSearchItem": {
+            "type": "object",
+            "properties": {
+                "catcode": {
+                    "type": "string",
+                    "example": "WC"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "World Cup Sprint"
+                },
+                "disciplinecode": {
+                    "type": "string",
+                    "example": "DSPR"
+                },
+                "gender": {
+                    "type": "string",
+                    "example": "M"
+                },
+                "nationcode": {
+                    "type": "string",
+                    "example": "FIN"
+                },
+                "place": {
+                    "type": "string",
+                    "example": "Lahti"
+                },
+                "racedate": {
+                    "type": "string",
+                    "example": "2025-02-15"
+                },
+                "raceid": {
+                    "type": "integer",
+                    "example": 123456
+                },
+                "sectorcode": {
+                    "type": "string",
+                    "example": "CC"
+                }
+            }
+        },
+        "swagger.FISRacesSearchResponse": {
+            "type": "object",
+            "properties": {
+                "races": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.FISRacesSearchItem"
                     }
                 }
             }

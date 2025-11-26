@@ -115,3 +115,36 @@ func (s *RaceCCStore) DeleteRaceCCByID(ctx context.Context, raceID int32) error 
 	_, err := q.DeleteRaceCCByID(ctx, raceID)
 	return err
 }
+
+func (s *RaceCCStore) SearchRacesCC(
+	ctx context.Context,
+	seasoncode *int32,
+	nationcode, gender, catcode *string,
+) ([]fissqlc.SearchRacesCCRow, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	q := fissqlc.New(s.db)
+
+	params := fissqlc.SearchRacesCCParams{
+		Column1: 0,
+		Column2: "",
+		Column3: "",
+		Column4: "",
+	}
+
+	if seasoncode != nil {
+		params.Column1 = *seasoncode
+	}
+	if nationcode != nil {
+		params.Column2 = *nationcode
+	}
+	if gender != nil {
+		params.Column3 = *gender
+	}
+	if catcode != nil {
+		params.Column4 = *catcode
+	}
+
+	return q.SearchRacesCC(ctx, params)
+}

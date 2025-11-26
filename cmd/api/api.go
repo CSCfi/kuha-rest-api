@@ -289,6 +289,10 @@ func (app *api) mount() http.Handler {
 					resultJPHandler := fisapi.NewResultJPHandler(app.store.FIS.ResultJP(), app.store.FIS.Competitors(), app.cacheStorage)
 					resultNKHandler := fisapi.NewResultNKHandler(app.store.FIS.ResultNK(), app.store.FIS.Competitors(), app.cacheStorage)
 					athleteHandler := fisapi.NewAthleteHandler(app.store.FIS.Athlete(), app.cacheStorage)
+					kamkRacesHandler := fisapi.NewRaceSearchHandler(app.store.FIS.RaceCC(), app.store.FIS.RaceJP(), app.store.FIS.RaceNK(), app.cacheStorage)
+
+					// kamk endpoints
+					r.Get("/races/search", kamkRacesHandler.SearchRaces)
 
 					// athlete routes
 					r.Get("/fiscode", athleteHandler.GetAthletesBySporttiID)

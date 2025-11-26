@@ -2735,6 +2735,43 @@ definitions:
           $ref: '#/definitions/swagger.FISRaceNK'
         type: array
     type: object
+  swagger.FISRacesSearchItem:
+    properties:
+      catcode:
+        example: WC
+        type: string
+      description:
+        example: World Cup Sprint
+        type: string
+      disciplinecode:
+        example: DSPR
+        type: string
+      gender:
+        example: M
+        type: string
+      nationcode:
+        example: FIN
+        type: string
+      place:
+        example: Lahti
+        type: string
+      racedate:
+        example: "2025-02-15"
+        type: string
+      raceid:
+        example: 123456
+        type: integer
+      sectorcode:
+        example: CC
+        type: string
+    type: object
+  swagger.FISRacesSearchResponse:
+    properties:
+      races:
+        items:
+          $ref: '#/definitions/swagger.FISRacesSearchItem'
+        type: array
+    type: object
   swagger.FISResultCC:
     properties:
       bib:
@@ -9239,6 +9276,70 @@ paths:
       summary: Update Nordic Combined race by ID
       tags:
       - FIS - Race Management – Nordic Combined
+  /fis/races/search:
+    get:
+      consumes:
+      - application/json
+      description: Gets all Races with optional filters (Nationcode, Seasoncode, Gender,
+        Catcode) for each selected sector (NK, CC, JP). If sector is omitted, all
+        sectors are used.
+      parameters:
+      - collectionFormat: csv
+        description: Sector code (CC,JP,NK – repeat or comma-separated; if omitted,
+          all sectors are used)
+        in: query
+        items:
+          type: string
+        name: sector
+        type: array
+      - description: Season code
+        in: query
+        name: seasoncode
+        type: integer
+      - description: Nation code (e.g. FIN)
+        in: query
+        name: nationcode
+        type: string
+      - description: Gender (M/W)
+        in: query
+        name: gender
+        type: string
+      - description: Category code (e.g. WC)
+        in: query
+        name: catcode
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.FISRacesSearchResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Search races across sectors
+      tags:
+      - FIS - KAMK
   /fis/resultathletecc:
     get:
       consumes:

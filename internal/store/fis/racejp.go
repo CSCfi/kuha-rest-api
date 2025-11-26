@@ -115,3 +115,36 @@ func (s *RaceJPStore) DeleteRaceJPByID(ctx context.Context, raceID int32) error 
 	_, err := q.DeleteRaceJPByID(ctx, raceID)
 	return err
 }
+
+func (s *RaceJPStore) SearchRacesJP(
+	ctx context.Context,
+	seasoncode *int32,
+	nationcode, gender, catcode *string,
+) ([]fissqlc.SearchRacesJPRow, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	q := fissqlc.New(s.db)
+
+	params := fissqlc.SearchRacesJPParams{
+		Column1: 0,
+		Column2: "",
+		Column3: "",
+		Column4: "",
+	}
+
+	if seasoncode != nil {
+		params.Column1 = *seasoncode
+	}
+	if nationcode != nil {
+		params.Column2 = *nationcode
+	}
+	if gender != nil {
+		params.Column3 = *gender
+	}
+	if catcode != nil {
+		params.Column4 = *catcode
+	}
+
+	return q.SearchRacesJP(ctx, params)
+}

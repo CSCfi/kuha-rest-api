@@ -929,3 +929,309 @@ RETURNING fiscode;
 DELETE FROM public.athlete
 WHERE fiscode = $1
 RETURNING fiscode;
+
+-- name: SearchRacesCC :many
+SELECT
+  gender,
+  raceid,
+  racedate,
+  catcode,
+  description,
+  place,
+  nationcode,
+  disciplinecode,
+  'CC'::text AS sectorcode
+FROM a_racecc
+WHERE
+  ($1::int4 = 0 OR seasoncode = $1::int4)
+  AND ($2::text = '' OR nationcode = $2::text)
+  AND ($3::text = '' OR gender = $3::text)
+  AND ($4::text = '' OR catcode = $4::text)
+  AND calstatuscode = 'O'
+ORDER BY racedate;
+
+
+-- name: SearchRacesJP :many
+SELECT
+  gender,
+  raceid,
+  racedate,
+  catcode,
+  description,
+  place,
+  nationcode,
+  disciplinecode,
+  'JP'::text AS sectorcode
+FROM a_racejp
+WHERE
+  ($1::int4 = 0 OR seasoncode = $1::int4)
+  AND ($2::text = '' OR nationcode = $2::text)
+  AND ($3::text = '' OR gender = $3::text)
+  AND ($4::text = '' OR catcode = $4::text)
+  AND calstatuscode = 'O'
+ORDER BY racedate;
+
+
+-- name: SearchRacesNK :many
+SELECT
+  gender,
+  raceid,
+  racedate,
+  catcode,
+  description,
+  place,
+  nationcode,
+  disciplinecode,
+  'NK'::text AS sectorcode
+FROM a_racenk
+WHERE
+  ($1::int4 = 0 OR seasoncode = $1::int4)
+  AND ($2::text = '' OR nationcode = $2::text)
+  AND ($3::text = '' OR gender = $3::text)
+  AND ($4::text = '' OR catcode = $4::text)
+  AND calstatuscode = 'O'
+ORDER BY racedate;
+
+
+-- name: GetLatestResultsCC :many
+SELECT
+    rCC.RecID,
+    rCC.RaceID,
+    rCC.Position,
+    rCC.TimeTot,
+    rCC.CompetitorID,
+    aCC.RaceDate,
+    aCC.SeasonCode,
+    aCC.DisciplineCode,
+    aCC.CatCode,
+    aCC.Place,
+    aCC.NationCode
+FROM A_resultCC rCC
+JOIN A_raceCC   aCC ON rCC.RaceID = aCC.RaceID
+WHERE rCC.CompetitorID = $1
+  AND ($2::int    IS NULL OR aCC.SeasonCode     = $2)
+  AND ($3::text[] IS NULL OR aCC.CatCode        = ANY($3))
+ORDER BY aCC.RaceDate DESC
+LIMIT $4;
+
+-- name: GetLatestResultsJP :many
+SELECT 
+    rJP.RaceID,
+    rJP.Position,
+    aJP.RaceDate,
+    aJP.SeasonCode,
+    aJP.DisciplineCode,
+    aJP.CatCode,
+    aJP.Place,
+    aJP.NationCode,
+    rJP.PosR1,
+    rJP.SpeedR1,
+    rJP.DistR1,
+    rJP.JudPtsR1,
+    rJP.WindR1,
+    rJP.WindPtsR1,
+    rJP.GateR1,
+    rJP.PosR2,
+    rJP.SpeedR2,
+    rJP.DistR2,
+    rJP.JudPtsR2,
+    rJP.WindR2,
+    rJP.WindPtsR2,
+    rJP.GateR2,
+    rJP.TotRun1,
+    rJP.TotRun2
+FROM A_resultJP rJP
+JOIN A_raceJP   aJP ON rJP.RaceID = aJP.RaceID
+WHERE rJP.CompetitorID = $1
+  AND ($2::int    IS NULL OR aJP.SeasonCode     = $2)
+  AND ($3::text[] IS NULL OR aJP.CatCode        = ANY($3))
+ORDER BY aJP.RaceDate DESC
+LIMIT $4;
+
+-- name: GetLatestResultsNK :many
+SELECT 
+    rNK.RecID,
+    rNK.RaceID,
+    rNK.Position,
+    aNK.RaceDate,
+    aNK.SeasonCode,
+    aNK.Distance,
+    aNK.Hill,
+    aNK.DisciplineCode,
+    aNK.CatCode,
+    aNK.Place,
+    aNK.NationCode,
+    rNK.PosR1,
+    rNK.SpeedR1,
+    rNK.DistR1,
+    rNK.JudPtsR1,
+    rNK.WindR1,
+    rNK.WindPtsR1,
+    rNK.GateR1,
+    rNK.TotRun1,
+    rNK.PosCC,
+    rNK.TimeTot,
+    rNK.TimeTotInt,
+    rNK.PointsJump
+FROM A_resultNK rNK
+JOIN A_raceNK   aNK ON rNK.RaceID = aNK.RaceID
+WHERE rNK.CompetitorID = $1
+  AND ($2::int    IS NULL OR aNK.SeasonCode     = $2)
+  AND ($3::text[] IS NULL OR aNK.CatCode        = ANY($3))
+ORDER BY aNK.RaceDate DESC
+LIMIT $4;
+
+-- name: SearchCompetitors :many
+SELECT *
+FROM A_competitor
+WHERE ($1::text IS NULL OR nationcode = $1)
+  AND ($2::text IS NULL OR sectorcode = $2)
+  AND ($3::text IS NULL OR gender     = $3)
+  AND ($4::date IS NULL OR birthdate >= $4)
+  AND ($5::date IS NULL OR birthdate <= $5)
+ORDER BY competitorid
+LIMIT $6 OFFSET $7;
+
+-- name: GetRacesByIDsCC :many
+SELECT *
+FROM A_raceCC
+WHERE raceid = ANY($1::int[])
+ORDER BY raceid;
+
+-- name: GetRacesByIDsJP :many
+SELECT *
+FROM A_raceJP
+WHERE raceid = ANY($1::int[])
+ORDER BY raceid;
+
+-- name: GetRacesByIDsNK :many
+SELECT *
+FROM A_raceNK
+WHERE raceid = ANY($1::int[])
+ORDER BY raceid;
+
+-- name: GetSeasonsCatcodesCCByCompetitor :many
+SELECT DISTINCT
+    aCC.SeasonCode,
+    aCC.CatCode
+FROM A_raceCC   aCC
+JOIN A_resultCC rCC ON aCC.RaceID = rCC.RaceID
+WHERE rCC.CompetitorID = $1
+ORDER BY aCC.SeasonCode DESC, aCC.CatCode ASC;
+
+-- name: GetSeasonsCatcodesJPByCompetitor :many
+SELECT DISTINCT
+    aJP.SeasonCode,
+    aJP.CatCode
+FROM A_raceJP   aJP
+JOIN A_resultJP rJP ON aJP.RaceID = rJP.RaceID
+WHERE rJP.CompetitorID = $1
+ORDER BY aJP.SeasonCode DESC, aJP.CatCode ASC;
+
+-- name: GetSeasonsCatcodesNKByCompetitor :many
+SELECT DISTINCT
+    aNK.SeasonCode,
+    aNK.CatCode
+FROM A_raceNK   aNK
+JOIN A_resultNK rNK ON aNK.RaceID = rNK.RaceID
+WHERE rNK.CompetitorID = $1
+ORDER BY aNK.SeasonCode DESC, aNK.CatCode ASC;
+
+-- name: GetRaceCountsByCategoryCC :many
+SELECT
+  catcode,
+  COUNT(*) AS total
+FROM A_raceCC
+WHERE seasoncode = $1
+  AND ($2::text IS NULL OR nationcode = $2)
+  AND ($3::text IS NULL OR gender     = $3)
+GROUP BY catcode
+ORDER BY total DESC;
+
+-- name: GetRaceCountsByCategoryJP :many
+SELECT
+  catcode,
+  COUNT(*) AS total
+FROM A_raceJP
+WHERE seasoncode = $1
+  AND ($2::text IS NULL OR nationcode = $2)
+  AND ($3::text IS NULL OR gender     = $3)
+GROUP BY catcode
+ORDER BY total DESC;
+
+-- name: GetRaceCountsByCategoryNK :many
+SELECT
+  catcode,
+  COUNT(*) AS total
+FROM A_raceNK
+WHERE seasoncode = $1
+  AND ($2::text IS NULL OR nationcode = $2)
+  AND ($3::text IS NULL OR gender     = $3)
+GROUP BY catcode
+ORDER BY total DESC;
+
+-- name: GetRaceTotalCC :one
+SELECT COUNT(*) AS total
+FROM A_raceCC
+WHERE seasoncode = $1
+  AND ($2::text IS NULL OR catcode = $2)
+  AND ($3::text IS NULL OR gender  = $3);
+
+-- name: GetRaceTotalJP :one
+SELECT COUNT(*) AS total
+FROM A_raceJP
+WHERE seasoncode = $1
+  AND ($2::text IS NULL OR catcode = $2)
+  AND ($3::text IS NULL OR gender  = $3);
+
+-- name: GetRaceTotalNK :one
+SELECT COUNT(*) AS total
+FROM A_raceNK
+WHERE seasoncode = $1
+  AND ($2::text IS NULL OR catcode = $2)
+  AND ($3::text IS NULL OR gender  = $3);
+
+-- name: GetCompetitorCountsByNation :many
+SELECT
+  nationcode,
+  COUNT(*) AS competitors
+FROM A_competitor
+WHERE ($1::text IS NULL OR sectorcode = $1)
+  AND ($2::text IS NULL OR gender     = $2)
+  AND ($3::date IS NULL OR birthdate >= $3)
+  AND ($4::date IS NULL OR birthdate <= $4)
+GROUP BY nationcode
+ORDER BY competitors DESC;
+
+-- name: GetRaceCountsByNationCC :many
+SELECT
+  nationcode,
+  COUNT(*) AS total
+FROM A_raceCC
+WHERE seasoncode = $1
+  AND ($2::text IS NULL OR catcode = $2)
+  AND ($3::text IS NULL OR gender  = $3)
+GROUP BY nationcode
+ORDER BY total DESC;
+
+-- name: GetRaceCountsByNationJP :many
+SELECT
+  nationcode,
+  COUNT(*) AS total
+FROM A_raceJP
+WHERE seasoncode = $1
+  AND ($2::text IS NULL OR catcode = $2)
+  AND ($3::text IS NULL OR gender  = $3)
+GROUP BY nationcode
+ORDER BY total DESC;
+
+-- name: GetRaceCountsByNationNK :many
+SELECT
+  nationcode,
+  COUNT(*) AS total
+FROM A_raceNK
+WHERE seasoncode = $1
+  AND ($2::text IS NULL OR catcode = $2)
+  AND ($3::text IS NULL OR gender  = $3)
+GROUP BY nationcode
+ORDER BY total DESC;
