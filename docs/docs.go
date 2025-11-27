@@ -1205,6 +1205,90 @@ const docTemplate = `{
                 }
             }
         },
+        "/fis/competitor/count-by-nation": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Gets counts of competitors grouped by Nationcode.\nOptional filters: sectorcode, gender, age range (agemin/agemax, in years).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FIS - KAMK"
+                ],
+                "summary": "Get competitor counts by nation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Sector code filter (CC,JP,NK)",
+                        "name": "sectorcode",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gender filter (M/W)",
+                        "name": "gender",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Minimum age in years",
+                        "name": "agemin",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Maximum age in years",
+                        "name": "agemax",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.FISCompetitorNationCountsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/fis/competitor/latest-results": {
             "get": {
                 "security": [
@@ -11921,6 +12005,46 @@ const docTemplate = `{
                 "version": {
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "swagger.FISCompetitorNationCountItem": {
+            "type": "object",
+            "properties": {
+                "competitors": {
+                    "type": "integer",
+                    "example": 123
+                },
+                "nationcode": {
+                    "type": "string",
+                    "example": "FIN"
+                }
+            }
+        },
+        "swagger.FISCompetitorNationCountsResponse": {
+            "type": "object",
+            "properties": {
+                "agemax": {
+                    "type": "integer",
+                    "example": 35
+                },
+                "agemin": {
+                    "type": "integer",
+                    "example": 18
+                },
+                "gender": {
+                    "type": "string",
+                    "example": "M"
+                },
+                "nations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.FISCompetitorNationCountItem"
+                    }
+                },
+                "sectorcode": {
+                    "type": "string",
+                    "example": "CC"
                 }
             }
         },

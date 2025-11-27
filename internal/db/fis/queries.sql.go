@@ -503,11 +503,11 @@ const getCompetitorCountsByNation = `-- name: GetCompetitorCountsByNation :many
 SELECT
   nationcode,
   COUNT(*) AS competitors
-FROM A_competitor
-WHERE ($1::text IS NULL OR sectorcode = $1)
-  AND ($2::text IS NULL OR gender     = $2)
-  AND ($3::date IS NULL OR birthdate >= $3)
-  AND ($4::date IS NULL OR birthdate <= $4)
+FROM a_competitor
+WHERE ($1::text = ''          OR sectorcode = $1::text)
+  AND ($2::text = ''          OR gender     = $2::text)
+  AND ($3::date = '0001-01-01' OR birthdate >= $3::date)
+  AND ($4::date = '0001-01-01' OR birthdate <= $4::date)
 GROUP BY nationcode
 ORDER BY competitors DESC
 `

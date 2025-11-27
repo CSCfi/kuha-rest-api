@@ -145,3 +145,36 @@ func (s *CompetitorsStore) SearchCompetitors(
 
 	return q.SearchCompetitors(ctx, params)
 }
+
+func (s *CompetitorsStore) GetCompetitorCountsByNation(
+	ctx context.Context,
+	sectorcode, gender *string,
+	birthdateMin, birthdateMax *time.Time,
+) ([]fissqlc.GetCompetitorCountsByNationRow, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	q := fissqlc.New(s.db)
+
+	params := fissqlc.GetCompetitorCountsByNationParams{
+		Column1: "",          // sectorcode
+		Column2: "",          // gender
+		Column3: time.Time{}, // birthdate_min
+		Column4: time.Time{}, // birthdate_max
+	}
+
+	if sectorcode != nil {
+		params.Column1 = *sectorcode
+	}
+	if gender != nil {
+		params.Column2 = *gender
+	}
+	if birthdateMin != nil {
+		params.Column3 = *birthdateMin
+	}
+	if birthdateMax != nil {
+		params.Column4 = *birthdateMax
+	}
+
+	return q.GetCompetitorCountsByNation(ctx, params)
+}

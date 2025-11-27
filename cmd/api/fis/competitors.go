@@ -460,3 +460,133 @@ func (h *CompetitorHandler) SearchCompetitors(w http.ResponseWriter, r *http.Req
 
 	utils.WriteJSON(w, http.StatusOK, body)
 }
+
+// used only in this handler's response
+type competitorNationCountItem struct {
+	Nationcode  string `json:"nationcode" example:"FIN"`
+	Competitors int64  `json:"competitors" example:"123"`
+}
+
+// GetCompetitorCountsByNation godoc
+//
+//	@Summary		Get competitor counts by nation
+//	@Description	Gets counts of competitors grouped by Nationcode.
+//	@Description	Optional filters: sectorcode, gender, age range (agemin/agemax, in years).
+//	@Tags			FIS - KAMK
+//	@Accept			json
+//	@Produce		json
+//	@Param			sectorcode	query		string	false	"Sector code filter (CC,JP,NK)"
+//	@Param			gender		query		string	false	"Gender filter (M/W)"
+//	@Param			agemin		query		int		false	"Minimum age in years"
+//	@Param			agemax		query		int		false	"Maximum age in years"
+//	@Success		200			{object}	swagger.FISCompetitorNationCountsResponse
+//	@Failure		400			{object}	swagger.ValidationErrorResponse
+//	@Failure		401			{object}	swagger.UnauthorizedResponse
+//	@Failure		403			{object}	swagger.ForbiddenResponse
+//	@Failure		500			{object}	swagger.InternalServerErrorResponse
+//	@Failure		503			{object}	swagger.ServiceUnavailableResponse
+//	@Security		BearerAuth
+//	@Router			/fis/competitor/count-by-nation [get]
+func (h *CompetitorHandler) GetCompetitorCountsByNation(w http.ResponseWriter, r *http.Request) {
+	if !authz.Authorize(r) {
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
+		return
+	}
+
+	if err := utils.ValidateParams(r, []string{
+		"sectorcode",
+		"gender",
+		"agemin",
+		"agemax",
+	}); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	q := r.URL.Query()
+
+	var sectorPtr *string
+	if sv := strings.TrimSpace(q.Get("sectorcode")); sv != "" {
+		sv = strings.ToUpper(sv)
+		sectorPtr = &sv
+	}
+
+	var genderPtr *string
+	if gv := strings.TrimSpace(q.Get("gender")); gv != "" {
+		gv = strings.ToUpper(gv)
+		genderPtr = &gv
+	}
+
+	var ageminPtr, agemaxPtr *int32
+
+	if am := strings.TrimSpace(q.Get("agemin")); am != "" {
+		v, err := utils.ParsePositiveInt32(am)
+		if err != nil {
+			utils.BadRequestResponse(w, r, fmt.Errorf("invalid agemin: %s", am))
+			return
+		}
+		ageminPtr = &v
+	}
+
+	if ax := strings.TrimSpace(q.Get("agemax")); ax != "" {
+		v, err := utils.ParsePositiveInt32(ax)
+		if err != nil {
+			utils.BadRequestResponse(w, r, fmt.Errorf("invalid agemax: %s", ax))
+			return
+		}
+		agemaxPtr = &v
+	}
+
+	if ageminPtr != nil && agemaxPtr != nil && *ageminPtr > *agemaxPtr {
+		utils.BadRequestResponse(w, r, fmt.Errorf("agemin cannot be greater than agemax"))
+		return
+	}
+
+	var birthMinPtr, birthMaxPtr *time.Time
+	if ageminPtr != nil || agemaxPtr != nil {
+		today := time.Now().UTC()
+
+		if agemaxPtr != nil {
+			d := today.AddDate(-int(*agemaxPtr), 0, 0)
+			birthMinPtr = &d
+		}
+
+		if ageminPtr != nil {
+			d := today.AddDate(-int(*ageminPtr), 0, 0)
+			birthMaxPtr = &d
+		}
+	}
+
+	rows, err := h.store.GetCompetitorCountsByNation(
+		r.Context(),
+		sectorPtr,
+		genderPtr,
+		birthMinPtr,
+		birthMaxPtr,
+	)
+	if err != nil {
+		utils.InternalServerError(w, r, err)
+		return
+	}
+
+	items := make([]competitorNationCountItem, 0, len(rows))
+	for _, row := range rows {
+		if !row.Nationcode.Valid || strings.TrimSpace(row.Nationcode.String) == "" {
+			continue
+		}
+		items = append(items, competitorNationCountItem{
+			Nationcode:  strings.TrimSpace(row.Nationcode.String),
+			Competitors: row.Competitors,
+		})
+	}
+
+	body := map[string]any{
+		"sectorcode": sectorPtr,
+		"gender":     genderPtr,
+		"agemin":     ageminPtr,
+		"agemax":     agemaxPtr,
+		"nations":    items,
+	}
+
+	utils.WriteJSON(w, http.StatusOK, body)
+}

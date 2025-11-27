@@ -1842,3 +1842,16 @@ type FISCompetitorFull struct {
 type FISCompetitorSearchResponse struct {
 	Competitor FISCompetitorFull `json:"competitors"`
 }
+
+type FISCompetitorNationCountItem struct {
+	Nationcode  string `json:"nationcode" example:"FIN"`
+	Competitors int64  `json:"competitors" example:"123"`
+}
+
+type FISCompetitorNationCountsResponse struct {
+	Sectorcode *string                        `json:"sectorcode,omitempty" example:"CC"`
+	Gender     *string                        `json:"gender,omitempty" example:"M"`
+	Agemin     *int32                         `json:"agemin,omitempty" example:"18"`
+	Agemax     *int32                         `json:"agemax,omitempty" example:"35"`
+	Nations    []FISCompetitorNationCountItem `json:"nations"`
+}

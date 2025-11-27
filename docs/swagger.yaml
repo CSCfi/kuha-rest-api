@@ -727,6 +727,34 @@ definitions:
         example: 1
         type: integer
     type: object
+  swagger.FISCompetitorNationCountItem:
+    properties:
+      competitors:
+        example: 123
+        type: integer
+      nationcode:
+        example: FIN
+        type: string
+    type: object
+  swagger.FISCompetitorNationCountsResponse:
+    properties:
+      agemax:
+        example: 35
+        type: integer
+      agemin:
+        example: 18
+        type: integer
+      gender:
+        example: M
+        type: string
+      nations:
+        items:
+          $ref: '#/definitions/swagger.FISCompetitorNationCountItem'
+        type: array
+      sectorcode:
+        example: CC
+        type: string
+    type: object
   swagger.FISCompetitorSearchResponse:
     properties:
       competitors:
@@ -8773,6 +8801,62 @@ paths:
       summary: Update competitor by ID
       tags:
       - FIS - Competitor Management
+  /fis/competitor/count-by-nation:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Gets counts of competitors grouped by Nationcode.
+        Optional filters: sectorcode, gender, age range (agemin/agemax, in years).
+      parameters:
+      - description: Sector code filter (CC,JP,NK)
+        in: query
+        name: sectorcode
+        type: string
+      - description: Gender filter (M/W)
+        in: query
+        name: gender
+        type: string
+      - description: Minimum age in years
+        in: query
+        name: agemin
+        type: integer
+      - description: Maximum age in years
+        in: query
+        name: agemax
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.FISCompetitorNationCountsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Get competitor counts by nation
+      tags:
+      - FIS - KAMK
   /fis/competitor/latest-results:
     get:
       consumes:

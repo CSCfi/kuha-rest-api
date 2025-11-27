@@ -301,6 +301,7 @@ func (app *api) mount() http.Handler {
 					r.Get("/competitor/seasons-catcodes", kamkResultsHandler.GetCompetitorSeasonsCatcodes)
 					r.Get("/competitor/latest-results", kamkResultsHandler.GetCompetitorLatestResults)
 					r.Get("/competitor/search", competitorHandler.SearchCompetitors)
+					r.Get("/competitor/count-by-nation", competitorHandler.GetCompetitorCountsByNation)
 
 					// athlete routes
 					r.Get("/fiscode", athleteHandler.GetAthletesBySporttiID)
