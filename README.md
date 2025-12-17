@@ -1,28 +1,25 @@
-# KUHA-REST-API
+# KUHA REST API
 
-```
-// go version go1.23, 
+Centralized API for the [KUHA program](https://cemis.fi/kainuun-urheilun-ja-hyvinvoinnin-data-analytiikan-ohjelma-kuha-3) (sports and wellbeing data ecosystem). The service unifies data from multiple provider databases into a single access point.
 
-//env
-direnv allow .
+## Context
 
+- Program: KUHA (Kainuu Program for Sports and Well-being Data Analytics) in collaboration with CSC, University of Jyväskylä, KAMK, Finnish Olympic Committee, and others.
+- Mission: Collect, integrate, and expose sports and wellbeing data through one API to enable data-driven coaching, research, and visualizations.
+- Hosting: Provider databases are hosted in CSC infrastructure; this API brokers access and unifies schemas (“one API to rule them all”).
 
-//hot reload
-air
-```
+## Data domains supported
 
-```
-### Allowed Types
+- Competition data (FIS results, rankings, events)
+- Wearables and athlete monitoring (Garmin, Oura, Suunto, Polar via UTV)
+- Training diaries and questionnaires (e.g., Tietoevry 360, KAMK forms)
+- Performance testing (K-Lab, Coachtech/Vuokatti Sport test center)
+- Motion analytics (Archinisis)
+- Auth service for issuing access and refresh tokens
 
-| Type      | Use For                                                                 |
-|-----------|-------------------------------------------------------------------------|
-| `feat`    | A new feature                                                           |
-| `fix`     | A bug fix                                                               |
-| `chore`   | Build process, CI, tooling                                              |
-| `docs`    | Changes to documentation (README, comments)                             |
-| `test`    | Adding or modifying tests                                               |
-| `refactor`| Code refactoring without behavior change                                |
-| `style`   | Code style changes (whitespace, etc)                                    |
-| `perf`    | Performance improvements                                                |
-| `ci`      | Changes to GitHub Actions, CI/CD workflows                              |
-```
+## Project layout
+
+- `cmd/api`: HTTP server, routing, middleware, and handlers for each data domain/provider.
+- `cmd/migrate`: SQL migrations and seeding entrypoint.
+- `internal`: shared packages (DB connections, auth, caching, logging, rate limiting, stores).
+- `docs`: Swagger definitions and generated artifacts.
