@@ -1,38 +1,9 @@
 # Changelog
 
-## [1.2.1](https://github.com/DeRuina/KUHA-REST-API/compare/v1.2.0...v1.2.1) (2025-06-11)
-
-
-### Bug Fixes
-
-* update api version automatically fix ([addd09d](https://github.com/DeRuina/KUHA-REST-API/commit/addd09d58ab90d2a4a4306f532c8bdde36feb6f7))
-
-## [1.2.0](https://github.com/DeRuina/KUHA-REST-API/compare/v1.1.0...v1.2.0) (2025-06-11)
-
-
-### Features
-
-* garmin endpoints ([60bdcc5](https://github.com/DeRuina/KUHA-REST-API/commit/60bdcc542e4edf4381bcb3c9f697e4ec47d0d528))
-
-## [1.1.0](https://github.com/DeRuina/KUHA-REST-API/compare/v1.0.0...v1.1.0) (2025-05-28)
-
-
-### Features
-
-* update api version automatically ([0955bc5](https://github.com/DeRuina/KUHA-REST-API/commit/0955bc540cfbac14addf13ad6c3c7f252c0c9d16))
-
-## 1.0.0 (2025-05-28)
-
-
-### Features
-
-* relase please script ([a4cbb0b](https://github.com/DeRuina/KUHA-REST-API/commit/a4cbb0b9044f3d9bc51c1b4bffdcb03296de0c17))
-
-## 2025-05-28
+## 2025-12-17
 
 ### Changed
-- CI updated due to Ubuntu 20.04 retirement
-- Audit pipeline adjustments for CI
+- Make repo public
 
 ---
 
