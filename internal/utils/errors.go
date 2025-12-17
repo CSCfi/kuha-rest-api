@@ -332,7 +332,7 @@ func ServiceUnavailableDBResponse(w http.ResponseWriter, r *http.Request, dbName
 	})
 }
 
-// HandleDatabaseError analyzes database errors and returns appropriate HTTP responses - defualt 500 Internal Server Error
+// HandleDatabaseError analyzes database errors and returns appropriate HTTP responses - default 500 Internal Server Error
 func HandleDatabaseError(w http.ResponseWriter, r *http.Request, err error) {
 	// Check if it's a PostgreSQL error
 	if pqErr, ok := err.(*pq.Error); ok {
