@@ -1310,8 +1310,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Competitor ID",
-                        "name": "competitorid",
+                        "description": "FIS Code",
+                        "name": "fiscode",
                         "in": "query",
                         "required": true
                     },

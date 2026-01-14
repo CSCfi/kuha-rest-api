@@ -86,7 +86,7 @@ func (s *ResultCCStore) GetSeasonsCatcodesCCByCompetitor(
 
 func (s *ResultCCStore) GetLatestResultsCC(
 	ctx context.Context,
-	competitorID int32,
+	fiscode int32,
 	seasoncode *int32,
 	catcodes []string,
 	limit *int32,
@@ -97,7 +97,7 @@ func (s *ResultCCStore) GetLatestResultsCC(
 	q := fissqlc.New(s.db)
 
 	params := fissqlc.GetLatestResultsCCParams{
-		Column1: competitorID,
+		Column1: fiscode,
 		Column2: 0,
 		Column3: nil,
 		Column4: 50,

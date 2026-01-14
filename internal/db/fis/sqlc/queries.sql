@@ -1009,7 +1009,7 @@ SELECT
 FROM a_resultcc AS rcc
 JOIN a_racecc   AS acc
   ON rcc.raceid = acc.raceid
-WHERE rcc.competitorid = $1::int4
+WHERE rcc.fiscode = $1::int4
   AND ($2::int4 = 0 OR acc.seasoncode = $2::int4)
   AND ($3::text[] IS NULL OR acc.catcode = ANY($3::text[]))
 ORDER BY acc.racedate DESC
@@ -1045,7 +1045,7 @@ SELECT
 FROM a_resultjp AS rjp
 JOIN a_racejp   AS ajp
   ON rjp.raceid = ajp.raceid
-WHERE rjp.competitorid = $1::int4
+WHERE rjp.fiscode = $1::int4
   AND ($2::int4 = 0 OR ajp.seasoncode = $2::int4)
   AND ($3::text[] IS NULL OR ajp.catcode = ANY($3::text[]))
 ORDER BY ajp.racedate DESC
@@ -1080,7 +1080,7 @@ SELECT
 FROM a_resultnk AS rnk
 JOIN a_racenk   AS ank
   ON rnk.raceid = ank.raceid
-WHERE rnk.competitorid = $1::int4
+WHERE rnk.fiscode = $1::int4
   AND ($2::int4 = 0 OR ank.seasoncode = $2::int4)
   AND ($3::text[] IS NULL OR ank.catcode = ANY($3::text[]))
 ORDER BY ank.racedate DESC

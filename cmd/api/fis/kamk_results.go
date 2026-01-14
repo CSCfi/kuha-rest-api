@@ -186,17 +186,17 @@ func (h *ResultKAMKHandler) GetCompetitorSeasonsCatcodes(w http.ResponseWriter, 
 //	@Tags			FIS - KAMK
 //	@Accept			json
 //	@Produce		json
-//	@Param			competitorid	query		int32		true	"Competitor ID"
-//	@Param			sector			query		string		true	"Sector code (CC,JP,NK)"
-//	@Param			seasoncode		query		int32		false	"Season code filter"
-//	@Param			catcode			query		[]string	false	"Category code(s) – repeat or comma-separated (e.g. catcode=WC&catcode=COC or catcode=WC,COC)"
-//	@Param			limit			query		int32		false	"Maximum number of results to return (default 50)"
-//	@Success		200				{object}	swagger.FISLatestResultsResponse
-//	@Failure		400				{object}	swagger.ValidationErrorResponse
-//	@Failure		401				{object}	swagger.UnauthorizedResponse
-//	@Failure		403				{object}	swagger.ForbiddenResponse
-//	@Failure		500				{object}	swagger.InternalServerErrorResponse
-//	@Failure		503				{object}	swagger.ServiceUnavailableResponse
+//	@Param			fiscode		query		int32		true	"FIS Code"
+//	@Param			sector		query		string		true	"Sector code (CC,JP,NK)"
+//	@Param			seasoncode	query		int32		false	"Season code filter"
+//	@Param			catcode		query		[]string	false	"Category code(s) – repeat or comma-separated (e.g. catcode=WC&catcode=COC or catcode=WC,COC)"
+//	@Param			limit		query		int32		false	"Maximum number of results to return (default 50)"
+//	@Success		200			{object}	swagger.FISLatestResultsResponse
+//	@Failure		400			{object}	swagger.ValidationErrorResponse
+//	@Failure		401			{object}	swagger.UnauthorizedResponse
+//	@Failure		403			{object}	swagger.ForbiddenResponse
+//	@Failure		500			{object}	swagger.InternalServerErrorResponse
+//	@Failure		503			{object}	swagger.ServiceUnavailableResponse
 //	@Security		BearerAuth
 //	@Router			/fis/competitor/latest-results [get]
 func (h *ResultKAMKHandler) GetCompetitorLatestResults(w http.ResponseWriter, r *http.Request) {
@@ -206,20 +206,20 @@ func (h *ResultKAMKHandler) GetCompetitorLatestResults(w http.ResponseWriter, r 
 	}
 
 	if err := utils.ValidateParams(r, []string{
-		"competitorid", "sector", "seasoncode", "catcode", "limit",
+		"fiscode", "sector", "seasoncode", "catcode", "limit",
 	}); err != nil {
 		utils.BadRequestResponse(w, r, err)
 		return
 	}
 
-	rawComp := strings.TrimSpace(r.URL.Query().Get("competitorid"))
+	rawComp := strings.TrimSpace(r.URL.Query().Get("fiscode"))
 	if rawComp == "" {
-		utils.BadRequestResponse(w, r, fmt.Errorf("missing required query param: competitorid"))
+		utils.BadRequestResponse(w, r, fmt.Errorf("missing required query param: fiscode"))
 		return
 	}
-	competitorID, err := utils.ParsePositiveInt32(rawComp)
+	fiscode, err := utils.ParsePositiveInt32(rawComp)
 	if err != nil {
-		utils.BadRequestResponse(w, r, fmt.Errorf("invalid competitorid: %s", rawComp))
+		utils.BadRequestResponse(w, r, fmt.Errorf("invalid fiscode: %s", rawComp))
 		return
 	}
 
@@ -311,7 +311,7 @@ func (h *ResultKAMKHandler) GetCompetitorLatestResults(w http.ResponseWriter, r 
 			utils.InternalServerError(w, r, fmt.Errorf("resultCC store not configured"))
 			return
 		}
-		rows, err := h.resultCC.GetLatestResultsCC(r.Context(), competitorID, seasonPtr, catcodes, &limit)
+		rows, err := h.resultCC.GetLatestResultsCC(r.Context(), fiscode, seasonPtr, catcodes, &limit)
 		if err != nil {
 			utils.InternalServerError(w, r, err)
 			return
@@ -368,7 +368,7 @@ func (h *ResultKAMKHandler) GetCompetitorLatestResults(w http.ResponseWriter, r 
 			utils.InternalServerError(w, r, fmt.Errorf("resultJP store not configured"))
 			return
 		}
-		rows, err := h.resultJP.GetLatestResultsJP(r.Context(), competitorID, seasonPtr, catcodes, &limit)
+		rows, err := h.resultJP.GetLatestResultsJP(r.Context(), fiscode, seasonPtr, catcodes, &limit)
 		if err != nil {
 			utils.InternalServerError(w, r, err)
 			return
@@ -420,7 +420,7 @@ func (h *ResultKAMKHandler) GetCompetitorLatestResults(w http.ResponseWriter, r 
 			utils.InternalServerError(w, r, fmt.Errorf("resultNK store not configured"))
 			return
 		}
-		rows, err := h.resultNK.GetLatestResultsNK(r.Context(), competitorID, seasonPtr, catcodes, &limit)
+		rows, err := h.resultNK.GetLatestResultsNK(r.Context(), fiscode, seasonPtr, catcodes, &limit)
 		if err != nil {
 			utils.InternalServerError(w, r, err)
 			return
@@ -495,12 +495,12 @@ func (h *ResultKAMKHandler) GetCompetitorLatestResults(w http.ResponseWriter, r 
 	}
 
 	body := map[string]any{
-		"competitorid": competitorID,
-		"sector":       sector,
-		"seasoncode":   seasonPtr,
-		"catcodes":     catcodes,
-		"limit":        limit,
-		"results":      results,
+		"fiscode":    fiscode,
+		"sector":     sector,
+		"seasoncode": seasonPtr,
+		"catcodes":   catcodes,
+		"limit":      limit,
+		"results":    results,
 	}
 
 	utils.WriteJSON(w, http.StatusOK, body)

@@ -8864,9 +8864,9 @@ paths:
       description: Gets an athlete's latest race results filtered by sector and optional
         season and catcodes. Results are ordered by Racedate DESC.
       parameters:
-      - description: Competitor ID
+      - description: FIS Code
         in: query
-        name: competitorid
+        name: fiscode
         required: true
         type: integer
       - description: Sector code (CC,JP,NK)

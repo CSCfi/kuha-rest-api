@@ -86,7 +86,7 @@ func (s *ResultJPStore) GetSeasonsCatcodesJPByCompetitor(
 
 func (s *ResultJPStore) GetLatestResultsJP(
 	ctx context.Context,
-	competitorID int32,
+	fiscode int32,
 	seasoncode *int32,
 	catcodes []string,
 	limit *int32,
@@ -97,7 +97,7 @@ func (s *ResultJPStore) GetLatestResultsJP(
 	q := fissqlc.New(s.db)
 
 	params := fissqlc.GetLatestResultsJPParams{
-		Column1: competitorID,
+		Column1: fiscode,
 		Column2: 0,
 		Column3: nil,
 		Column4: 50,
