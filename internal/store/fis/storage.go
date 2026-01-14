@@ -108,6 +108,7 @@ type Competitors interface {
 	GetCompetitorIDByFiscodeNK(ctx context.Context, fiscode int32) (int32, error)
 	SearchCompetitors(ctx context.Context, nationcode, sectorcode, gender *string, birthdateMin, birthdateMax *time.Time) ([]fissqlc.ACompetitor, error)
 	GetCompetitorCountsByNation(ctx context.Context, sectorcode, gender *string, birthdateMin, birthdateMax *time.Time) ([]fissqlc.GetCompetitorCountsByNationRow, error)
+	GetSectorcodeByFiscode(ctx context.Context, fiscode int32) (string, error)
 }
 
 // Athlete interface

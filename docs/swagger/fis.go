@@ -1855,3 +1855,8 @@ type FISCompetitorNationCountsResponse struct {
 	Agemax     *int32                         `json:"agemax,omitempty" example:"35"`
 	Nations    []FISCompetitorNationCountItem `json:"nations"`
 }
+
+type FISSectorcodeByFiscodeResponse struct {
+	Fiscode    int32  `json:"fiscode" example:"342001"`
+	Sectorcode string `json:"sectorcode" example:"CC"`
+}

@@ -189,6 +189,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getSeasonsCatcodesNKByCompetitorStmt, err = db.PrepareContext(ctx, getSeasonsCatcodesNKByCompetitor); err != nil {
 		return nil, fmt.Errorf("error preparing query GetSeasonsCatcodesNKByCompetitor: %w", err)
 	}
+	if q.getSectorcodeByFiscodeStmt, err = db.PrepareContext(ctx, getSectorcodeByFiscode); err != nil {
+		return nil, fmt.Errorf("error preparing query GetSectorcodeByFiscode: %w", err)
+	}
 	if q.getSkiJumpingCategoriesStmt, err = db.PrepareContext(ctx, getSkiJumpingCategories); err != nil {
 		return nil, fmt.Errorf("error preparing query GetSkiJumpingCategories: %w", err)
 	}
@@ -538,6 +541,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getSeasonsCatcodesNKByCompetitorStmt: %w", cerr)
 		}
 	}
+	if q.getSectorcodeByFiscodeStmt != nil {
+		if cerr := q.getSectorcodeByFiscodeStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getSectorcodeByFiscodeStmt: %w", cerr)
+		}
+	}
 	if q.getSkiJumpingCategoriesStmt != nil {
 		if cerr := q.getSkiJumpingCategoriesStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getSkiJumpingCategoriesStmt: %w", cerr)
@@ -747,6 +755,7 @@ type Queries struct {
 	getSeasonsCatcodesCCByCompetitorStmt *sql.Stmt
 	getSeasonsCatcodesJPByCompetitorStmt *sql.Stmt
 	getSeasonsCatcodesNKByCompetitorStmt *sql.Stmt
+	getSectorcodeByFiscodeStmt           *sql.Stmt
 	getSkiJumpingCategoriesStmt          *sql.Stmt
 	getSkiJumpingDisciplinesStmt         *sql.Stmt
 	getSkiJumpingSeasonsStmt             *sql.Stmt
@@ -831,6 +840,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getSeasonsCatcodesCCByCompetitorStmt: q.getSeasonsCatcodesCCByCompetitorStmt,
 		getSeasonsCatcodesJPByCompetitorStmt: q.getSeasonsCatcodesJPByCompetitorStmt,
 		getSeasonsCatcodesNKByCompetitorStmt: q.getSeasonsCatcodesNKByCompetitorStmt,
+		getSectorcodeByFiscodeStmt:           q.getSectorcodeByFiscodeStmt,
 		getSkiJumpingCategoriesStmt:          q.getSkiJumpingCategoriesStmt,
 		getSkiJumpingDisciplinesStmt:         q.getSkiJumpingDisciplinesStmt,
 		getSkiJumpingSeasonsStmt:             q.getSkiJumpingSeasonsStmt,

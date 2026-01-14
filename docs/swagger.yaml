@@ -3888,6 +3888,15 @@ definitions:
           type: integer
         type: array
     type: object
+  swagger.FISSectorcodeByFiscodeResponse:
+    properties:
+      fiscode:
+        example: 342001
+        type: integer
+      sectorcode:
+        example: CC
+        type: string
+    type: object
   swagger.FISUpdateAthleteExample:
     properties:
       firstname:
@@ -9032,6 +9041,49 @@ paths:
       security:
       - BearerAuth: []
       summary: Get competitor seasons and categories
+      tags:
+      - FIS - KAMK
+  /fis/competitor/sectorcode:
+    get:
+      consumes:
+      - application/json
+      description: Returns the sectorcode for a competitor based on fiscode.
+      parameters:
+      - description: FIS code
+        in: query
+        name: fiscode
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.FISSectorcodeByFiscodeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Get sector code by fiscode
       tags:
       - FIS - KAMK
   /fis/disciplinecodeCC:

@@ -1253,3 +1253,10 @@ WHERE seasoncode = $1::int4
   AND ($3::text = '' OR gender  = $3::text)
 GROUP BY nationcode
 ORDER BY total DESC;
+
+
+-- name: GetSectorcodeByFiscode :one
+SELECT sectorcode
+FROM a_competitor
+WHERE fiscode = $1::int4
+LIMIT 1;

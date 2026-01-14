@@ -3175,6 +3175,20 @@ func (q *Queries) GetSeasonsCatcodesNKByCompetitor(ctx context.Context, dollar_1
 	return items, nil
 }
 
+const getSectorcodeByFiscode = `-- name: GetSectorcodeByFiscode :one
+SELECT sectorcode
+FROM a_competitor
+WHERE fiscode = $1::int4
+LIMIT 1
+`
+
+func (q *Queries) GetSectorcodeByFiscode(ctx context.Context, dollar_1 int32) (sql.NullString, error) {
+	row := q.queryRow(ctx, q.getSectorcodeByFiscodeStmt, getSectorcodeByFiscode, dollar_1)
+	var sectorcode sql.NullString
+	err := row.Scan(&sectorcode)
+	return sectorcode, err
+}
+
 const getSkiJumpingCategories = `-- name: GetSkiJumpingCategories :many
 SELECT DISTINCT CatCode
 FROM A_raceJP

@@ -1549,6 +1549,73 @@ const docTemplate = `{
                 }
             }
         },
+        "/fis/competitor/sectorcode": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the sectorcode for a competitor based on fiscode.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FIS - KAMK"
+                ],
+                "summary": "Get sector code by fiscode",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "FIS code",
+                        "name": "fiscode",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.FISSectorcodeByFiscodeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/fis/disciplinecodeCC": {
             "get": {
                 "security": [
@@ -16409,6 +16476,19 @@ const docTemplate = `{
                         2025,
                         2024
                     ]
+                }
+            }
+        },
+        "swagger.FISSectorcodeByFiscodeResponse": {
+            "type": "object",
+            "properties": {
+                "fiscode": {
+                    "type": "integer",
+                    "example": 342001
+                },
+                "sectorcode": {
+                    "type": "string",
+                    "example": "CC"
                 }
             }
         },

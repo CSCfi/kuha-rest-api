@@ -3,6 +3,8 @@ package fis
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"strings"
 	"time"
 
 	fissqlc "github.com/DeRuina/KUHA-REST-API/internal/db/fis"
@@ -177,4 +179,27 @@ func (s *CompetitorsStore) GetCompetitorCountsByNation(
 	}
 
 	return q.GetCompetitorCountsByNation(ctx, params)
+}
+
+func (s *CompetitorsStore) GetSectorcodeByFiscode(ctx context.Context, fiscode int32) (string, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	q := fissqlc.New(s.db)
+
+	sc, err := q.GetSectorcodeByFiscode(ctx, fiscode)
+	if err != nil {
+		return "", err
+	}
+
+	if !sc.Valid {
+		return "", fmt.Errorf("sectorcode not found for fiscode: %d", fiscode)
+	}
+
+	sector := strings.TrimSpace(sc.String)
+	if sector == "" {
+		return "", fmt.Errorf("sectorcode empty for fiscode: %d", fiscode)
+	}
+
+	return sector, nil
 }

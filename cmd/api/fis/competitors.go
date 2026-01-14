@@ -590,3 +590,59 @@ func (h *CompetitorHandler) GetCompetitorCountsByNation(w http.ResponseWriter, r
 
 	utils.WriteJSON(w, http.StatusOK, body)
 }
+
+// GetSectorcodeByFiscode godoc
+//
+//	@Summary		Get sector code by fiscode
+//	@Description	Returns the sectorcode for a competitor based on fiscode.
+//	@Tags			FIS - KAMK
+//	@Accept			json
+//	@Produce		json
+//	@Param			fiscode	query		int32	true	"FIS code"
+//	@Success		200		{object}	swagger.FISSectorcodeByFiscodeResponse
+//	@Failure		400		{object}	swagger.ValidationErrorResponse
+//	@Failure		401		{object}	swagger.UnauthorizedResponse
+//	@Failure		403		{object}	swagger.ForbiddenResponse
+//	@Failure		500		{object}	swagger.InternalServerErrorResponse
+//	@Failure		503		{object}	swagger.ServiceUnavailableResponse
+//	@Security		BearerAuth
+//	@Router			/fis/competitor/sectorcode [get]
+func (h *CompetitorHandler) GetSectorcodeByFiscode(w http.ResponseWriter, r *http.Request) {
+	if !authz.Authorize(r) {
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
+		return
+	}
+
+	if err := utils.ValidateParams(r, []string{"fiscode"}); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	rawFis := strings.TrimSpace(r.URL.Query().Get("fiscode"))
+	if rawFis == "" {
+		utils.BadRequestResponse(w, r, fmt.Errorf("missing required query param: fiscode"))
+		return
+	}
+
+	fiscode, err := utils.ParsePositiveInt32(rawFis)
+	if err != nil {
+		utils.BadRequestResponse(w, r, fmt.Errorf("invalid fiscode: %s", rawFis))
+		return
+	}
+
+	sectorcode, err := h.store.GetSectorcodeByFiscode(r.Context(), fiscode)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			utils.NotFoundResponse(w, r, err)
+			return
+		}
+		utils.InternalServerError(w, r, err)
+		return
+	}
+	body := map[string]any{
+		"fiscode":    fiscode,
+		"sectorcode": sectorcode,
+	}
+
+	utils.WriteJSON(w, http.StatusOK, body)
+}
