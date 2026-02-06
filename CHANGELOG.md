@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.2](https://github.com/CSCfi/kuha-rest-api/compare/v1.3.1...v1.3.2) (2026-02-06)
+
+
+### Bug Fixes
+
+* BulkQueryTimeout ([867178c](https://github.com/CSCfi/kuha-rest-api/commit/867178cfb1e78ab27c66f50ed17efd18ebdf403f))
+
 ## [1.3.1](https://github.com/CSCfi/kuha-rest-api/compare/v1.3.0...v1.3.1) (2026-01-14)
 
 
