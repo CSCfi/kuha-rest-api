@@ -247,8 +247,18 @@ func logError(r *http.Request, msg string, err error, status int) {
 
 // 500 Internal Server Error
 func InternalServerError(w http.ResponseWriter, r *http.Request, err error) {
+	// Request was canceled
+	if errors.Is(err, context.Canceled) {
+		logError(r, "Request canceled", err, http.StatusRequestTimeout)
+		WriteJSONError(w, http.StatusRequestTimeout, map[string]string{
+			"error": "request canceled",
+		})
+		return
+	}
+
+	// Check for context timeout
 	if errors.Is(err, context.DeadlineExceeded) {
-		logError(r, "Database timeout", err, http.StatusGatewayTimeout)
+		logError(r, "Request timeout", err, http.StatusGatewayTimeout)
 		WriteJSONError(w, http.StatusGatewayTimeout, map[string]string{"error": ErrQueryTimeOut.Error()})
 		return
 	}
@@ -399,9 +409,20 @@ func HandleDatabaseError(w http.ResponseWriter, r *http.Request, err error) {
 		}
 	}
 
-	// Check for context timeout
+	// Context errors (timeouts/cancellations)
 	if errors.Is(err, context.DeadlineExceeded) {
-		InternalServerError(w, r, ErrQueryTimeOut)
+		logError(r, "Database timeout", err, http.StatusGatewayTimeout)
+		WriteJSONError(w, http.StatusGatewayTimeout, map[string]string{
+			"error": ErrQueryTimeOut.Error(),
+		})
+		return
+	}
+
+	if errors.Is(err, context.Canceled) {
+		logError(r, "Request canceled", err, http.StatusRequestTimeout)
+		WriteJSONError(w, http.StatusRequestTimeout, map[string]string{
+			"error": "request canceled",
+		})
 		return
 	}
 

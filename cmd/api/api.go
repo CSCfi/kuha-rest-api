@@ -91,7 +91,7 @@ func (app *api) mount() http.Handler {
 	r := chi.NewRouter()
 
 	// Middlewares
-	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(middleware.Timeout(3 * time.Minute))
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RealIP)
 	r.Use(ExtractClientIDMiddleware())
@@ -526,8 +526,8 @@ func (app *api) run(mux http.Handler) error {
 	srv := &http.Server{
 		Addr:         app.config.addr,
 		Handler:      mux,
-		WriteTimeout: time.Second * 60,
-		ReadTimeout:  time.Second * 30,
+		ReadTimeout:  3 * time.Minute,
+		WriteTimeout: 3 * time.Minute,
 		IdleTimeout:  time.Minute,
 	}
 

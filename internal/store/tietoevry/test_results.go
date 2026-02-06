@@ -20,7 +20,7 @@ func (s *TestResultsStore) ValidateUsersExist(ctx context.Context, userIDs []uui
 		return nil
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	ctx, cancel := context.WithTimeout(ctx, utils.BulkQueryTimeout)
 	defer cancel()
 
 	// Get unique user IDs
@@ -68,7 +68,7 @@ func (s *TestResultsStore) ValidateUsersExist(ctx context.Context, userIDs []uui
 }
 
 func (s *TestResultsStore) InsertTestResultsBulk(ctx context.Context, results []tietoevrysqlc.InsertTestResultParams) error {
-	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	ctx, cancel := context.WithTimeout(ctx, utils.BulkQueryTimeout)
 	defer cancel()
 
 	tx, err := s.db.BeginTx(ctx, nil)
@@ -89,7 +89,7 @@ func (s *TestResultsStore) InsertTestResultsBulk(ctx context.Context, results []
 }
 
 func (s *TestResultsStore) GetTestResultsByUser(ctx context.Context, userID uuid.UUID) ([]tietoevrysqlc.TestResult, error) {
-	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	ctx, cancel := context.WithTimeout(ctx, utils.BulkQueryTimeout)
 	defer cancel()
 
 	q := tietoevrysqlc.New(s.db)

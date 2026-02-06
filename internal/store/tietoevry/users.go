@@ -14,7 +14,7 @@ type UserStore struct {
 }
 
 func (s *UserStore) UpsertUser(ctx context.Context, arg tietoevrysqlc.UpsertUserParams) error {
-	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	ctx, cancel := context.WithTimeout(ctx, utils.BulkQueryTimeout)
 	defer cancel()
 
 	q := tietoevrysqlc.New(s.db)
@@ -22,7 +22,7 @@ func (s *UserStore) UpsertUser(ctx context.Context, arg tietoevrysqlc.UpsertUser
 }
 
 func (s *UserStore) DeleteUser(ctx context.Context, id uuid.UUID) (int64, error) {
-	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	ctx, cancel := context.WithTimeout(ctx, utils.BulkQueryTimeout)
 	defer cancel()
 
 	q := tietoevrysqlc.New(s.db)
@@ -30,7 +30,7 @@ func (s *UserStore) DeleteUser(ctx context.Context, id uuid.UUID) (int64, error)
 }
 
 func (s *UserStore) GetUser(ctx context.Context, id uuid.UUID) (tietoevrysqlc.User, error) {
-	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	ctx, cancel := context.WithTimeout(ctx, utils.BulkQueryTimeout)
 	defer cancel()
 
 	queries := tietoevrysqlc.New(s.db)
@@ -38,7 +38,7 @@ func (s *UserStore) GetUser(ctx context.Context, id uuid.UUID) (tietoevrysqlc.Us
 }
 
 func (s *UserStore) LogDeletedUser(ctx context.Context, userID uuid.UUID) error {
-	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	ctx, cancel := context.WithTimeout(ctx, utils.BulkQueryTimeout)
 	defer cancel()
 
 	q := tietoevrysqlc.New(s.db)
@@ -46,7 +46,7 @@ func (s *UserStore) LogDeletedUser(ctx context.Context, userID uuid.UUID) error 
 }
 
 func (s *UserStore) DeleteUserWithLogging(ctx context.Context, userID uuid.UUID) (int64, error) {
-	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	ctx, cancel := context.WithTimeout(ctx, utils.BulkQueryTimeout)
 	defer cancel()
 
 	tx, err := s.db.BeginTx(ctx, nil)
@@ -74,7 +74,7 @@ func (s *UserStore) DeleteUserWithLogging(ctx context.Context, userID uuid.UUID)
 }
 
 func (s *UserStore) GetDeletedUsers(ctx context.Context) ([]tietoevrysqlc.DeletedUsersLog, error) {
-	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	ctx, cancel := context.WithTimeout(ctx, utils.BulkQueryTimeout)
 	defer cancel()
 
 	q := tietoevrysqlc.New(s.db)
