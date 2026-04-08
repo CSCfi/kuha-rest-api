@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.3](https://github.com/CSCfi/kuha-rest-api/compare/v1.3.2...v1.3.3) (2026-04-08)
+
+
+### Bug Fixes
+
+* archinisis - split report into report + report_user and support multi-user sessions ([b41c4b6](https://github.com/CSCfi/kuha-rest-api/commit/b41c4b6545fc9b9032bb0aa420c5b1222b3b4caf))
+
 ## [1.3.2](https://github.com/CSCfi/kuha-rest-api/compare/v1.3.1...v1.3.2) (2026-02-06)
 
 
