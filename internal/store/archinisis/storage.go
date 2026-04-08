@@ -3,8 +3,6 @@ package archinisis
 import (
 	"context"
 	"database/sql"
-
-	archsqlc "github.com/DeRuina/KUHA-REST-API/internal/db/archinisis"
 )
 
 // Interfaces
@@ -15,9 +13,10 @@ type Users interface {
 type Data interface {
 	GetRaceReportSessions(ctx context.Context, sporttiID string) ([]int32, error)
 	GetRaceReport(ctx context.Context, sporttiID string, sessionID int32) (string, error)
-	UpsertRaceReport(ctx context.Context, p archsqlc.UpsertRaceReportParams) error
+	UpsertRaceReport(ctx context.Context, sporttiID string, sessionID int32, raceReport string) error
 	UpsertData(ctx context.Context, payload ArchDataPayload) error
 	GetDataBySporttiID(ctx context.Context, sporttiID string) (*ArchDataResponse, error)
+	GetSporttiIDsBySessionID(ctx context.Context, sessionID int32) ([]string, error)
 }
 
 // ArchinisisStorage

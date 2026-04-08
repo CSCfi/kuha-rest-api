@@ -50,18 +50,12 @@ func (s *DataStore) GetRaceReportSessions(ctx context.Context, sporttiID string)
 
 	q := archsqlc.New(s.db)
 
-	rows, err := q.GetRaceReportSessionIDsBySporttiID(ctx, sql.NullString{String: sporttiID, Valid: true})
+	rows, err := q.GetRaceReportSessionIDsBySporttiID(ctx, sporttiID)
 	if err != nil {
 		return nil, err
 	}
 
-	out := make([]int32, 0, len(rows))
-	for _, v := range rows {
-		if v.Valid {
-			out = append(out, v.Int32)
-		}
-	}
-	return out, nil
+	return rows, nil
 }
 
 func (s *DataStore) GetRaceReport(ctx context.Context, sporttiID string, sessionID int32) (string, error) {
@@ -71,24 +65,50 @@ func (s *DataStore) GetRaceReport(ctx context.Context, sporttiID string, session
 	q := archsqlc.New(s.db)
 
 	res, err := q.GetRaceReport(ctx, archsqlc.GetRaceReportParams{
-		SporttiID: sql.NullString{String: sporttiID, Valid: true},
-		SessionID: sql.NullInt32{Int32: sessionID, Valid: true},
+		SporttiID: sporttiID,
+		SessionID: sessionID,
 	})
 	if err != nil {
 		return "", err
 	}
-	if !res.Valid {
-		return "", sql.ErrNoRows
-	}
-	return res.String, nil
+	return res, nil
 }
 
-func (s *DataStore) UpsertRaceReport(ctx context.Context, p archsqlc.UpsertRaceReportParams) error {
+func (s *DataStore) UpsertRaceReport(ctx context.Context, sporttiID string, sessionID int32, raceReport string) error {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	q := archsqlc.New(tx)
+
+	if err := q.UpsertReport(ctx, archsqlc.UpsertReportParams{
+		SessionID:  sessionID,
+		RaceReport: raceReport,
+	}); err != nil {
+		return err
+	}
+
+	if err := q.UpsertReportUser(ctx, archsqlc.UpsertReportUserParams{
+		SessionID: sessionID,
+		SporttiID: sporttiID,
+	}); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (s *DataStore) GetSporttiIDsBySessionID(ctx context.Context, sessionID int32) ([]string, error) {
 	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
 	defer cancel()
 
 	q := archsqlc.New(s.db)
-	return q.UpsertRaceReport(ctx, p)
+	return q.GetSporttiIDsBySessionID(ctx, sessionID)
 }
 
 func (s *DataStore) UpsertData(ctx context.Context, payload ArchDataPayload) error {

@@ -105,43 +105,74 @@ func (q *Queries) GetMeasurementsBySporttiID(ctx context.Context, nationalID sql
 }
 
 const getRaceReport = `-- name: GetRaceReport :one
-SELECT race_report
-FROM report
-WHERE sportti_id = $1 AND session_id = $2
+SELECT r.race_report
+FROM report r
+JOIN report_user ru ON ru.session_id = r.session_id
+WHERE ru.sportti_id = $1
+  AND r.session_id = $2
 `
 
 type GetRaceReportParams struct {
-	SporttiID sql.NullString
-	SessionID sql.NullInt32
+	SporttiID string
+	SessionID int32
 }
 
-func (q *Queries) GetRaceReport(ctx context.Context, arg GetRaceReportParams) (sql.NullString, error) {
+func (q *Queries) GetRaceReport(ctx context.Context, arg GetRaceReportParams) (string, error) {
 	row := q.queryRow(ctx, q.getRaceReportStmt, getRaceReport, arg.SporttiID, arg.SessionID)
-	var race_report sql.NullString
+	var race_report string
 	err := row.Scan(&race_report)
 	return race_report, err
 }
 
 const getRaceReportSessionIDsBySporttiID = `-- name: GetRaceReportSessionIDsBySporttiID :many
-SELECT session_id
-FROM report
-WHERE sportti_id = $1
-ORDER BY session_id DESC
+SELECT ru.session_id
+FROM report_user ru
+WHERE ru.sportti_id = $1
+ORDER BY ru.session_id DESC
 `
 
-func (q *Queries) GetRaceReportSessionIDsBySporttiID(ctx context.Context, sporttiID sql.NullString) ([]sql.NullInt32, error) {
+func (q *Queries) GetRaceReportSessionIDsBySporttiID(ctx context.Context, sporttiID string) ([]int32, error) {
 	rows, err := q.query(ctx, q.getRaceReportSessionIDsBySporttiIDStmt, getRaceReportSessionIDsBySporttiID, sporttiID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []sql.NullInt32
+	var items []int32
 	for rows.Next() {
-		var session_id sql.NullInt32
+		var session_id int32
 		if err := rows.Scan(&session_id); err != nil {
 			return nil, err
 		}
 		items = append(items, session_id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSporttiIDsBySessionID = `-- name: GetSporttiIDsBySessionID :many
+SELECT sportti_id
+FROM report_user
+WHERE session_id = $1
+`
+
+func (q *Queries) GetSporttiIDsBySessionID(ctx context.Context, sessionID int32) ([]string, error) {
+	rows, err := q.query(ctx, q.getSporttiIDsBySessionIDStmt, getSporttiIDsBySessionID, sessionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var sportti_id string
+		if err := rows.Scan(&sportti_id); err != nil {
+			return nil, err
+		}
+		items = append(items, sportti_id)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -240,21 +271,35 @@ func (q *Queries) UpsertMeasurement(ctx context.Context, arg UpsertMeasurementPa
 	return err
 }
 
-const upsertRaceReport = `-- name: UpsertRaceReport :exec
-INSERT INTO report (sportti_id, session_id, race_report)
-VALUES ($1, $2, $3)
+const upsertReport = `-- name: UpsertReport :exec
+INSERT INTO report (session_id, race_report)
+VALUES ($1, $2)
 ON CONFLICT (session_id) DO UPDATE SET
-  sportti_id  = EXCLUDED.sportti_id,
   race_report = EXCLUDED.race_report
 `
 
-type UpsertRaceReportParams struct {
-	SporttiID  sql.NullString
-	SessionID  sql.NullInt32
-	RaceReport sql.NullString
+type UpsertReportParams struct {
+	SessionID  int32
+	RaceReport string
 }
 
-func (q *Queries) UpsertRaceReport(ctx context.Context, arg UpsertRaceReportParams) error {
-	_, err := q.exec(ctx, q.upsertRaceReportStmt, upsertRaceReport, arg.SporttiID, arg.SessionID, arg.RaceReport)
+func (q *Queries) UpsertReport(ctx context.Context, arg UpsertReportParams) error {
+	_, err := q.exec(ctx, q.upsertReportStmt, upsertReport, arg.SessionID, arg.RaceReport)
+	return err
+}
+
+const upsertReportUser = `-- name: UpsertReportUser :exec
+INSERT INTO report_user (session_id, sportti_id)
+VALUES ($1, $2)
+ON CONFLICT (session_id, sportti_id) DO NOTHING
+`
+
+type UpsertReportUserParams struct {
+	SessionID int32
+	SporttiID string
+}
+
+func (q *Queries) UpsertReportUser(ctx context.Context, arg UpsertReportUserParams) error {
+	_, err := q.exec(ctx, q.upsertReportUserStmt, upsertReportUser, arg.SessionID, arg.SporttiID)
 	return err
 }

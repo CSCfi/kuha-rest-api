@@ -87,6 +87,10 @@ func (h *DataHandler) GetRaceReportSessions(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	if sessionIDs == nil {
+		sessionIDs = []int32{}
+	}
+
 	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, map[string]any{"race_report": sessionIDs}, ARCHCacheTTL)
 
 	utils.WriteJSON(w, http.StatusOK, map[string]any{
@@ -183,7 +187,7 @@ type RaceReportUpsertInput struct {
 // PostRaceReport godoc
 //
 //	@Summary		Upsert a race report (HTML)
-//	@Description	Inserts or updates a race report for (sportti_id, session_id).
+//	@Description	Inserts or updates the shared race report for session_id and links the given sportti_id to that session.
 //	@Tags			ARCHINISIS - Data
 //	@Accept			json
 //	@Produce		json
@@ -219,18 +223,19 @@ func (h *DataHandler) PostRaceReport(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params := archsqlc.UpsertRaceReportParams{
-		SporttiID:  utils.NullString(sid),
-		SessionID:  utils.NullInt32(in.SessionID),
-		RaceReport: utils.NullString(in.RaceReport),
-	}
-
-	if err := h.store.UpsertRaceReport(r.Context(), params); err != nil {
+	if err := h.store.UpsertRaceReport(r.Context(), sid, in.SessionID, in.RaceReport); err != nil {
 		utils.HandleDatabaseError(w, r, err)
 		return
 	}
 
-	invalidateArchRaceReport(r.Context(), h.cache, sid, &in.SessionID)
+	sporttiIDs, err := h.store.GetSporttiIDsBySessionID(r.Context(), in.SessionID)
+	if err == nil {
+		for _, linkedID := range sporttiIDs {
+			invalidateArchRaceReport(r.Context(), h.cache, linkedID, &in.SessionID)
+		}
+	} else {
+		invalidateArchRaceReport(r.Context(), h.cache, sid, &in.SessionID)
+	}
 
 	w.WriteHeader(http.StatusCreated)
 }

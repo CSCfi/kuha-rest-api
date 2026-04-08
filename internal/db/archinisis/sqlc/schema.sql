@@ -86,36 +86,22 @@ ALTER SEQUENCE public.mittaus_measurement_group_id_seq OWNED BY public.measureme
 --
 
 CREATE TABLE public.report (
-    report_id integer NOT NULL,
-    sportti_id character varying(50),
-    session_id integer,
-    race_report text
+    session_id integer NOT NULL,
+    race_report text NOT NULL
 );
-
 
 ALTER TABLE public.report OWNER TO archadmin;
 
 --
--- Name: raportti_report_id_seq; Type: SEQUENCE; Schema: public; Owner: archadmin
+-- Name: report_user; Type: TABLE; Schema: public; Owner: archadmin
 --
 
-CREATE SEQUENCE public.raportti_report_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
+CREATE TABLE public.report_user (
+    session_id integer NOT NULL,
+    sportti_id character varying(50) NOT NULL
+);
 
-
-ALTER SEQUENCE public.raportti_report_id_seq OWNER TO archadmin;
-
---
--- Name: raportti_report_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: archadmin
---
-
-ALTER SEQUENCE public.raportti_report_id_seq OWNED BY public.report.report_id;
-
+ALTER TABLE public.report_user OWNER TO archadmin;
 
 --
 -- Name: measurement measurement_group_id; Type: DEFAULT; Schema: public; Owner: archadmin
@@ -125,23 +111,10 @@ ALTER TABLE ONLY public.measurement ALTER COLUMN measurement_group_id SET DEFAUL
 
 
 --
--- Name: report report_id; Type: DEFAULT; Schema: public; Owner: archadmin
---
-
-ALTER TABLE ONLY public.report ALTER COLUMN report_id SET DEFAULT nextval('public.raportti_report_id_seq'::regclass);
-
---
 -- Name: mittaus_measurement_group_id_seq; Type: SEQUENCE SET; Schema: public; Owner: archadmin
 --
 
 SELECT pg_catalog.setval('public.mittaus_measurement_group_id_seq', 1, false);
-
-
---
--- Name: raportti_report_id_seq; Type: SEQUENCE SET; Schema: public; Owner: archadmin
---
-
-SELECT pg_catalog.setval('public.raportti_report_id_seq', 1, false);
 
 
 --
@@ -151,21 +124,6 @@ SELECT pg_catalog.setval('public.raportti_report_id_seq', 1, false);
 ALTER TABLE ONLY public.measurement
     ADD CONSTRAINT mittaus_pkey PRIMARY KEY (measurement_group_id);
 
-
---
--- Name: report raportti_pkey; Type: CONSTRAINT; Schema: public; Owner: archadmin
---
-
-ALTER TABLE ONLY public.report
-    ADD CONSTRAINT raportti_pkey PRIMARY KEY (report_id);
-
-
---
--- Name: report raportti_session_id_key; Type: CONSTRAINT; Schema: public; Owner: archadmin
---
-
-ALTER TABLE ONLY public.report
-    ADD CONSTRAINT raportti_session_id_key UNIQUE (session_id);
 
 
 --
@@ -185,20 +143,42 @@ ALTER TABLE ONLY public.measurement
 
 
 --
--- Name: report raportti_session_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: archadmin
+-- Name: report report_pkey; Type: CONSTRAINT; Schema: public; Owner: archadmin
 --
 
 ALTER TABLE ONLY public.report
-    ADD CONSTRAINT raportti_session_id_fkey FOREIGN KEY (session_id) REFERENCES public.measurement(measurement_group_id) ON DELETE CASCADE;
-
+    ADD CONSTRAINT report_pkey PRIMARY KEY (session_id);
 
 --
--- Name: report raportti_sportti_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: archadmin
+-- Name: report_user report_user_pkey; Type: CONSTRAINT; Schema: public; Owner: archadmin
+--
+
+ALTER TABLE ONLY public.report_user
+    ADD CONSTRAINT report_user_pkey PRIMARY KEY (session_id, sportti_id);
+
+--
+-- Name: report report_session_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: archadmin
 --
 
 ALTER TABLE ONLY public.report
-    ADD CONSTRAINT raportti_sportti_id_fkey FOREIGN KEY (sportti_id) REFERENCES public.athlete(national_id) ON DELETE CASCADE;
+    ADD CONSTRAINT report_session_id_fkey
+    FOREIGN KEY (session_id) REFERENCES public.measurement(measurement_group_id) ON DELETE CASCADE;
 
+--
+-- Name: report_user report_user_session_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: archadmin
+--
+
+ALTER TABLE ONLY public.report_user
+    ADD CONSTRAINT report_user_session_id_fkey
+    FOREIGN KEY (session_id) REFERENCES public.report(session_id) ON DELETE CASCADE;
+
+--
+-- Name: report_user report_user_sportti_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: archadmin
+--
+
+ALTER TABLE ONLY public.report_user
+    ADD CONSTRAINT report_user_sportti_id_fkey
+    FOREIGN KEY (sportti_id) REFERENCES public.athlete(national_id) ON DELETE CASCADE;
 
 --
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: pg_database_owner

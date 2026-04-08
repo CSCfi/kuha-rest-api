@@ -33,8 +33,11 @@ type Measurement struct {
 }
 
 type Report struct {
-	ReportID   int32
-	SporttiID  sql.NullString
-	SessionID  sql.NullInt32
-	RaceReport sql.NullString
+	SessionID  int32
+	RaceReport string
+}
+
+type ReportUser struct {
+	SessionID int32
+	SporttiID string
 }

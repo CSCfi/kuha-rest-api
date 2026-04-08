@@ -238,7 +238,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Inserts or updates a race report for (sportti_id, session_id).",
+                "description": "Inserts or updates the shared race report for session_id and links the given sportti_id to that session.",
                 "consumes": [
                     "application/json"
                 ],
@@ -371,7 +371,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Removes an athlete by sportti_id. Related measurements and reports are deleted via FK cascades.",
+                "description": "Removes an athlete by sportti_id. Related measurements and report-user links are deleted via FK cascades. Shared reports may remain.",
                 "consumes": [
                     "application/json"
                 ],

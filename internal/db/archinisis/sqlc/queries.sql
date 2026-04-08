@@ -30,23 +30,35 @@ ON CONFLICT (measurement_group_id) DO UPDATE SET
   nb_segments    = EXCLUDED.nb_segments,
   comment        = EXCLUDED.comment;
 
--- name: UpsertRaceReport :exec
-INSERT INTO report (sportti_id, session_id, race_report)
-VALUES ($1, $2, $3)
+-- name: UpsertReport :exec
+INSERT INTO report (session_id, race_report)
+VALUES ($1, $2)
 ON CONFLICT (session_id) DO UPDATE SET
-  sportti_id  = EXCLUDED.sportti_id,
   race_report = EXCLUDED.race_report;
 
+
+-- name: UpsertReportUser :exec
+INSERT INTO report_user (session_id, sportti_id)
+VALUES ($1, $2)
+ON CONFLICT (session_id, sportti_id) DO NOTHING;
+
 -- name: GetRaceReportSessionIDsBySporttiID :many
-SELECT session_id
-FROM report
-WHERE sportti_id = $1
-ORDER BY session_id DESC;
+SELECT ru.session_id
+FROM report_user ru
+WHERE ru.sportti_id = $1
+ORDER BY ru.session_id DESC;
 
 -- name: GetRaceReport :one
-SELECT race_report
-FROM report
-WHERE sportti_id = $1 AND session_id = $2;
+SELECT r.race_report
+FROM report r
+JOIN report_user ru ON ru.session_id = r.session_id
+WHERE ru.sportti_id = $1
+  AND r.session_id = $2;
+
+-- name: GetSporttiIDsBySessionID :many
+SELECT sportti_id
+FROM report_user
+WHERE session_id = $1;
 
 -- name: GetAthleteBySporttiID :one
 SELECT

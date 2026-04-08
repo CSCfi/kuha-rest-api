@@ -8187,7 +8187,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Inserts or updates a race report for (sportti_id, session_id).
+      description: Inserts or updates the shared race report for session_id and links
+        the given sportti_id to that session.
       parameters:
       - description: race report
         in: body
@@ -8273,8 +8274,8 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Removes an athlete by sportti_id. Related measurements and reports
-        are deleted via FK cascades.
+      description: Removes an athlete by sportti_id. Related measurements and report-user
+        links are deleted via FK cascades. Shared reports may remain.
       parameters:
       - description: Sportti ID
         in: query

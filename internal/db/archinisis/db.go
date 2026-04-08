@@ -39,14 +39,20 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getRaceReportSessionIDsBySporttiIDStmt, err = db.PrepareContext(ctx, getRaceReportSessionIDsBySporttiID); err != nil {
 		return nil, fmt.Errorf("error preparing query GetRaceReportSessionIDsBySporttiID: %w", err)
 	}
+	if q.getSporttiIDsBySessionIDStmt, err = db.PrepareContext(ctx, getSporttiIDsBySessionID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetSporttiIDsBySessionID: %w", err)
+	}
 	if q.upsertAthleteStmt, err = db.PrepareContext(ctx, upsertAthlete); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertAthlete: %w", err)
 	}
 	if q.upsertMeasurementStmt, err = db.PrepareContext(ctx, upsertMeasurement); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertMeasurement: %w", err)
 	}
-	if q.upsertRaceReportStmt, err = db.PrepareContext(ctx, upsertRaceReport); err != nil {
-		return nil, fmt.Errorf("error preparing query UpsertRaceReport: %w", err)
+	if q.upsertReportStmt, err = db.PrepareContext(ctx, upsertReport); err != nil {
+		return nil, fmt.Errorf("error preparing query UpsertReport: %w", err)
+	}
+	if q.upsertReportUserStmt, err = db.PrepareContext(ctx, upsertReportUser); err != nil {
+		return nil, fmt.Errorf("error preparing query UpsertReportUser: %w", err)
 	}
 	return &q, nil
 }
@@ -78,6 +84,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getRaceReportSessionIDsBySporttiIDStmt: %w", cerr)
 		}
 	}
+	if q.getSporttiIDsBySessionIDStmt != nil {
+		if cerr := q.getSporttiIDsBySessionIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getSporttiIDsBySessionIDStmt: %w", cerr)
+		}
+	}
 	if q.upsertAthleteStmt != nil {
 		if cerr := q.upsertAthleteStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing upsertAthleteStmt: %w", cerr)
@@ -88,9 +99,14 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing upsertMeasurementStmt: %w", cerr)
 		}
 	}
-	if q.upsertRaceReportStmt != nil {
-		if cerr := q.upsertRaceReportStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing upsertRaceReportStmt: %w", cerr)
+	if q.upsertReportStmt != nil {
+		if cerr := q.upsertReportStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing upsertReportStmt: %w", cerr)
+		}
+	}
+	if q.upsertReportUserStmt != nil {
+		if cerr := q.upsertReportUserStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing upsertReportUserStmt: %w", cerr)
 		}
 	}
 	return err
@@ -137,9 +153,11 @@ type Queries struct {
 	getMeasurementsBySporttiIDStmt         *sql.Stmt
 	getRaceReportStmt                      *sql.Stmt
 	getRaceReportSessionIDsBySporttiIDStmt *sql.Stmt
+	getSporttiIDsBySessionIDStmt           *sql.Stmt
 	upsertAthleteStmt                      *sql.Stmt
 	upsertMeasurementStmt                  *sql.Stmt
-	upsertRaceReportStmt                   *sql.Stmt
+	upsertReportStmt                       *sql.Stmt
+	upsertReportUserStmt                   *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
@@ -151,8 +169,10 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getMeasurementsBySporttiIDStmt:         q.getMeasurementsBySporttiIDStmt,
 		getRaceReportStmt:                      q.getRaceReportStmt,
 		getRaceReportSessionIDsBySporttiIDStmt: q.getRaceReportSessionIDsBySporttiIDStmt,
+		getSporttiIDsBySessionIDStmt:           q.getSporttiIDsBySessionIDStmt,
 		upsertAthleteStmt:                      q.upsertAthleteStmt,
 		upsertMeasurementStmt:                  q.upsertMeasurementStmt,
-		upsertRaceReportStmt:                   q.upsertRaceReportStmt,
+		upsertReportStmt:                       q.upsertReportStmt,
+		upsertReportUserStmt:                   q.upsertReportUserStmt,
 	}
 }
