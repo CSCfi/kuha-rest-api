@@ -22,7 +22,7 @@ func Init(logDir string) {
 
 	tj = &timberjack.Logger{
 		Filename:         filepath.Join(logDir, "kuha.log"),
-		MaxSize:          100, // MB
+		MaxSize:          500, // MB
 		MaxBackups:       7,
 		MaxAge:           30,
 		Compression:      "none",
