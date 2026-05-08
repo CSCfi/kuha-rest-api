@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.4](https://github.com/CSCfi/kuha-rest-api/compare/v1.3.3...v1.3.4) (2026-05-08)
+
+
+### Features
+
+* bump sqlc v1.31.1 - ([538ed37](https://github.com/CSCfi/kuha-rest-api/commit/538ed37cdb0bfa8604d94b1290708acacbfc3e13))
+
+* FIS - nationcode return in AthleteResultxx ([0a0e4b1](https://github.com/CSCfi/kuha-rest-api/commit/0a0e4b1035d22cc8a9899ab413c637a68033dba9))
+
 ## [1.3.3](https://github.com/CSCfi/kuha-rest-api/compare/v1.3.2...v1.3.3) (2026-04-08)
 
 
