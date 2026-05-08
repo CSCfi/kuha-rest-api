@@ -11518,6 +11518,10 @@
                     "type": "string",
                     "example": "DSPR"
                 },
+                "nationcode": {
+                    "type": "string",
+                    "example": "FIN"
+                },
                 "place": {
                     "type": "string",
                     "example": "Oslo"
@@ -11582,6 +11586,10 @@
                 "judptsr2": {
                     "type": "string",
                     "example": "56.5"
+                },
+                "nationcode": {
+                    "type": "string",
+                    "example": "FIN"
                 },
                 "place": {
                     "type": "string",
@@ -11675,6 +11683,10 @@
                 "judptsr1": {
                     "type": "string",
                     "example": "56.0"
+                },
+                "nationcode": {
+                    "type": "string",
+                    "example": "FIN"
                 },
                 "place": {
                     "type": "string",

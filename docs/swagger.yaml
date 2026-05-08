@@ -331,6 +331,9 @@ definitions:
       disciplinecode:
         example: DSPR
         type: string
+      nationcode:
+        example: FIN
+        type: string
       place:
         example: Oslo
         type: string
@@ -378,6 +381,9 @@ definitions:
         type: string
       judptsr2:
         example: "56.5"
+        type: string
+      nationcode:
+        example: FIN
         type: string
       place:
         example: Planica
@@ -447,6 +453,9 @@ definitions:
         type: integer
       judptsr1:
         example: "56.0"
+        type: string
+      nationcode:
+        example: FIN
         type: string
       place:
         example: Seefeld

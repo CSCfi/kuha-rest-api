@@ -1080,6 +1080,7 @@ type FISAthleteResultCC struct {
 	Disciplinecode *string `json:"disciplinecode,omitempty" example:"DSPR"`
 	Catcode        *string `json:"catcode,omitempty" example:"WC"`
 	Place          *string `json:"place,omitempty" example:"Oslo"`
+	Nationcode     *string `json:"nationcode,omitempty" example:"FIN"`
 }
 
 type FISLastResultCCResponse struct {
@@ -1234,6 +1235,7 @@ type FISAthleteResultJP struct {
 	Disciplinecode *string `json:"disciplinecode,omitempty" example:"LH"`
 	Catcode        *string `json:"catcode,omitempty" example:"WC"`
 	Place          *string `json:"place,omitempty" example:"Planica"`
+	Nationcode     *string `json:"nationcode,omitempty" example:"FIN"`
 
 	Posr1     *string `json:"posr1,omitempty" example:"1"`
 	Speedr1   *string `json:"speedr1,omitempty" example:"88.5"`
@@ -1455,6 +1457,7 @@ type FISAthleteResultNK struct {
 	Disciplinecode *string `json:"disciplinecode,omitempty" example:"NC"`
 	Catcode        *string `json:"catcode,omitempty" example:"WC"`
 	Place          *string `json:"place,omitempty" example:"Seefeld"`
+	Nationcode     *string `json:"nationcode,omitempty" example:"FIN"`
 
 	Posr1     *string `json:"posr1,omitempty" example:"1"`
 	Speedr1   *string `json:"speedr1,omitempty" example:"89.5"`

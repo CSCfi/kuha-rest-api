@@ -179,6 +179,7 @@ type FISAthleteResultCCRow struct {
 	Disciplinecode *string `json:"disciplinecode"`
 	Catcode        *string `json:"catcode"`
 	Place          *string `json:"place"`
+	Nationcode     *string `json:"nationcode"`
 }
 
 func FISAthleteResultCCFromSqlc(row fissqlc.GetAthleteResultsCCRow) FISAthleteResultCCRow {
@@ -197,6 +198,7 @@ func FISAthleteResultCCFromSqlc(row fissqlc.GetAthleteResultsCCRow) FISAthleteRe
 		Disciplinecode: utils.StringPtrOrNil(row.Disciplinecode),
 		Catcode:        utils.StringPtrOrNil(row.Catcode),
 		Place:          utils.StringPtrOrNil(row.Place),
+		Nationcode:     utils.StringPtrOrNil(row.Nationcode),
 	}
 }
 
@@ -616,6 +618,7 @@ type FISAthleteResultJPRow struct {
 	Disciplinecode *string `json:"disciplinecode"`
 	Catcode        *string `json:"catcode"`
 	Place          *string `json:"place"`
+	Nationcode     *string `json:"nationcode"`
 
 	Posr1     *string `json:"posr1"`
 	Speedr1   *string `json:"speedr1"`
@@ -651,6 +654,7 @@ func FISAthleteResultJPFromSqlc(row fissqlc.GetAthleteResultsJPRow) FISAthleteRe
 		Disciplinecode: utils.StringPtrOrNil(row.Disciplinecode),
 		Catcode:        utils.StringPtrOrNil(row.Catcode),
 		Place:          utils.StringPtrOrNil(row.Place),
+		Nationcode:     utils.StringPtrOrNil(row.Nationcode),
 
 		Posr1:     utils.StringPtrOrNil(row.Posr1),
 		Speedr1:   utils.StringPtrOrNil(row.Speedr1),
@@ -996,6 +1000,7 @@ type FISAthleteResultNKRow struct {
 	Disciplinecode *string `json:"disciplinecode"`
 	Catcode        *string `json:"catcode"`
 	Place          *string `json:"place"`
+	Nationcode     *string `json:"nationcode"`
 
 	Posr1     *string `json:"posr1"`
 	Speedr1   *string `json:"speedr1"`
@@ -1029,6 +1034,7 @@ func FISAthleteResultNKFromSqlc(row fissqlc.GetAthleteResultsNKRow) FISAthleteRe
 		Disciplinecode: utils.StringPtrOrNil(row.Disciplinecode),
 		Catcode:        utils.StringPtrOrNil(row.Catcode),
 		Place:          utils.StringPtrOrNil(row.Place),
+		Nationcode:     utils.StringPtrOrNil(row.Nationcode),
 
 		Posr1:     utils.StringPtrOrNil(row.Posr1),
 		Speedr1:   utils.StringPtrOrNil(row.Speedr1),

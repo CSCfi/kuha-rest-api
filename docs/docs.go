@@ -11526,6 +11526,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "DSPR"
                 },
+                "nationcode": {
+                    "type": "string",
+                    "example": "FIN"
+                },
                 "place": {
                     "type": "string",
                     "example": "Oslo"
@@ -11590,6 +11594,10 @@ const docTemplate = `{
                 "judptsr2": {
                     "type": "string",
                     "example": "56.5"
+                },
+                "nationcode": {
+                    "type": "string",
+                    "example": "FIN"
                 },
                 "place": {
                     "type": "string",
@@ -11683,6 +11691,10 @@ const docTemplate = `{
                 "judptsr1": {
                     "type": "string",
                     "example": "56.0"
+                },
+                "nationcode": {
+                    "type": "string",
+                    "example": "FIN"
                 },
                 "place": {
                     "type": "string",

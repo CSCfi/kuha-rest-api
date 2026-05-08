@@ -83,6 +83,7 @@ SELECT
     aNK.DisciplineCode,
     aNK.CatCode,
     aNK.Place,
+    aNK.NationCode,
     rNK.PosR1,
     rNK.SpeedR1,
     rNK.DistR1,
@@ -98,9 +99,9 @@ SELECT
 FROM A_resultNK rNK
 JOIN A_raceNK aNK ON rNK.RaceID = aNK.RaceID
 WHERE rNK.CompetitorID = $1
-  AND ($2::int[]    IS NULL OR aNK.SeasonCode     = ANY($2))
-  AND ($3::text[]   IS NULL OR aNK.DisciplineCode = ANY($3))
-  AND ($4::text[]   IS NULL OR aNK.CatCode        = ANY($4))
+  AND ($2::int[]  IS NULL OR aNK.SeasonCode = ANY($2))
+  AND ($3::text[] IS NULL OR aNK.DisciplineCode = ANY($3))
+  AND ($4::text[] IS NULL OR aNK.CatCode = ANY($4))
 ORDER BY aNK.RaceDate;
 
 -- name: GetAthleteResultsJP :many
@@ -112,6 +113,7 @@ SELECT
     aJP.DisciplineCode,
     aJP.CatCode,
     aJP.Place,
+    aJP.NationCode,
     rJP.PosR1,
     rJP.SpeedR1,
     rJP.DistR1,
@@ -131,9 +133,9 @@ SELECT
 FROM A_resultJP rJP
 JOIN A_raceJP aJP ON rJP.RaceID = aJP.RaceID
 WHERE rJP.CompetitorID = $1
-  AND ($2::int[]    IS NULL OR aJP.SeasonCode     = ANY($2))
-  AND ($3::text[]   IS NULL OR aJP.DisciplineCode = ANY($3))
-  AND ($4::text[]   IS NULL OR aJP.CatCode        = ANY($4))
+  AND ($2::int[]  IS NULL OR aJP.SeasonCode = ANY($2))
+  AND ($3::text[] IS NULL OR aJP.DisciplineCode = ANY($3))
+  AND ($4::text[] IS NULL OR aJP.CatCode = ANY($4))
 ORDER BY aJP.RaceDate;
 
 -- name: GetAthleteResultsCC :many
@@ -147,13 +149,14 @@ SELECT
     aCC.SeasonCode,
     aCC.DisciplineCode,
     aCC.CatCode,
-    aCC.Place
+    aCC.Place,
+    aCC.NationCode
 FROM A_resultCC rCC
 JOIN A_raceCC aCC ON rCC.RaceID = aCC.RaceID
 WHERE rCC.CompetitorID = $1
-  AND ($2::int[]  IS NULL OR aCC.SeasonCode     = ANY($2))
+  AND ($2::int[]  IS NULL OR aCC.SeasonCode = ANY($2))
   AND ($3::text[] IS NULL OR aCC.DisciplineCode = ANY($3))
-  AND ($4::text[] IS NULL OR aCC.CatCode        = ANY($4))
+  AND ($4::text[] IS NULL OR aCC.CatCode = ANY($4))
 ORDER BY aCC.RaceDate;
 
 -- name: GetRacesNK :many
