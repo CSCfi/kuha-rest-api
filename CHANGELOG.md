@@ -1,5 +1,13 @@
 # Changelog
 
+# [1.3.5](https://github.com/CSCfi/kuha-rest-api/compare/v1.3.4...v1.3.5) (2026-05-18)
+
+
+### Features
+
+* refactor fis serach return params - ([2b3f1fe](https://github.com/CSCfi/kuha-rest-api/commit/2b3f1fe842d0c4dde268e893bff8573667123f67))
+
+
 ## [1.3.4](https://github.com/CSCfi/kuha-rest-api/compare/v1.3.3...v1.3.4) (2026-05-08)
 
 
