@@ -4577,7 +4577,16 @@ func (q *Queries) InsertResultNK(ctx context.Context, arg InsertResultNKParams) 
 }
 
 const searchCompetitors = `-- name: SearchCompetitors :many
-SELECT competitorid, personid, ipcid, type, sectorcode, fiscode, lastname, firstname, gender, birthdate, nationcode, nationalcode, skiclub, association, status, status_old, status_by, status_date, statusnextlist, alternatenamecheck, fee, dateofcreation, createdby, injury, version, compidmssql, carving, photo, notallowed, natteam, tragroup, published, doped, team, photo_big, data, lastupdateby, disciplines, lastupdate, deletedat, categorycode, classname, classcode
+SELECT
+  firstname,
+  lastname,
+  fiscode,
+  gender,
+  nationcode,
+  sectorcode,
+  status,
+  skiclub,
+  birthdate
 FROM a_competitor
 WHERE ($1::text = '' OR nationcode  = $1::text)
   AND ($2::text = '' OR sectorcode  = $2::text)
@@ -4595,7 +4604,19 @@ type SearchCompetitorsParams struct {
 	Column5 time.Time
 }
 
-func (q *Queries) SearchCompetitors(ctx context.Context, arg SearchCompetitorsParams) ([]ACompetitor, error) {
+type SearchCompetitorsRow struct {
+	Firstname  sql.NullString
+	Lastname   sql.NullString
+	Fiscode    sql.NullInt32
+	Gender     sql.NullString
+	Nationcode sql.NullString
+	Sectorcode sql.NullString
+	Status     sql.NullString
+	Skiclub    sql.NullString
+	Birthdate  sql.NullTime
+}
+
+func (q *Queries) SearchCompetitors(ctx context.Context, arg SearchCompetitorsParams) ([]SearchCompetitorsRow, error) {
 	rows, err := q.query(ctx, q.searchCompetitorsStmt, searchCompetitors,
 		arg.Column1,
 		arg.Column2,
@@ -4607,53 +4628,19 @@ func (q *Queries) SearchCompetitors(ctx context.Context, arg SearchCompetitorsPa
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ACompetitor
+	var items []SearchCompetitorsRow
 	for rows.Next() {
-		var i ACompetitor
+		var i SearchCompetitorsRow
 		if err := rows.Scan(
-			&i.Competitorid,
-			&i.Personid,
-			&i.Ipcid,
-			&i.Type,
-			&i.Sectorcode,
-			&i.Fiscode,
-			&i.Lastname,
 			&i.Firstname,
+			&i.Lastname,
+			&i.Fiscode,
 			&i.Gender,
-			&i.Birthdate,
 			&i.Nationcode,
-			&i.Nationalcode,
-			&i.Skiclub,
-			&i.Association,
+			&i.Sectorcode,
 			&i.Status,
-			&i.StatusOld,
-			&i.StatusBy,
-			&i.StatusDate,
-			&i.Statusnextlist,
-			&i.Alternatenamecheck,
-			&i.Fee,
-			&i.Dateofcreation,
-			&i.Createdby,
-			&i.Injury,
-			&i.Version,
-			&i.Compidmssql,
-			&i.Carving,
-			&i.Photo,
-			&i.Notallowed,
-			&i.Natteam,
-			&i.Tragroup,
-			&i.Published,
-			&i.Doped,
-			&i.Team,
-			&i.PhotoBig,
-			&i.Data,
-			&i.Lastupdateby,
-			&i.Disciplines,
-			&i.Lastupdate,
-			&i.Deletedat,
-			&i.Categorycode,
-			&i.Classname,
-			&i.Classcode,
+			&i.Skiclub,
+			&i.Birthdate,
 		); err != nil {
 			return nil, err
 		}

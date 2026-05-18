@@ -11927,166 +11927,6 @@ const docTemplate = `{
                 }
             }
         },
-        "swagger.FISCompetitorFull": {
-            "type": "object",
-            "properties": {
-                "alternatenamecheck": {
-                    "type": "string"
-                },
-                "association": {
-                    "type": "string",
-                    "example": "Finnish Ski Association"
-                },
-                "birthdate": {
-                    "description": "YYYY-MM-DD",
-                    "type": "string",
-                    "example": "1992-01-12"
-                },
-                "carving": {
-                    "type": "integer"
-                },
-                "categorycode": {
-                    "type": "string"
-                },
-                "classcode": {
-                    "type": "string"
-                },
-                "classname": {
-                    "type": "string"
-                },
-                "competitorid": {
-                    "type": "integer",
-                    "example": 123456
-                },
-                "compidmssql": {
-                    "type": "integer"
-                },
-                "createdby": {
-                    "type": "string",
-                    "example": "admin"
-                },
-                "data": {
-                    "type": "string"
-                },
-                "dateofcreation": {
-                    "type": "string",
-                    "example": "2010-11-05"
-                },
-                "deletedat": {
-                    "type": "string"
-                },
-                "disciplines": {
-                    "type": "string"
-                },
-                "doped": {
-                    "type": "string"
-                },
-                "fee": {
-                    "type": "number",
-                    "example": 0
-                },
-                "firstname": {
-                    "type": "string",
-                    "example": "Iivo"
-                },
-                "fiscode": {
-                    "type": "integer",
-                    "example": 342001
-                },
-                "gender": {
-                    "type": "string",
-                    "example": "M"
-                },
-                "injury": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "ipcid": {
-                    "type": "integer",
-                    "example": 0
-                },
-                "lastname": {
-                    "type": "string",
-                    "example": "Niskanen"
-                },
-                "lastupdate": {
-                    "type": "string",
-                    "example": "2024-10-01T12:34:56Z"
-                },
-                "lastupdateby": {
-                    "type": "string"
-                },
-                "nationalcode": {
-                    "type": "string",
-                    "example": "FIN"
-                },
-                "nationcode": {
-                    "type": "string",
-                    "example": "FIN"
-                },
-                "natteam": {
-                    "type": "string",
-                    "example": "FIN-A"
-                },
-                "notallowed": {
-                    "type": "integer"
-                },
-                "personid": {
-                    "type": "integer",
-                    "example": 98765
-                },
-                "photo": {
-                    "type": "integer"
-                },
-                "photo_big": {
-                    "type": "integer"
-                },
-                "published": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "sectorcode": {
-                    "type": "string",
-                    "example": "CC"
-                },
-                "skiclub": {
-                    "type": "string",
-                    "example": "Lahti Ski Club"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "ACTIVE"
-                },
-                "status_by": {
-                    "type": "string",
-                    "example": "FIS"
-                },
-                "status_date": {
-                    "type": "string",
-                    "example": "2024-05-01T00:00:00Z"
-                },
-                "status_old": {
-                    "type": "string"
-                },
-                "statusnextlist": {
-                    "type": "string"
-                },
-                "team": {
-                    "type": "integer"
-                },
-                "tragroup": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string",
-                    "example": "ATH"
-                },
-                "version": {
-                    "type": "integer",
-                    "example": 1
-                }
-            }
-        },
         "swagger.FISCompetitorNationCountItem": {
             "type": "object",
             "properties": {
@@ -12127,11 +11967,55 @@ const docTemplate = `{
                 }
             }
         },
+        "swagger.FISCompetitorSearchItem": {
+            "type": "object",
+            "properties": {
+                "birthdate": {
+                    "type": "string",
+                    "example": "1992-01-12"
+                },
+                "firstname": {
+                    "type": "string",
+                    "example": "Iivo"
+                },
+                "fiscode": {
+                    "type": "integer",
+                    "example": 342001
+                },
+                "gender": {
+                    "type": "string",
+                    "example": "M"
+                },
+                "lastname": {
+                    "type": "string",
+                    "example": "Niskanen"
+                },
+                "nationcode": {
+                    "type": "string",
+                    "example": "FIN"
+                },
+                "sectorcode": {
+                    "type": "string",
+                    "example": "CC"
+                },
+                "skiclub": {
+                    "type": "string",
+                    "example": "Lahti Ski Club"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ACTIVE"
+                }
+            }
+        },
         "swagger.FISCompetitorSearchResponse": {
             "type": "object",
             "properties": {
                 "competitors": {
-                    "$ref": "#/definitions/swagger.FISCompetitorFull"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.FISCompetitorSearchItem"
+                    }
                 }
             }
         },

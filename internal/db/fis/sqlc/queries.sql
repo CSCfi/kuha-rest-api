@@ -1091,7 +1091,16 @@ LIMIT $4::int4;
 
 
 -- name: SearchCompetitors :many
-SELECT *
+SELECT
+  firstname,
+  lastname,
+  fiscode,
+  gender,
+  nationcode,
+  sectorcode,
+  status,
+  skiclub,
+  birthdate
 FROM a_competitor
 WHERE ($1::text = '' OR nationcode  = $1::text)
   AND ($2::text = '' OR sectorcode  = $2::text)

@@ -449,9 +449,9 @@ func (h *CompetitorHandler) SearchCompetitors(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	competitors := make([]any, 0, len(rows))
+	competitors := make([]FISCompetitorSearchItem, 0, len(rows))
 	for _, c := range rows {
-		competitors = append(competitors, FISCompetitorFullFromSqlc(c))
+		competitors = append(competitors, FISCompetitorSearchFromSqlc(c))
 	}
 
 	body := map[string]any{

@@ -115,7 +115,7 @@ func (s *CompetitorsStore) SearchCompetitors(
 	ctx context.Context,
 	nationcode, sectorcode, gender *string,
 	birthdateMin, birthdateMax *time.Time,
-) ([]fissqlc.ACompetitor, error) {
+) ([]fissqlc.SearchCompetitorsRow, error) {
 	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
 	defer cancel()
 

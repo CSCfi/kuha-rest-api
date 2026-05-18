@@ -380,3 +380,34 @@ func FISCompetitorFullFromSqlc(row fissqlc.ACompetitor) FISCompetitorResponse {
 		Classcode:          utils.StringPtrOrNil(row.Classcode),
 	}
 }
+
+type FISCompetitorSearchItem struct {
+	Firstname  *string `json:"firstname"`
+	Lastname   *string `json:"lastname"`
+	Fiscode    *int32  `json:"fiscode"`
+	Gender     *string `json:"gender"`
+	Nationcode *string `json:"nationcode"`
+	Sectorcode *string `json:"sectorcode"`
+	Status     *string `json:"status"`
+	Skiclub    *string `json:"skiclub"`
+	Birthdate  *string `json:"birthdate"`
+}
+
+func FISCompetitorSearchFromSqlc(row fissqlc.SearchCompetitorsRow) FISCompetitorSearchItem {
+	var birthStr *string
+	if row.Birthdate.Valid {
+		birthStr = utils.FormatDatePtr(row.Birthdate)
+	}
+
+	return FISCompetitorSearchItem{
+		Firstname:  utils.StringPtrOrNil(row.Firstname),
+		Lastname:   utils.StringPtrOrNil(row.Lastname),
+		Fiscode:    utils.Int32PtrOrNil(row.Fiscode),
+		Gender:     utils.StringPtrOrNil(row.Gender),
+		Nationcode: utils.StringPtrOrNil(row.Nationcode),
+		Sectorcode: utils.StringPtrOrNil(row.Sectorcode),
+		Status:     utils.StringPtrOrNil(row.Status),
+		Skiclub:    utils.StringPtrOrNil(row.Skiclub),
+		Birthdate:  birthStr,
+	}
+}

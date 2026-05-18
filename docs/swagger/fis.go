@@ -1842,8 +1842,20 @@ type FISCompetitorFull struct {
 	Classcode    *string `json:"classcode,omitempty"`
 }
 
+type FISCompetitorSearchItem struct {
+	Firstname  *string `json:"firstname" example:"Iivo"`
+	Lastname   *string `json:"lastname" example:"Niskanen"`
+	Fiscode    *int32  `json:"fiscode" example:"342001"`
+	Gender     *string `json:"gender" example:"M"`
+	Nationcode *string `json:"nationcode" example:"FIN"`
+	Sectorcode *string `json:"sectorcode" example:"CC"`
+	Status     *string `json:"status" example:"ACTIVE"`
+	Skiclub    *string `json:"skiclub" example:"Lahti Ski Club"`
+	Birthdate  *string `json:"birthdate" example:"1992-01-12"`
+}
+
 type FISCompetitorSearchResponse struct {
-	Competitor FISCompetitorFull `json:"competitors"`
+	Competitors []FISCompetitorSearchItem `json:"competitors"`
 }
 
 type FISCompetitorNationCountItem struct {
