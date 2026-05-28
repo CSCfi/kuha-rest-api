@@ -16,14 +16,14 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/archinisis/data": {
+        "/archinisis/athlete": {
             "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Returns athlete profile and measurements for the given sportti id.",
+                "description": "Returns athlete profile fields (no measurements) for the given ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -31,13 +31,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "ARCHINISIS - Data"
+                    "ARCHINISIS - Athlete"
                 ],
-                "summary": "Get Archinisis data by Sportti ID",
+                "summary": "Get athlete profile by ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Sportti ID (national_id)",
+                        "description": "National ID (Sportti ID)",
                         "name": "id",
                         "in": "query",
                         "required": true
@@ -47,7 +47,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swagger.ArchDataResponse"
+                            "$ref": "#/definitions/swagger.ArchAthleteResponse"
                         }
                     },
                     "400": {
@@ -94,7 +94,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Inserts/updates athlete profile and related measurements in one request.",
+                "description": "Inserts or updates athlete profile fields. New data for the same national_id overwrites existing.",
                 "consumes": [
                     "application/json"
                 ],
@@ -102,17 +102,289 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "ARCHINISIS - Data"
+                    "ARCHINISIS - Athlete"
                 ],
-                "summary": "Upsert Archinisis athlete + measurements",
+                "summary": "Upsert athlete profile",
                 "parameters": [
                     {
-                        "description": "athlete + measurements",
+                        "description": "athlete profile",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/swagger.ArchDataUpsertRequest"
+                            "$ref": "#/definitions/swagger.ArchAthleteUpsertRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Data processed successfully"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/archinisis/measurement": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the measurement identified by the given measurement_id.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ARCHINISIS - Measurements"
+                ],
+                "summary": "Get a single measurement by measurement ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Measurement ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ArchMeasurementResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Removes the measurement identified by the given measurement_id.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ARCHINISIS - Measurements"
+                ],
+                "summary": "Delete a single measurement by measurement ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Measurement ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/archinisis/measurements": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns all measurements for the athlete identified by the given ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ARCHINISIS - Measurements"
+                ],
+                "summary": "Get all measurements for an athlete",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "National ID (Sportti ID)",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ArchMeasurementsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.UnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.InternalServerErrorResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ServiceUnavailableResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Inserts or updates one or more measurements linked to the given national_id.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ARCHINISIS - Measurements"
+                ],
+                "summary": "Upsert measurements for an athlete",
+                "parameters": [
+                    {
+                        "description": "measurements",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.ArchMeasurementsUpsertRequest"
                         }
                     }
                 ],
@@ -175,7 +447,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Sportti ID",
-                        "name": "sportti_id",
+                        "name": "id",
                         "in": "query",
                         "required": true
                     },
@@ -319,7 +591,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Sportti ID",
-                        "name": "sportti_id",
+                        "name": "id",
                         "in": "query",
                         "required": true
                     }
@@ -11093,7 +11365,7 @@ const docTemplate = `{
                 }
             }
         },
-        "swagger.ArchDataResponse": {
+        "swagger.ArchAthleteResponse": {
             "type": "object",
             "properties": {
                 "date_of_birth": {
@@ -11115,12 +11387,6 @@ const docTemplate = `{
                 "last_name": {
                     "type": "string",
                     "example": "Doe"
-                },
-                "measurements": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/swagger.ArchMeasurementResponse"
-                    }
                 },
                 "national_id": {
                     "type": "string",
@@ -11132,7 +11398,7 @@ const docTemplate = `{
                 }
             }
         },
-        "swagger.ArchDataUpsertRequest": {
+        "swagger.ArchAthleteUpsertRequest": {
             "type": "object",
             "properties": {
                 "date_of_birth": {
@@ -11154,12 +11420,6 @@ const docTemplate = `{
                 "last_name": {
                     "type": "string",
                     "example": "Doe"
-                },
-                "measurements": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/swagger.ArchMeasurementUpsert"
-                    }
                 },
                 "national_id": {
                     "type": "string",
@@ -11258,6 +11518,32 @@ const docTemplate = `{
                 "stop_time": {
                     "type": "string",
                     "example": "2024-01-01T09:15:00Z"
+                }
+            }
+        },
+        "swagger.ArchMeasurementsResponse": {
+            "type": "object",
+            "properties": {
+                "measurements": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.ArchMeasurementResponse"
+                    }
+                }
+            }
+        },
+        "swagger.ArchMeasurementsUpsertRequest": {
+            "type": "object",
+            "properties": {
+                "measurements": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/swagger.ArchMeasurementUpsert"
+                    }
+                },
+                "national_id": {
+                    "type": "string",
+                    "example": "27353728"
                 }
             }
         },

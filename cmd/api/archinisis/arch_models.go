@@ -7,15 +7,19 @@ import (
 	"github.com/DeRuina/KUHA-REST-API/internal/utils"
 )
 
-type ArchDataUpsertInput struct {
-	NationalID   string                 `json:"national_id"    validate:"required,numeric"`
-	FirstName    *string                `json:"first_name"     validate:"omitempty"`
-	LastName     *string                `json:"last_name"      validate:"omitempty"`
-	Initials     *string                `json:"initials"       validate:"omitempty"`
-	DateOfBirth  *string                `json:"date_of_birth"  validate:"omitempty"`
-	Height       *float64               `json:"height"         validate:"omitempty"`
-	Weight       *float64               `json:"weight"         validate:"omitempty"`
-	Measurements []ArchMeasurementInput `json:"measurements"   validate:"omitempty,dive"`
+type ArchAthleteInput struct {
+	NationalID  string   `json:"national_id"   validate:"required,numeric"`
+	FirstName   *string  `json:"first_name"    validate:"omitempty"`
+	LastName    *string  `json:"last_name"     validate:"omitempty"`
+	Initials    *string  `json:"initials"      validate:"omitempty"`
+	DateOfBirth *string  `json:"date_of_birth" validate:"omitempty"`
+	Height      *float64 `json:"height"        validate:"omitempty"`
+	Weight      *float64 `json:"weight"        validate:"omitempty"`
+}
+
+type ArchMeasurementsInput struct {
+	NationalID   string                 `json:"national_id"  validate:"required,numeric"`
+	Measurements []ArchMeasurementInput `json:"measurements" validate:"required,min=1,dive"`
 }
 
 type ArchMeasurementInput struct {
@@ -31,8 +35,7 @@ type ArchMeasurementInput struct {
 	StopTime           *string `json:"stop_time"`
 }
 
-// Mapping
-func mapAthleteToParams(in ArchDataUpsertInput, sid string) (archsqlc.UpsertAthleteParams, error) {
+func mapAthleteToParams(in ArchAthleteInput, sid string) (archsqlc.UpsertAthleteParams, error) {
 	var dob *time.Time
 	var err error
 	if in.DateOfBirth != nil {

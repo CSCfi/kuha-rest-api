@@ -14,15 +14,29 @@ type ArchRaceReportUpsertRequest struct {
 	RaceReport string `json:"race_report" example:"<!DOCTYPE html><html><head><title>Race</title></head><body><h1>Report</h1></body></html>"`
 }
 
-type ArchDataUpsertRequest struct {
-	NationalID   string                  `json:"national_id" example:"27353728"`
-	FirstName    *string                 `json:"first_name,omitempty" example:"Jane"`
-	LastName     *string                 `json:"last_name,omitempty" example:"Doe"`
-	Initials     *string                 `json:"initials,omitempty" example:"JD"`
-	DateOfBirth  *string                 `json:"date_of_birth,omitempty" example:"1995-07-21"`
-	Height       *float64                `json:"height,omitempty" example:"1.72"`
-	Weight       *float64                `json:"weight,omitempty" example:"65.4"`
-	Measurements []ArchMeasurementUpsert `json:"measurements,omitempty"`
+type ArchAthleteUpsertRequest struct {
+	NationalID  string   `json:"national_id" example:"27353728"`
+	FirstName   *string  `json:"first_name,omitempty" example:"Jane"`
+	LastName    *string  `json:"last_name,omitempty" example:"Doe"`
+	Initials    *string  `json:"initials,omitempty" example:"JD"`
+	DateOfBirth *string  `json:"date_of_birth,omitempty" example:"1995-07-21"`
+	Height      *float64 `json:"height,omitempty" example:"1.72"`
+	Weight      *float64 `json:"weight,omitempty" example:"65.4"`
+}
+
+type ArchAthleteResponse struct {
+	NationalID  string   `json:"national_id" example:"27353728"`
+	FirstName   *string  `json:"first_name,omitempty" example:"Jane"`
+	LastName    *string  `json:"last_name,omitempty" example:"Doe"`
+	Initials    *string  `json:"initials,omitempty" example:"JD"`
+	DateOfBirth *string  `json:"date_of_birth,omitempty" example:"1995-07-21"`
+	Height      *float64 `json:"height,omitempty" example:"1.72"`
+	Weight      *float64 `json:"weight,omitempty" example:"65.4"`
+}
+
+type ArchMeasurementsUpsertRequest struct {
+	NationalID   string               `json:"national_id" example:"27353728"`
+	Measurements []ArchMeasurementUpsert `json:"measurements"`
 }
 
 type ArchMeasurementUpsert struct {
@@ -38,14 +52,7 @@ type ArchMeasurementUpsert struct {
 	Comment            *string `json:"comment,omitempty" example:"Felt strong today."`
 }
 
-type ArchDataResponse struct {
-	NationalID   string                    `json:"national_id" example:"27353728"`
-	FirstName    *string                   `json:"first_name,omitempty" example:"Jane"`
-	LastName     *string                   `json:"last_name,omitempty" example:"Doe"`
-	Initials     *string                   `json:"initials,omitempty" example:"JD"`
-	DateOfBirth  *string                   `json:"date_of_birth,omitempty" example:"1995-07-21"`
-	Height       *float64                  `json:"height,omitempty" example:"1.72"`
-	Weight       *float64                  `json:"weight,omitempty" example:"65.4"`
+type ArchMeasurementsResponse struct {
 	Measurements []ArchMeasurementResponse `json:"measurements"`
 }
 

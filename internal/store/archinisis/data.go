@@ -12,13 +12,7 @@ type DataStore struct {
 	db *sql.DB
 }
 
-type ArchDataPayload struct {
-	Athlete      archsqlc.UpsertAthleteParams
-	Measurements []archsqlc.UpsertMeasurementParams
-}
-
-type ArchDataResponse struct {
-	// Athlete
+type ArchAthleteResponse struct {
 	NationalID  string   `json:"national_id"`
 	FirstName   *string  `json:"first_name,omitempty"`
 	LastName    *string  `json:"last_name,omitempty"`
@@ -26,9 +20,6 @@ type ArchDataResponse struct {
 	DateOfBirth *string  `json:"date_of_birth,omitempty"`
 	Height      *float64 `json:"height,omitempty"`
 	Weight      *float64 `json:"weight,omitempty"`
-
-	// Measurements
-	Measurements []ArchMeasurementResponse `json:"measurements"`
 }
 
 type ArchMeasurementResponse struct {
@@ -44,17 +35,17 @@ type ArchMeasurementResponse struct {
 	Comment            *string `json:"comment,omitempty"`
 }
 
+// Race report methods
+
 func (s *DataStore) GetRaceReportSessions(ctx context.Context, sporttiID string) ([]int32, error) {
 	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
 	defer cancel()
 
 	q := archsqlc.New(s.db)
-
 	rows, err := q.GetRaceReportSessionIDsBySporttiID(ctx, sporttiID)
 	if err != nil {
 		return nil, err
 	}
-
 	return rows, nil
 }
 
@@ -63,15 +54,10 @@ func (s *DataStore) GetRaceReport(ctx context.Context, sporttiID string, session
 	defer cancel()
 
 	q := archsqlc.New(s.db)
-
-	res, err := q.GetRaceReport(ctx, archsqlc.GetRaceReportParams{
+	return q.GetRaceReport(ctx, archsqlc.GetRaceReportParams{
 		SporttiID: sporttiID,
 		SessionID: sessionID,
 	})
-	if err != nil {
-		return "", err
-	}
-	return res, nil
 }
 
 func (s *DataStore) UpsertRaceReport(ctx context.Context, sporttiID string, sessionID int32, raceReport string) error {
@@ -111,7 +97,40 @@ func (s *DataStore) GetSporttiIDsBySessionID(ctx context.Context, sessionID int3
 	return q.GetSporttiIDsBySessionID(ctx, sessionID)
 }
 
-func (s *DataStore) UpsertData(ctx context.Context, payload ArchDataPayload) error {
+// Athlete methods
+
+func (s *DataStore) UpsertAthleteOnly(ctx context.Context, athlete archsqlc.UpsertAthleteParams) error {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	q := archsqlc.New(s.db)
+	return q.UpsertAthlete(ctx, athlete)
+}
+
+func (s *DataStore) GetAthleteByID(ctx context.Context, sporttiID string) (*ArchAthleteResponse, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	q := archsqlc.New(s.db)
+	a, err := q.GetAthleteBySporttiID(ctx, sporttiID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ArchAthleteResponse{
+		NationalID:  a.NationalID,
+		FirstName:   utils.StringPtrOrNil(a.FirstName),
+		LastName:    utils.StringPtrOrNil(a.LastName),
+		Initials:    utils.StringPtrOrNil(a.Initials),
+		DateOfBirth: utils.FormatDatePtr(a.DateOfBirth),
+		Height:      utils.NullNumericToFloatPtr(a.Height),
+		Weight:      utils.NullNumericToFloatPtr(a.Weight),
+	}, nil
+}
+
+// Measurement methods
+
+func (s *DataStore) UpsertMeasurements(ctx context.Context, sporttiID string, measurements []archsqlc.UpsertMeasurementParams) error {
 	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
 	defer cancel()
 
@@ -123,17 +142,11 @@ func (s *DataStore) UpsertData(ctx context.Context, payload ArchDataPayload) err
 
 	q := archsqlc.New(tx)
 
-	// 1) Athlete
-	if err := q.UpsertAthlete(ctx, payload.Athlete); err != nil {
-		return err
-	}
-
-	// 2) Measurements
-	for i := range payload.Measurements {
-		if !payload.Measurements[i].NationalID.Valid || payload.Measurements[i].NationalID.String == "" {
-			payload.Measurements[i].NationalID = utils.NullString(payload.Athlete.NationalID)
+	for i := range measurements {
+		if !measurements[i].NationalID.Valid || measurements[i].NationalID.String == "" {
+			measurements[i].NationalID = utils.NullString(sporttiID)
 		}
-		if err := q.UpsertMeasurement(ctx, payload.Measurements[i]); err != nil {
+		if err := q.UpsertMeasurement(ctx, measurements[i]); err != nil {
 			return err
 		}
 	}
@@ -141,49 +154,79 @@ func (s *DataStore) UpsertData(ctx context.Context, payload ArchDataPayload) err
 	return tx.Commit()
 }
 
-func (s *DataStore) GetDataBySporttiID(ctx context.Context, sporttiID string) (*ArchDataResponse, error) {
+func (s *DataStore) GetMeasurementsByID(ctx context.Context, sporttiID string) ([]ArchMeasurementResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
 	defer cancel()
 
 	q := archsqlc.New(s.db)
-
-	// 1) Athlete (must exist)
-	a, err := q.GetAthleteBySporttiID(ctx, sporttiID)
-	if err != nil {
-		return nil, err
-	}
-
-	// 2) Measurements (may be empty)
 	ms, err := q.GetMeasurementsBySporttiID(ctx, utils.NullString(sporttiID))
 	if err != nil {
 		return nil, err
 	}
 
-	resp := ArchDataResponse{
-		NationalID:   a.NationalID,
-		FirstName:    utils.StringPtrOrNil(a.FirstName),
-		LastName:     utils.StringPtrOrNil(a.LastName),
-		Initials:     utils.StringPtrOrNil(a.Initials),
-		DateOfBirth:  utils.FormatDatePtr(a.DateOfBirth),
-		Height:       utils.NullNumericToFloatPtr(a.Height),
-		Weight:       utils.NullNumericToFloatPtr(a.Weight),
-		Measurements: make([]ArchMeasurementResponse, 0, len(ms)),
-	}
-
+	result := make([]ArchMeasurementResponse, 0, len(ms))
 	for _, m := range ms {
-		resp.Measurements = append(resp.Measurements, ArchMeasurementResponse{
-			MeasurementGroupID: m.MeasurementGroupID,
-			MeasurementID:      utils.Int32PtrOrNil(m.MeasurementID),
-			Discipline:         utils.StringPtrOrNil(m.Discipline),
-			SessionName:        utils.StringPtrOrNil(m.SessionName),
-			Place:              utils.StringPtrOrNil(m.Place),
-			RaceID:             utils.Int32PtrOrNil(m.RaceID),
-			StartTime:          utils.FormatTimestampPtr(m.StartTime),
-			StopTime:           utils.FormatTimestampPtr(m.StopTime),
-			NbSegments:         utils.Int32PtrOrNil(m.NbSegments),
-			Comment:            utils.StringPtrOrNil(m.Comment),
-		})
+		result = append(result, toMeasurementResponse(m))
+	}
+	return result, nil
+}
+
+func (s *DataStore) GetMeasurementByMeasurementID(ctx context.Context, measurementID int32) (*ArchMeasurementResponse, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	const query = `
+SELECT measurement_group_id, measurement_id, national_id, discipline, session_name,
+       place, race_id, start_time, stop_time, nb_segments, comment
+FROM measurement WHERE measurement_id = $1`
+
+	var m archsqlc.Measurement
+	row := s.db.QueryRowContext(ctx, query, measurementID)
+	if err := row.Scan(
+		&m.MeasurementGroupID,
+		&m.MeasurementID,
+		&m.NationalID,
+		&m.Discipline,
+		&m.SessionName,
+		&m.Place,
+		&m.RaceID,
+		&m.StartTime,
+		&m.StopTime,
+		&m.NbSegments,
+		&m.Comment,
+	); err != nil {
+		return nil, err
 	}
 
+	resp := toMeasurementResponse(m)
 	return &resp, nil
+}
+
+func (s *DataStore) DeleteMeasurementByMeasurementID(ctx context.Context, measurementID int32) (string, error) {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	const query = `DELETE FROM measurement WHERE measurement_id = $1 RETURNING national_id`
+
+	var nationalID sql.NullString
+	row := s.db.QueryRowContext(ctx, query, measurementID)
+	if err := row.Scan(&nationalID); err != nil {
+		return "", err
+	}
+	return nationalID.String, nil
+}
+
+func toMeasurementResponse(m archsqlc.Measurement) ArchMeasurementResponse {
+	return ArchMeasurementResponse{
+		MeasurementGroupID: m.MeasurementGroupID,
+		MeasurementID:      utils.Int32PtrOrNil(m.MeasurementID),
+		Discipline:         utils.StringPtrOrNil(m.Discipline),
+		SessionName:        utils.StringPtrOrNil(m.SessionName),
+		Place:              utils.StringPtrOrNil(m.Place),
+		RaceID:             utils.Int32PtrOrNil(m.RaceID),
+		StartTime:          utils.FormatTimestampPtr(m.StartTime),
+		StopTime:           utils.FormatTimestampPtr(m.StopTime),
+		NbSegments:         utils.Int32PtrOrNil(m.NbSegments),
+		Comment:            utils.StringPtrOrNil(m.Comment),
+	}
 }

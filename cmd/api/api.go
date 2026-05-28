@@ -238,8 +238,15 @@ func (app *api) mount() http.Handler {
 					r.Get("/race-report/sessions", dataHandler.GetRaceReportSessions)
 					r.Get("/race-report", dataHandler.GetRaceReportHTML)
 					r.With(GzipDecompressionMiddleware()).Post("/race-report", dataHandler.PostRaceReport)
-					r.Post("/data", dataHandler.PostArchData)
-					r.Get("/data", dataHandler.GetArchData)
+					// athlete routes
+					r.Get("/athlete", dataHandler.GetAthlete)
+					r.Post("/athlete", dataHandler.PostAthlete)
+
+					// measurements routes
+					r.Get("/measurements", dataHandler.GetMeasurements)
+					r.Post("/measurements", dataHandler.PostMeasurements)
+					r.Get("/measurement", dataHandler.GetMeasurement)
+					r.Delete("/measurement", dataHandler.DeleteMeasurement)
 
 					// user routes
 					r.Delete("/user", userHandler.DeleteUser)

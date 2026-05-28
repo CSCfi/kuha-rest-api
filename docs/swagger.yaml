@@ -26,7 +26,7 @@ definitions:
       refresh_token:
         type: string
     type: object
-  swagger.ArchDataResponse:
+  swagger.ArchAthleteResponse:
     properties:
       date_of_birth:
         example: "1995-07-21"
@@ -43,10 +43,6 @@ definitions:
       last_name:
         example: Doe
         type: string
-      measurements:
-        items:
-          $ref: '#/definitions/swagger.ArchMeasurementResponse'
-        type: array
       national_id:
         example: "27353728"
         type: string
@@ -54,7 +50,7 @@ definitions:
         example: 65.4
         type: number
     type: object
-  swagger.ArchDataUpsertRequest:
+  swagger.ArchAthleteUpsertRequest:
     properties:
       date_of_birth:
         example: "1995-07-21"
@@ -71,10 +67,6 @@ definitions:
       last_name:
         example: Doe
         type: string
-      measurements:
-        items:
-          $ref: '#/definitions/swagger.ArchMeasurementUpsert'
-        type: array
       national_id:
         example: "27353728"
         type: string
@@ -146,6 +138,23 @@ definitions:
         type: string
       stop_time:
         example: "2024-01-01T09:15:00Z"
+        type: string
+    type: object
+  swagger.ArchMeasurementsResponse:
+    properties:
+      measurements:
+        items:
+          $ref: '#/definitions/swagger.ArchMeasurementResponse'
+        type: array
+    type: object
+  swagger.ArchMeasurementsUpsertRequest:
+    properties:
+      measurements:
+        items:
+          $ref: '#/definitions/swagger.ArchMeasurementUpsert'
+        type: array
+      national_id:
+        example: "27353728"
         type: string
     type: object
   swagger.ArchRaceReportUpsertRequest:
@@ -7966,14 +7975,14 @@ info:
   termsOfService: https://csc.fi/en/security-privacy-data-policy-and-open-source-policy/privacy/
   title: KUHA REST API
 paths:
-  /archinisis/data:
+  /archinisis/athlete:
     get:
       consumes:
       - application/json
-      description: Returns athlete profile and measurements for the given sportti
-        id.
+      description: Returns athlete profile fields (no measurements) for the given
+        ID.
       parameters:
-      - description: Sportti ID (national_id)
+      - description: National ID (Sportti ID)
         in: query
         name: id
         required: true
@@ -7984,7 +7993,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swagger.ArchDataResponse'
+            $ref: '#/definitions/swagger.ArchAthleteResponse'
         "400":
           description: Bad Request
           schema:
@@ -8011,21 +8020,21 @@ paths:
             $ref: '#/definitions/swagger.ServiceUnavailableResponse'
       security:
       - BearerAuth: []
-      summary: Get Archinisis data by Sportti ID
+      summary: Get athlete profile by ID
       tags:
-      - ARCHINISIS - Data
+      - ARCHINISIS - Athlete
     post:
       consumes:
       - application/json
-      description: Inserts/updates athlete profile and related measurements in one
-        request.
+      description: Inserts or updates athlete profile fields. New data for the same
+        national_id overwrites existing.
       parameters:
-      - description: athlete + measurements
+      - description: athlete profile
         in: body
         name: data
         required: true
         schema:
-          $ref: '#/definitions/swagger.ArchDataUpsertRequest'
+          $ref: '#/definitions/swagger.ArchAthleteUpsertRequest'
       produces:
       - application/json
       responses:
@@ -8053,9 +8062,186 @@ paths:
             $ref: '#/definitions/swagger.ServiceUnavailableResponse'
       security:
       - BearerAuth: []
-      summary: Upsert Archinisis athlete + measurements
+      summary: Upsert athlete profile
       tags:
-      - ARCHINISIS - Data
+      - ARCHINISIS - Athlete
+  /archinisis/measurement:
+    delete:
+      consumes:
+      - application/json
+      description: Removes the measurement identified by the given measurement_id.
+      parameters:
+      - description: Measurement ID
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a single measurement by measurement ID
+      tags:
+      - ARCHINISIS - Measurements
+    get:
+      consumes:
+      - application/json
+      description: Returns the measurement identified by the given measurement_id.
+      parameters:
+      - description: Measurement ID
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.ArchMeasurementResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a single measurement by measurement ID
+      tags:
+      - ARCHINISIS - Measurements
+  /archinisis/measurements:
+    get:
+      consumes:
+      - application/json
+      description: Returns all measurements for the athlete identified by the given
+        ID.
+      parameters:
+      - description: National ID (Sportti ID)
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.ArchMeasurementsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all measurements for an athlete
+      tags:
+      - ARCHINISIS - Measurements
+    post:
+      consumes:
+      - application/json
+      description: Inserts or updates one or more measurements linked to the given
+        national_id.
+      parameters:
+      - description: measurements
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.ArchMeasurementsUpsertRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Data processed successfully
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Upsert measurements for an athlete
+      tags:
+      - ARCHINISIS - Measurements
   /archinisis/race-report:
     get:
       consumes:
@@ -8065,7 +8251,7 @@ paths:
       parameters:
       - description: Sportti ID
         in: query
-        name: sportti_id
+        name: id
         required: true
         type: string
       - description: Session ID
@@ -8161,7 +8347,7 @@ paths:
       parameters:
       - description: Sportti ID
         in: query
-        name: sportti_id
+        name: id
         required: true
         type: string
       produces:
