@@ -13,6 +13,7 @@ const (
 
 	archSessionsPrefix     = "arch:race-report:sessions"
 	archHTMLPrefix         = "arch:race-report:html"
+	archDataPrefix         = "arch:data"
 	archAthletePrefix      = "arch:athlete"
 	archMeasurementsPrefix = "arch:measurements"
 )
@@ -36,14 +37,34 @@ func invalidateArchAthlete(ctx context.Context, c *cache.Storage, sporttiID stri
 	if c == nil {
 		return
 	}
-	_ = c.DeleteByPrefixes(ctx, fmt.Sprintf("%s:%s", archAthletePrefix, sporttiID))
+	_ = c.DeleteByPrefixes(
+		ctx,
+		fmt.Sprintf("%s:%s", archAthletePrefix, sporttiID),
+		fmt.Sprintf("%s:%s", archDataPrefix, sporttiID),
+	)
 }
 
 func invalidateArchMeasurements(ctx context.Context, c *cache.Storage, sporttiID string) {
 	if c == nil {
 		return
 	}
-	_ = c.DeleteByPrefixes(ctx, fmt.Sprintf("%s:%s", archMeasurementsPrefix, sporttiID))
+	_ = c.DeleteByPrefixes(
+		ctx,
+		fmt.Sprintf("%s:%s", archMeasurementsPrefix, sporttiID),
+		fmt.Sprintf("%s:%s", archDataPrefix, sporttiID),
+	)
+}
+
+func invalidateArchData(ctx context.Context, c *cache.Storage, sporttiID string) {
+	if c == nil {
+		return
+	}
+	_ = c.DeleteByPrefixes(
+		ctx,
+		fmt.Sprintf("%s:%s", archDataPrefix, sporttiID),
+		fmt.Sprintf("%s:%s", archAthletePrefix, sporttiID),
+		fmt.Sprintf("%s:%s", archMeasurementsPrefix, sporttiID),
+	)
 }
 
 func invalidateArchAll(ctx context.Context, c *cache.Storage, sporttiID string) {
@@ -52,6 +73,7 @@ func invalidateArchAll(ctx context.Context, c *cache.Storage, sporttiID string) 
 	}
 	_ = c.DeleteByPrefixes(
 		ctx,
+		fmt.Sprintf("%s:%s", archDataPrefix, sporttiID),
 		fmt.Sprintf("%s:%s", archAthletePrefix, sporttiID),
 		fmt.Sprintf("%s:%s", archMeasurementsPrefix, sporttiID),
 		fmt.Sprintf("%s:%s", archSessionsPrefix, sporttiID),

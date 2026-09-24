@@ -74,6 +74,62 @@ definitions:
         example: 65.4
         type: number
     type: object
+  swagger.ArchDataResponse:
+    properties:
+      date_of_birth:
+        example: "1994-01-01"
+        type: string
+      first_name:
+        example: Petra
+        type: string
+      height:
+        example: 175
+        type: number
+      initials:
+        example: PeTo
+        type: string
+      last_name:
+        example: Torvinen
+        type: string
+      measurements:
+        items:
+          $ref: '#/definitions/swagger.ArchMeasurementResponse'
+        type: array
+      national_id:
+        example: "27578816"
+        type: string
+      weight:
+        example: 72
+        type: number
+    type: object
+  swagger.ArchDataUpsertRequest:
+    properties:
+      date_of_birth:
+        example: "1994-01-01"
+        type: string
+      first_name:
+        example: Petra
+        type: string
+      height:
+        example: 175
+        type: number
+      initials:
+        example: PeTo
+        type: string
+      last_name:
+        example: Torvinen
+        type: string
+      measurements:
+        items:
+          $ref: '#/definitions/swagger.ArchMeasurementUpsert'
+        type: array
+      national_id:
+        example: "27578816"
+        type: string
+      weight:
+        example: 72
+        type: number
+    type: object
   swagger.ArchMeasurementResponse:
     properties:
       comment:
@@ -8065,6 +8121,96 @@ paths:
       summary: Upsert athlete profile
       tags:
       - ARCHINISIS - Athlete
+  /archinisis/data:
+    get:
+      consumes:
+      - application/json
+      description: Returns the athlete profile and all measurements for the given
+        ID.
+      parameters:
+      - description: National ID (Sportti ID)
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swagger.ArchDataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/swagger.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Archinisis athlete + measurements by ID
+      tags:
+      - ARCHINISIS - Data
+    post:
+      consumes:
+      - application/json
+      description: Inserts/updates the athlete profile and the related measurements
+        in one request. Missing measurement groups (sessions) are created automatically.
+      parameters:
+      - description: athlete + measurements
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.ArchDataUpsertRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Data processed successfully
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/swagger.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/swagger.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/swagger.ForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/swagger.InternalServerErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/swagger.ServiceUnavailableResponse'
+      security:
+      - BearerAuth: []
+      summary: Upsert Archinisis athlete + measurements
+      tags:
+      - ARCHINISIS - Data
   /archinisis/measurement:
     delete:
       consumes:
@@ -8203,8 +8349,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: Inserts or updates one or more measurements linked to the given
-        national_id.
+      description: Inserts or updates one or more measurements (keyed on measurement_id)
+        linked to the given national_id. Missing measurement groups (sessions) are
+        created automatically.
       parameters:
       - description: measurements
         in: body
@@ -8299,8 +8446,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Inserts or updates the shared race report for session_id and links
-        the given sportti_id to that session.
+      description: Inserts or updates the race report for the given (sportti_id, session_id)
+        pair. The session_id must exist as a measurement group.
       parameters:
       - description: race report
         in: body
@@ -8386,8 +8533,8 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Removes an athlete by sportti_id. Related measurements and report-user
-        links are deleted via FK cascades. Shared reports may remain.
+      description: Removes an athlete by sportti_id. Related measurements and race
+        reports are deleted via FK cascades. Measurement groups remain.
       parameters:
       - description: Sportti ID
         in: query

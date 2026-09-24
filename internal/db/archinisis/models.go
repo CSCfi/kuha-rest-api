@@ -19,8 +19,8 @@ type Athlete struct {
 }
 
 type Measurement struct {
-	MeasurementGroupID int32
-	MeasurementID      sql.NullInt32
+	MeasurementGroupID sql.NullInt32
+	MeasurementID      int32
 	NationalID         sql.NullString
 	Discipline         sql.NullString
 	SessionName        sql.NullString
@@ -32,12 +32,13 @@ type Measurement struct {
 	Comment            sql.NullString
 }
 
-type Report struct {
-	SessionID  int32
-	RaceReport string
+type MeasurementGroup struct {
+	MeasurementGroupID int32
 }
 
-type ReportUser struct {
-	SessionID int32
-	SporttiID string
+type Report struct {
+	ReportID   int32
+	SporttiID  sql.NullString
+	SessionID  sql.NullInt32
+	RaceReport sql.NullString
 }

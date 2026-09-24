@@ -238,6 +238,9 @@ func (app *api) mount() http.Handler {
 					r.Get("/race-report/sessions", dataHandler.GetRaceReportSessions)
 					r.Get("/race-report", dataHandler.GetRaceReportHTML)
 					r.With(GzipDecompressionMiddleware()).Post("/race-report", dataHandler.PostRaceReport)
+					// combined athlete + measurements routes
+					r.Post("/data", dataHandler.PostArchData)
+					r.Get("/data", dataHandler.GetArchData)
 					// athlete routes
 					r.Get("/athlete", dataHandler.GetAthlete)
 					r.Post("/athlete", dataHandler.PostAthlete)

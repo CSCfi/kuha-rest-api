@@ -23,6 +23,32 @@ func (q *Queries) DeleteAthleteByNationalID(ctx context.Context, nationalID stri
 	return national_id, err
 }
 
+const deleteMeasurementByMeasurementID = `-- name: DeleteMeasurementByMeasurementID :one
+DELETE FROM measurement
+WHERE measurement_id = $1
+RETURNING national_id
+`
+
+func (q *Queries) DeleteMeasurementByMeasurementID(ctx context.Context, measurementID int32) (sql.NullString, error) {
+	row := q.queryRow(ctx, q.deleteMeasurementByMeasurementIDStmt, deleteMeasurementByMeasurementID, measurementID)
+	var national_id sql.NullString
+	err := row.Scan(&national_id)
+	return national_id, err
+}
+
+const ensureMeasurementGroup = `-- name: EnsureMeasurementGroup :exec
+
+INSERT INTO measurement_group (measurement_group_id)
+VALUES ($1)
+ON CONFLICT (measurement_group_id) DO NOTHING
+`
+
+// Measurement group
+func (q *Queries) EnsureMeasurementGroup(ctx context.Context, measurementGroupID int32) error {
+	_, err := q.exec(ctx, q.ensureMeasurementGroupStmt, ensureMeasurementGroup, measurementGroupID)
+	return err
+}
+
 const getAthleteBySporttiID = `-- name: GetAthleteBySporttiID :one
 SELECT
   national_id,
@@ -51,6 +77,42 @@ func (q *Queries) GetAthleteBySporttiID(ctx context.Context, nationalID string) 
 	return i, err
 }
 
+const getMeasurementByMeasurementID = `-- name: GetMeasurementByMeasurementID :one
+SELECT
+  measurement_group_id,
+  measurement_id,
+  national_id,
+  discipline,
+  session_name,
+  place,
+  race_id,
+  start_time,
+  stop_time,
+  nb_segments,
+  comment
+FROM measurement
+WHERE measurement_id = $1
+`
+
+func (q *Queries) GetMeasurementByMeasurementID(ctx context.Context, measurementID int32) (Measurement, error) {
+	row := q.queryRow(ctx, q.getMeasurementByMeasurementIDStmt, getMeasurementByMeasurementID, measurementID)
+	var i Measurement
+	err := row.Scan(
+		&i.MeasurementGroupID,
+		&i.MeasurementID,
+		&i.NationalID,
+		&i.Discipline,
+		&i.SessionName,
+		&i.Place,
+		&i.RaceID,
+		&i.StartTime,
+		&i.StopTime,
+		&i.NbSegments,
+		&i.Comment,
+	)
+	return i, err
+}
+
 const getMeasurementsBySporttiID = `-- name: GetMeasurementsBySporttiID :many
 SELECT
   measurement_group_id,
@@ -66,7 +128,7 @@ SELECT
   comment
 FROM measurement
 WHERE national_id = $1
-ORDER BY measurement_group_id ASC
+ORDER BY measurement_group_id ASC, measurement_id ASC
 `
 
 func (q *Queries) GetMeasurementsBySporttiID(ctx context.Context, nationalID sql.NullString) ([]Measurement, error) {
@@ -105,41 +167,43 @@ func (q *Queries) GetMeasurementsBySporttiID(ctx context.Context, nationalID sql
 }
 
 const getRaceReport = `-- name: GetRaceReport :one
-SELECT r.race_report
-FROM report r
-JOIN report_user ru ON ru.session_id = r.session_id
-WHERE ru.sportti_id = $1
-  AND r.session_id = $2
+SELECT race_report
+FROM report
+WHERE sportti_id = $1
+  AND session_id = $2
+ORDER BY report_id DESC
+LIMIT 1
 `
 
 type GetRaceReportParams struct {
-	SporttiID string
-	SessionID int32
+	SporttiID sql.NullString
+	SessionID sql.NullInt32
 }
 
-func (q *Queries) GetRaceReport(ctx context.Context, arg GetRaceReportParams) (string, error) {
+func (q *Queries) GetRaceReport(ctx context.Context, arg GetRaceReportParams) (sql.NullString, error) {
 	row := q.queryRow(ctx, q.getRaceReportStmt, getRaceReport, arg.SporttiID, arg.SessionID)
-	var race_report string
+	var race_report sql.NullString
 	err := row.Scan(&race_report)
 	return race_report, err
 }
 
 const getRaceReportSessionIDsBySporttiID = `-- name: GetRaceReportSessionIDsBySporttiID :many
-SELECT ru.session_id
-FROM report_user ru
-WHERE ru.sportti_id = $1
-ORDER BY ru.session_id DESC
+SELECT DISTINCT session_id
+FROM report
+WHERE sportti_id = $1
+  AND session_id IS NOT NULL
+ORDER BY session_id DESC
 `
 
-func (q *Queries) GetRaceReportSessionIDsBySporttiID(ctx context.Context, sporttiID string) ([]int32, error) {
+func (q *Queries) GetRaceReportSessionIDsBySporttiID(ctx context.Context, sporttiID sql.NullString) ([]sql.NullInt32, error) {
 	rows, err := q.query(ctx, q.getRaceReportSessionIDsBySporttiIDStmt, getRaceReportSessionIDsBySporttiID, sporttiID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []int32
+	var items []sql.NullInt32
 	for rows.Next() {
-		var session_id int32
+		var session_id sql.NullInt32
 		if err := rows.Scan(&session_id); err != nil {
 			return nil, err
 		}
@@ -154,36 +218,48 @@ func (q *Queries) GetRaceReportSessionIDsBySporttiID(ctx context.Context, sportt
 	return items, nil
 }
 
-const getSporttiIDsBySessionID = `-- name: GetSporttiIDsBySessionID :many
-SELECT sportti_id
-FROM report_user
-WHERE session_id = $1
+const insertReport = `-- name: InsertReport :exec
+INSERT INTO report (sportti_id, session_id, race_report)
+VALUES ($1, $2, $3)
 `
 
-func (q *Queries) GetSporttiIDsBySessionID(ctx context.Context, sessionID int32) ([]string, error) {
-	rows, err := q.query(ctx, q.getSporttiIDsBySessionIDStmt, getSporttiIDsBySessionID, sessionID)
+type InsertReportParams struct {
+	SporttiID  sql.NullString
+	SessionID  sql.NullInt32
+	RaceReport sql.NullString
+}
+
+func (q *Queries) InsertReport(ctx context.Context, arg InsertReportParams) error {
+	_, err := q.exec(ctx, q.insertReportStmt, insertReport, arg.SporttiID, arg.SessionID, arg.RaceReport)
+	return err
+}
+
+const updateReport = `-- name: UpdateReport :execrows
+
+UPDATE report
+SET race_report = $3
+WHERE sportti_id = $1
+  AND session_id = $2
+`
+
+type UpdateReportParams struct {
+	SporttiID  sql.NullString
+	SessionID  sql.NullInt32
+	RaceReport sql.NullString
+}
+
+// Report (one row per sportti_id + session_id; no unique constraint in the DB,
+// so the upsert is done as UPDATE-then-INSERT inside a transaction)
+func (q *Queries) UpdateReport(ctx context.Context, arg UpdateReportParams) (int64, error) {
+	result, err := q.exec(ctx, q.updateReportStmt, updateReport, arg.SporttiID, arg.SessionID, arg.RaceReport)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
-	defer rows.Close()
-	var items []string
-	for rows.Next() {
-		var sportti_id string
-		if err := rows.Scan(&sportti_id); err != nil {
-			return nil, err
-		}
-		items = append(items, sportti_id)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+	return result.RowsAffected()
 }
 
 const upsertAthlete = `-- name: UpsertAthlete :exec
+
 INSERT INTO athlete (
   national_id, first_name, last_name, initials, date_of_birth, height, weight
 ) VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -206,6 +282,7 @@ type UpsertAthleteParams struct {
 	Weight      sql.NullString
 }
 
+// Athlete
 func (q *Queries) UpsertAthlete(ctx context.Context, arg UpsertAthleteParams) error {
 	_, err := q.exec(ctx, q.upsertAthleteStmt, upsertAthlete,
 		arg.NationalID,
@@ -220,6 +297,7 @@ func (q *Queries) UpsertAthlete(ctx context.Context, arg UpsertAthleteParams) er
 }
 
 const upsertMeasurement = `-- name: UpsertMeasurement :exec
+
 INSERT INTO measurement (
   measurement_group_id, measurement_id, national_id, discipline, session_name,
   place, race_id, start_time, stop_time, nb_segments, comment
@@ -227,22 +305,22 @@ INSERT INTO measurement (
   $1, $2, $3, $4, $5,
   $6, $7, $8, $9, $10, $11
 )
-ON CONFLICT (measurement_group_id) DO UPDATE SET
-  measurement_id = EXCLUDED.measurement_id,
-  national_id    = EXCLUDED.national_id,
-  discipline     = EXCLUDED.discipline,
-  session_name   = EXCLUDED.session_name,
-  place          = EXCLUDED.place,
-  race_id        = EXCLUDED.race_id,
-  start_time     = EXCLUDED.start_time,
-  stop_time      = EXCLUDED.stop_time,
-  nb_segments    = EXCLUDED.nb_segments,
-  comment        = EXCLUDED.comment
+ON CONFLICT (measurement_id) DO UPDATE SET
+  measurement_group_id = EXCLUDED.measurement_group_id,
+  national_id          = EXCLUDED.national_id,
+  discipline           = EXCLUDED.discipline,
+  session_name         = EXCLUDED.session_name,
+  place                = EXCLUDED.place,
+  race_id              = EXCLUDED.race_id,
+  start_time           = EXCLUDED.start_time,
+  stop_time            = EXCLUDED.stop_time,
+  nb_segments          = EXCLUDED.nb_segments,
+  comment              = EXCLUDED.comment
 `
 
 type UpsertMeasurementParams struct {
-	MeasurementGroupID int32
-	MeasurementID      sql.NullInt32
+	MeasurementGroupID sql.NullInt32
+	MeasurementID      int32
 	NationalID         sql.NullString
 	Discipline         sql.NullString
 	SessionName        sql.NullString
@@ -254,6 +332,7 @@ type UpsertMeasurementParams struct {
 	Comment            sql.NullString
 }
 
+// Measurement
 func (q *Queries) UpsertMeasurement(ctx context.Context, arg UpsertMeasurementParams) error {
 	_, err := q.exec(ctx, q.upsertMeasurementStmt, upsertMeasurement,
 		arg.MeasurementGroupID,
@@ -268,38 +347,5 @@ func (q *Queries) UpsertMeasurement(ctx context.Context, arg UpsertMeasurementPa
 		arg.NbSegments,
 		arg.Comment,
 	)
-	return err
-}
-
-const upsertReport = `-- name: UpsertReport :exec
-INSERT INTO report (session_id, race_report)
-VALUES ($1, $2)
-ON CONFLICT (session_id) DO UPDATE SET
-  race_report = EXCLUDED.race_report
-`
-
-type UpsertReportParams struct {
-	SessionID  int32
-	RaceReport string
-}
-
-func (q *Queries) UpsertReport(ctx context.Context, arg UpsertReportParams) error {
-	_, err := q.exec(ctx, q.upsertReportStmt, upsertReport, arg.SessionID, arg.RaceReport)
-	return err
-}
-
-const upsertReportUser = `-- name: UpsertReportUser :exec
-INSERT INTO report_user (session_id, sportti_id)
-VALUES ($1, $2)
-ON CONFLICT (session_id, sportti_id) DO NOTHING
-`
-
-type UpsertReportUserParams struct {
-	SessionID int32
-	SporttiID string
-}
-
-func (q *Queries) UpsertReportUser(ctx context.Context, arg UpsertReportUserParams) error {
-	_, err := q.exec(ctx, q.upsertReportUserStmt, upsertReportUser, arg.SessionID, arg.SporttiID)
 	return err
 }

@@ -17,7 +17,9 @@ type Data interface {
 	GetRaceReportSessions(ctx context.Context, sporttiID string) ([]int32, error)
 	GetRaceReport(ctx context.Context, sporttiID string, sessionID int32) (string, error)
 	UpsertRaceReport(ctx context.Context, sporttiID string, sessionID int32, raceReport string) error
-	GetSporttiIDsBySessionID(ctx context.Context, sessionID int32) ([]string, error)
+	// Combined athlete + measurements (POST/GET /archinisis/data)
+	UpsertData(ctx context.Context, payload ArchDataPayload) error
+	GetDataBySporttiID(ctx context.Context, sporttiID string) (*ArchDataResponse, error)
 	// Athlete
 	UpsertAthleteOnly(ctx context.Context, athlete archsqlc.UpsertAthleteParams) error
 	GetAthleteByID(ctx context.Context, sporttiID string) (*ArchAthleteResponse, error)

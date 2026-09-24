@@ -27,7 +27,7 @@ type SporttiIDParam struct {
 // DeleteUser godoc
 //
 //	@Summary		Delete an athlete (hard delete)
-//	@Description	Removes an athlete by sportti_id. Related measurements and report-user links are deleted via FK cascades. Shared reports may remain.
+//	@Description	Removes an athlete by sportti_id. Related measurements and race reports are deleted via FK cascades. Measurement groups remain.
 //	@Tags			Archinisis - User
 //	@Accept			json
 //	@Produce		json

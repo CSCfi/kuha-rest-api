@@ -27,8 +27,17 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.deleteAthleteByNationalIDStmt, err = db.PrepareContext(ctx, deleteAthleteByNationalID); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteAthleteByNationalID: %w", err)
 	}
+	if q.deleteMeasurementByMeasurementIDStmt, err = db.PrepareContext(ctx, deleteMeasurementByMeasurementID); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteMeasurementByMeasurementID: %w", err)
+	}
+	if q.ensureMeasurementGroupStmt, err = db.PrepareContext(ctx, ensureMeasurementGroup); err != nil {
+		return nil, fmt.Errorf("error preparing query EnsureMeasurementGroup: %w", err)
+	}
 	if q.getAthleteBySporttiIDStmt, err = db.PrepareContext(ctx, getAthleteBySporttiID); err != nil {
 		return nil, fmt.Errorf("error preparing query GetAthleteBySporttiID: %w", err)
+	}
+	if q.getMeasurementByMeasurementIDStmt, err = db.PrepareContext(ctx, getMeasurementByMeasurementID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetMeasurementByMeasurementID: %w", err)
 	}
 	if q.getMeasurementsBySporttiIDStmt, err = db.PrepareContext(ctx, getMeasurementsBySporttiID); err != nil {
 		return nil, fmt.Errorf("error preparing query GetMeasurementsBySporttiID: %w", err)
@@ -39,20 +48,17 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getRaceReportSessionIDsBySporttiIDStmt, err = db.PrepareContext(ctx, getRaceReportSessionIDsBySporttiID); err != nil {
 		return nil, fmt.Errorf("error preparing query GetRaceReportSessionIDsBySporttiID: %w", err)
 	}
-	if q.getSporttiIDsBySessionIDStmt, err = db.PrepareContext(ctx, getSporttiIDsBySessionID); err != nil {
-		return nil, fmt.Errorf("error preparing query GetSporttiIDsBySessionID: %w", err)
+	if q.insertReportStmt, err = db.PrepareContext(ctx, insertReport); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertReport: %w", err)
+	}
+	if q.updateReportStmt, err = db.PrepareContext(ctx, updateReport); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateReport: %w", err)
 	}
 	if q.upsertAthleteStmt, err = db.PrepareContext(ctx, upsertAthlete); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertAthlete: %w", err)
 	}
 	if q.upsertMeasurementStmt, err = db.PrepareContext(ctx, upsertMeasurement); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertMeasurement: %w", err)
-	}
-	if q.upsertReportStmt, err = db.PrepareContext(ctx, upsertReport); err != nil {
-		return nil, fmt.Errorf("error preparing query UpsertReport: %w", err)
-	}
-	if q.upsertReportUserStmt, err = db.PrepareContext(ctx, upsertReportUser); err != nil {
-		return nil, fmt.Errorf("error preparing query UpsertReportUser: %w", err)
 	}
 	return &q, nil
 }
@@ -64,9 +70,24 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing deleteAthleteByNationalIDStmt: %w", cerr)
 		}
 	}
+	if q.deleteMeasurementByMeasurementIDStmt != nil {
+		if cerr := q.deleteMeasurementByMeasurementIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteMeasurementByMeasurementIDStmt: %w", cerr)
+		}
+	}
+	if q.ensureMeasurementGroupStmt != nil {
+		if cerr := q.ensureMeasurementGroupStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing ensureMeasurementGroupStmt: %w", cerr)
+		}
+	}
 	if q.getAthleteBySporttiIDStmt != nil {
 		if cerr := q.getAthleteBySporttiIDStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getAthleteBySporttiIDStmt: %w", cerr)
+		}
+	}
+	if q.getMeasurementByMeasurementIDStmt != nil {
+		if cerr := q.getMeasurementByMeasurementIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getMeasurementByMeasurementIDStmt: %w", cerr)
 		}
 	}
 	if q.getMeasurementsBySporttiIDStmt != nil {
@@ -84,9 +105,14 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getRaceReportSessionIDsBySporttiIDStmt: %w", cerr)
 		}
 	}
-	if q.getSporttiIDsBySessionIDStmt != nil {
-		if cerr := q.getSporttiIDsBySessionIDStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing getSporttiIDsBySessionIDStmt: %w", cerr)
+	if q.insertReportStmt != nil {
+		if cerr := q.insertReportStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertReportStmt: %w", cerr)
+		}
+	}
+	if q.updateReportStmt != nil {
+		if cerr := q.updateReportStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateReportStmt: %w", cerr)
 		}
 	}
 	if q.upsertAthleteStmt != nil {
@@ -97,16 +123,6 @@ func (q *Queries) Close() error {
 	if q.upsertMeasurementStmt != nil {
 		if cerr := q.upsertMeasurementStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing upsertMeasurementStmt: %w", cerr)
-		}
-	}
-	if q.upsertReportStmt != nil {
-		if cerr := q.upsertReportStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing upsertReportStmt: %w", cerr)
-		}
-	}
-	if q.upsertReportUserStmt != nil {
-		if cerr := q.upsertReportUserStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing upsertReportUserStmt: %w", cerr)
 		}
 	}
 	return err
@@ -149,15 +165,17 @@ type Queries struct {
 	db                                     DBTX
 	tx                                     *sql.Tx
 	deleteAthleteByNationalIDStmt          *sql.Stmt
+	deleteMeasurementByMeasurementIDStmt   *sql.Stmt
+	ensureMeasurementGroupStmt             *sql.Stmt
 	getAthleteBySporttiIDStmt              *sql.Stmt
+	getMeasurementByMeasurementIDStmt      *sql.Stmt
 	getMeasurementsBySporttiIDStmt         *sql.Stmt
 	getRaceReportStmt                      *sql.Stmt
 	getRaceReportSessionIDsBySporttiIDStmt *sql.Stmt
-	getSporttiIDsBySessionIDStmt           *sql.Stmt
+	insertReportStmt                       *sql.Stmt
+	updateReportStmt                       *sql.Stmt
 	upsertAthleteStmt                      *sql.Stmt
 	upsertMeasurementStmt                  *sql.Stmt
-	upsertReportStmt                       *sql.Stmt
-	upsertReportUserStmt                   *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
@@ -165,14 +183,16 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		db:                                     tx,
 		tx:                                     tx,
 		deleteAthleteByNationalIDStmt:          q.deleteAthleteByNationalIDStmt,
+		deleteMeasurementByMeasurementIDStmt:   q.deleteMeasurementByMeasurementIDStmt,
+		ensureMeasurementGroupStmt:             q.ensureMeasurementGroupStmt,
 		getAthleteBySporttiIDStmt:              q.getAthleteBySporttiIDStmt,
+		getMeasurementByMeasurementIDStmt:      q.getMeasurementByMeasurementIDStmt,
 		getMeasurementsBySporttiIDStmt:         q.getMeasurementsBySporttiIDStmt,
 		getRaceReportStmt:                      q.getRaceReportStmt,
 		getRaceReportSessionIDsBySporttiIDStmt: q.getRaceReportSessionIDsBySporttiIDStmt,
-		getSporttiIDsBySessionIDStmt:           q.getSporttiIDsBySessionIDStmt,
+		insertReportStmt:                       q.insertReportStmt,
+		updateReportStmt:                       q.updateReportStmt,
 		upsertAthleteStmt:                      q.upsertAthleteStmt,
 		upsertMeasurementStmt:                  q.upsertMeasurementStmt,
-		upsertReportStmt:                       q.upsertReportStmt,
-		upsertReportUserStmt:                   q.upsertReportUserStmt,
 	}
 }

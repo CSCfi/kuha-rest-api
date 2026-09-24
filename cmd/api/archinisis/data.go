@@ -187,7 +187,7 @@ type RaceReportUpsertInput struct {
 // PostRaceReport godoc
 //
 //	@Summary		Upsert a race report (HTML)
-//	@Description	Inserts or updates the shared race report for session_id and links the given sportti_id to that session.
+//	@Description	Inserts or updates the race report for the given (sportti_id, session_id) pair. The session_id must exist as a measurement group.
 //	@Tags			ARCHINISIS - Data
 //	@Accept			json
 //	@Produce		json
@@ -228,16 +228,139 @@ func (h *DataHandler) PostRaceReport(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sporttiIDs, err := h.store.GetSporttiIDsBySessionID(r.Context(), in.SessionID)
-	if err == nil {
-		for _, linkedID := range sporttiIDs {
-			invalidateArchRaceReport(r.Context(), h.cache, linkedID, &in.SessionID)
-		}
-	} else {
-		invalidateArchRaceReport(r.Context(), h.cache, sid, &in.SessionID)
-	}
+	invalidateArchRaceReport(r.Context(), h.cache, sid, &in.SessionID)
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+// PostArchData godoc
+//
+//	@Summary		Upsert Archinisis athlete + measurements
+//	@Description	Inserts/updates the athlete profile and the related measurements in one request. Missing measurement groups (sessions) are created automatically.
+//	@Tags			ARCHINISIS - Data
+//	@Accept			json
+//	@Produce		json
+//	@Param			data	body	swagger.ArchDataUpsertRequest	true	"athlete + measurements"
+//	@Success		201		"Data processed successfully"
+//	@Failure		400		{object}	swagger.ValidationErrorResponse
+//	@Failure		401		{object}	swagger.UnauthorizedResponse
+//	@Failure		403		{object}	swagger.ForbiddenResponse
+//	@Failure		500		{object}	swagger.InternalServerErrorResponse
+//	@Failure		503		{object}	swagger.ServiceUnavailableResponse
+//	@Security		BearerAuth
+//	@Router			/archinisis/data [post]
+func (h *DataHandler) PostArchData(w http.ResponseWriter, r *http.Request) {
+	if !authz.Authorize(r) {
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
+		return
+	}
+
+	var in ArchDataUpsertInput
+	if err := utils.ReadJSON(w, r, &in); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	if err := utils.GetValidator().Struct(in); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	sid, err := utils.ParseSporttiID(in.NationalID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	ath, err := mapAthleteToParams(in.ArchAthleteInput, sid)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	measParams := make([]archsqlc.UpsertMeasurementParams, 0, len(in.Measurements))
+	for _, m := range in.Measurements {
+		mp, err := mapMeasurementToParams(m, sid)
+		if err != nil {
+			utils.BadRequestResponse(w, r, err)
+			return
+		}
+		measParams = append(measParams, mp)
+	}
+
+	if err := h.store.UpsertData(r.Context(), archinisis.ArchDataPayload{
+		Athlete:      ath,
+		Measurements: measParams,
+	}); err != nil {
+		utils.HandleDatabaseError(w, r, err)
+		return
+	}
+
+	invalidateArchData(r.Context(), h.cache, sid)
+
+	w.WriteHeader(http.StatusCreated)
+}
+
+// GetArchData godoc
+//
+//	@Summary		Get Archinisis athlete + measurements by ID
+//	@Description	Returns the athlete profile and all measurements for the given ID.
+//	@Tags			ARCHINISIS - Data
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	query		string	true	"National ID (Sportti ID)"
+//	@Success		200	{object}	swagger.ArchDataResponse
+//	@Failure		400	{object}	swagger.ValidationErrorResponse
+//	@Failure		401	{object}	swagger.UnauthorizedResponse
+//	@Failure		403	{object}	swagger.ForbiddenResponse
+//	@Failure		404	{object}	swagger.NotFoundResponse
+//	@Failure		500	{object}	swagger.InternalServerErrorResponse
+//	@Failure		503	{object}	swagger.ServiceUnavailableResponse
+//	@Security		BearerAuth
+//	@Router			/archinisis/data [get]
+func (h *DataHandler) GetArchData(w http.ResponseWriter, r *http.Request) {
+	if !authz.Authorize(r) {
+		utils.ForbiddenResponse(w, r, fmt.Errorf("access denied"))
+		return
+	}
+
+	if err := utils.ValidateParams(r, []string{"id"}); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	params := archIDParam{ID: r.URL.Query().Get("id")}
+	if err := utils.GetValidator().Struct(params); err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	sid, err := utils.ParseSporttiID(params.ID)
+	if err != nil {
+		utils.BadRequestResponse(w, r, err)
+		return
+	}
+
+	cacheKey := fmt.Sprintf("%s:%s", archDataPrefix, sid)
+	if h.cache != nil {
+		if cached, err := h.cache.Get(r.Context(), cacheKey); err == nil && cached != "" {
+			utils.WriteJSON(w, http.StatusOK, json.RawMessage(cached))
+			return
+		}
+	}
+
+	res, err := h.store.GetDataBySporttiID(r.Context(), sid)
+	if err == sql.ErrNoRows {
+		utils.NotFoundResponse(w, r, err)
+		return
+	}
+	if err != nil {
+		utils.InternalServerError(w, r, err)
+		return
+	}
+
+	cache.SetCacheJSON(r.Context(), h.cache, cacheKey, res, ARCHCacheTTL)
+	utils.WriteJSON(w, http.StatusOK, res)
 }
 
 type archIDParam struct {
@@ -424,7 +547,7 @@ func (h *DataHandler) GetMeasurements(w http.ResponseWriter, r *http.Request) {
 // PostMeasurements godoc
 //
 //	@Summary		Upsert measurements for an athlete
-//	@Description	Inserts or updates one or more measurements linked to the given national_id.
+//	@Description	Inserts or updates one or more measurements (keyed on measurement_id) linked to the given national_id. Missing measurement groups (sessions) are created automatically.
 //	@Tags			ARCHINISIS - Measurements
 //	@Accept			json
 //	@Produce		json

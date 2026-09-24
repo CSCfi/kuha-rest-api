@@ -12,6 +12,11 @@ type DataStore struct {
 	db *sql.DB
 }
 
+type ArchDataPayload struct {
+	Athlete      archsqlc.UpsertAthleteParams
+	Measurements []archsqlc.UpsertMeasurementParams
+}
+
 type ArchAthleteResponse struct {
 	NationalID  string   `json:"national_id"`
 	FirstName   *string  `json:"first_name,omitempty"`
@@ -23,8 +28,8 @@ type ArchAthleteResponse struct {
 }
 
 type ArchMeasurementResponse struct {
-	MeasurementGroupID int32   `json:"measurement_group_id"`
-	MeasurementID      *int32  `json:"measurement_id,omitempty"`
+	MeasurementGroupID *int32  `json:"measurement_group_id,omitempty"`
+	MeasurementID      int32   `json:"measurement_id"`
 	Discipline         *string `json:"discipline,omitempty"`
 	SessionName        *string `json:"session_name,omitempty"`
 	Place              *string `json:"place,omitempty"`
@@ -35,6 +40,11 @@ type ArchMeasurementResponse struct {
 	Comment            *string `json:"comment,omitempty"`
 }
 
+type ArchDataResponse struct {
+	ArchAthleteResponse
+	Measurements []ArchMeasurementResponse `json:"measurements"`
+}
+
 // Race report methods
 
 func (s *DataStore) GetRaceReportSessions(ctx context.Context, sporttiID string) ([]int32, error) {
@@ -42,11 +52,18 @@ func (s *DataStore) GetRaceReportSessions(ctx context.Context, sporttiID string)
 	defer cancel()
 
 	q := archsqlc.New(s.db)
-	rows, err := q.GetRaceReportSessionIDsBySporttiID(ctx, sporttiID)
+	rows, err := q.GetRaceReportSessionIDsBySporttiID(ctx, utils.NullString(sporttiID))
 	if err != nil {
 		return nil, err
 	}
-	return rows, nil
+
+	out := make([]int32, 0, len(rows))
+	for _, r := range rows {
+		if r.Valid {
+			out = append(out, r.Int32)
+		}
+	}
+	return out, nil
 }
 
 func (s *DataStore) GetRaceReport(ctx context.Context, sporttiID string, sessionID int32) (string, error) {
@@ -54,12 +71,19 @@ func (s *DataStore) GetRaceReport(ctx context.Context, sporttiID string, session
 	defer cancel()
 
 	q := archsqlc.New(s.db)
-	return q.GetRaceReport(ctx, archsqlc.GetRaceReportParams{
-		SporttiID: sporttiID,
-		SessionID: sessionID,
+	res, err := q.GetRaceReport(ctx, archsqlc.GetRaceReportParams{
+		SporttiID: utils.NullString(sporttiID),
+		SessionID: utils.NullInt32(sessionID),
 	})
+	if err != nil {
+		return "", err
+	}
+	return res.String, nil
 }
 
+// UpsertRaceReport stores one report row per (sportti_id, session_id).
+// The report table has no unique constraint on that pair, so the upsert is
+// an UPDATE followed by an INSERT when no row was updated, inside one transaction.
 func (s *DataStore) UpsertRaceReport(ctx context.Context, sporttiID string, sessionID int32, raceReport string) error {
 	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
 	defer cancel()
@@ -72,29 +96,79 @@ func (s *DataStore) UpsertRaceReport(ctx context.Context, sporttiID string, sess
 
 	q := archsqlc.New(tx)
 
-	if err := q.UpsertReport(ctx, archsqlc.UpsertReportParams{
-		SessionID:  sessionID,
-		RaceReport: raceReport,
-	}); err != nil {
+	updated, err := q.UpdateReport(ctx, archsqlc.UpdateReportParams{
+		SporttiID:  utils.NullString(sporttiID),
+		SessionID:  utils.NullInt32(sessionID),
+		RaceReport: utils.NullString(raceReport),
+	})
+	if err != nil {
 		return err
 	}
 
-	if err := q.UpsertReportUser(ctx, archsqlc.UpsertReportUserParams{
-		SessionID: sessionID,
-		SporttiID: sporttiID,
-	}); err != nil {
+	if updated == 0 {
+		if err := q.InsertReport(ctx, archsqlc.InsertReportParams{
+			SporttiID:  utils.NullString(sporttiID),
+			SessionID:  utils.NullInt32(sessionID),
+			RaceReport: utils.NullString(raceReport),
+		}); err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
+}
+
+// Combined data methods
+
+func (s *DataStore) UpsertData(ctx context.Context, payload ArchDataPayload) error {
+	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
+	defer cancel()
+
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	q := archsqlc.New(tx)
+
+	if err := q.UpsertAthlete(ctx, payload.Athlete); err != nil {
+		return err
+	}
+
+	if err := upsertMeasurementsTx(ctx, q, payload.Athlete.NationalID, payload.Measurements); err != nil {
 		return err
 	}
 
 	return tx.Commit()
 }
 
-func (s *DataStore) GetSporttiIDsBySessionID(ctx context.Context, sessionID int32) ([]string, error) {
+func (s *DataStore) GetDataBySporttiID(ctx context.Context, sporttiID string) (*ArchDataResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
 	defer cancel()
 
 	q := archsqlc.New(s.db)
-	return q.GetSporttiIDsBySessionID(ctx, sessionID)
+
+	// Athlete must exist
+	a, err := q.GetAthleteBySporttiID(ctx, sporttiID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Measurements may be empty
+	ms, err := q.GetMeasurementsBySporttiID(ctx, utils.NullString(sporttiID))
+	if err != nil {
+		return nil, err
+	}
+
+	resp := ArchDataResponse{
+		ArchAthleteResponse: toAthleteResponse(a),
+		Measurements:        make([]ArchMeasurementResponse, 0, len(ms)),
+	}
+	for _, m := range ms {
+		resp.Measurements = append(resp.Measurements, toMeasurementResponse(m))
+	}
+	return &resp, nil
 }
 
 // Athlete methods
@@ -117,15 +191,8 @@ func (s *DataStore) GetAthleteByID(ctx context.Context, sporttiID string) (*Arch
 		return nil, err
 	}
 
-	return &ArchAthleteResponse{
-		NationalID:  a.NationalID,
-		FirstName:   utils.StringPtrOrNil(a.FirstName),
-		LastName:    utils.StringPtrOrNil(a.LastName),
-		Initials:    utils.StringPtrOrNil(a.Initials),
-		DateOfBirth: utils.FormatDatePtr(a.DateOfBirth),
-		Height:      utils.NullNumericToFloatPtr(a.Height),
-		Weight:      utils.NullNumericToFloatPtr(a.Weight),
-	}, nil
+	resp := toAthleteResponse(a)
+	return &resp, nil
 }
 
 // Measurement methods
@@ -142,13 +209,8 @@ func (s *DataStore) UpsertMeasurements(ctx context.Context, sporttiID string, me
 
 	q := archsqlc.New(tx)
 
-	for i := range measurements {
-		if !measurements[i].NationalID.Valid || measurements[i].NationalID.String == "" {
-			measurements[i].NationalID = utils.NullString(sporttiID)
-		}
-		if err := q.UpsertMeasurement(ctx, measurements[i]); err != nil {
-			return err
-		}
+	if err := upsertMeasurementsTx(ctx, q, sporttiID, measurements); err != nil {
+		return err
 	}
 
 	return tx.Commit()
@@ -175,26 +237,9 @@ func (s *DataStore) GetMeasurementByMeasurementID(ctx context.Context, measureme
 	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
 	defer cancel()
 
-	const query = `
-SELECT measurement_group_id, measurement_id, national_id, discipline, session_name,
-       place, race_id, start_time, stop_time, nb_segments, comment
-FROM measurement WHERE measurement_id = $1`
-
-	var m archsqlc.Measurement
-	row := s.db.QueryRowContext(ctx, query, measurementID)
-	if err := row.Scan(
-		&m.MeasurementGroupID,
-		&m.MeasurementID,
-		&m.NationalID,
-		&m.Discipline,
-		&m.SessionName,
-		&m.Place,
-		&m.RaceID,
-		&m.StartTime,
-		&m.StopTime,
-		&m.NbSegments,
-		&m.Comment,
-	); err != nil {
+	q := archsqlc.New(s.db)
+	m, err := q.GetMeasurementByMeasurementID(ctx, measurementID)
+	if err != nil {
 		return nil, err
 	}
 
@@ -206,20 +251,61 @@ func (s *DataStore) DeleteMeasurementByMeasurementID(ctx context.Context, measur
 	ctx, cancel := context.WithTimeout(ctx, utils.QueryTimeout)
 	defer cancel()
 
-	const query = `DELETE FROM measurement WHERE measurement_id = $1 RETURNING national_id`
-
-	var nationalID sql.NullString
-	row := s.db.QueryRowContext(ctx, query, measurementID)
-	if err := row.Scan(&nationalID); err != nil {
+	q := archsqlc.New(s.db)
+	nationalID, err := q.DeleteMeasurementByMeasurementID(ctx, measurementID)
+	if err != nil {
 		return "", err
 	}
 	return nationalID.String, nil
 }
 
+// Helpers
+
+// upsertMeasurementsTx makes sure every referenced measurement_group row exists,
+// then upserts each measurement keyed on measurement_id. Runs inside the caller's tx.
+func upsertMeasurementsTx(ctx context.Context, q *archsqlc.Queries, sporttiID string, measurements []archsqlc.UpsertMeasurementParams) error {
+	seenGroups := make(map[int32]struct{}, len(measurements))
+
+	for i := range measurements {
+		m := &measurements[i]
+
+		if !m.NationalID.Valid || m.NationalID.String == "" {
+			m.NationalID = utils.NullString(sporttiID)
+		}
+
+		if m.MeasurementGroupID.Valid {
+			gid := m.MeasurementGroupID.Int32
+			if _, done := seenGroups[gid]; !done {
+				if err := q.EnsureMeasurementGroup(ctx, gid); err != nil {
+					return err
+				}
+				seenGroups[gid] = struct{}{}
+			}
+		}
+
+		if err := q.UpsertMeasurement(ctx, *m); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func toAthleteResponse(a archsqlc.Athlete) ArchAthleteResponse {
+	return ArchAthleteResponse{
+		NationalID:  a.NationalID,
+		FirstName:   utils.StringPtrOrNil(a.FirstName),
+		LastName:    utils.StringPtrOrNil(a.LastName),
+		Initials:    utils.StringPtrOrNil(a.Initials),
+		DateOfBirth: utils.FormatDatePtr(a.DateOfBirth),
+		Height:      utils.NullNumericToFloatPtr(a.Height),
+		Weight:      utils.NullNumericToFloatPtr(a.Weight),
+	}
+}
+
 func toMeasurementResponse(m archsqlc.Measurement) ArchMeasurementResponse {
 	return ArchMeasurementResponse{
-		MeasurementGroupID: m.MeasurementGroupID,
-		MeasurementID:      utils.Int32PtrOrNil(m.MeasurementID),
+		MeasurementGroupID: utils.Int32PtrOrNil(m.MeasurementGroupID),
+		MeasurementID:      m.MeasurementID,
 		Discipline:         utils.StringPtrOrNil(m.Discipline),
 		SessionName:        utils.StringPtrOrNil(m.SessionName),
 		Place:              utils.StringPtrOrNil(m.Place),

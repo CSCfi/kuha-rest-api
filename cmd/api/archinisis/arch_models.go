@@ -17,6 +17,12 @@ type ArchAthleteInput struct {
 	Weight      *float64 `json:"weight"        validate:"omitempty"`
 }
 
+// ArchDataUpsertInput is the combined athlete + measurements body for POST /archinisis/data.
+type ArchDataUpsertInput struct {
+	ArchAthleteInput
+	Measurements []ArchMeasurementInput `json:"measurements" validate:"omitempty,dive"`
+}
+
 type ArchMeasurementsInput struct {
 	NationalID   string                 `json:"national_id"  validate:"required,numeric"`
 	Measurements []ArchMeasurementInput `json:"measurements" validate:"required,min=1,dive"`
@@ -76,8 +82,8 @@ func mapMeasurementToParams(in ArchMeasurementInput, sid string) (archsqlc.Upser
 	}
 
 	return archsqlc.UpsertMeasurementParams{
-		MeasurementGroupID: in.MeasurementGroupID,
-		MeasurementID:      utils.NullInt32Ptr(&in.MeasurementID),
+		MeasurementGroupID: utils.NullInt32(in.MeasurementGroupID),
+		MeasurementID:      in.MeasurementID,
 		NationalID:         utils.NullString(sid),
 		Discipline:         utils.NullStringPtr(in.Discipline),
 		SessionName:        utils.NullStringPtr(in.SessionName),

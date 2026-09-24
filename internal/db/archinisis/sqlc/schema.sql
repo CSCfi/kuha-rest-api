@@ -1,28 +1,6 @@
 --
--- PostgreSQL database dump
---
-
--- Dumped from database version 17.4 (Debian 17.4-1.pgdg110+2)
--- Dumped by pg_dump version 17.3 (Ubuntu 17.3-3.pgdg24.04+1)
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET transaction_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_table_access_method = heap;
-
---
--- Name: athlete; Type: TABLE; Schema: public; Owner: archadmin
+-- Archinisis schema (from empty_archinisis_dump.sql, 2026-09-24)
+-- Source of truth for sqlc. Data COPY blocks and sequence setval calls removed.
 --
 
 CREATE TABLE public.athlete (
@@ -35,16 +13,23 @@ CREATE TABLE public.athlete (
     weight numeric
 );
 
+CREATE TABLE public.measurement_group (
+    measurement_group_id integer NOT NULL
+);
 
-ALTER TABLE public.athlete OWNER TO archadmin;
+CREATE SEQUENCE public.measurement_group_measurement_group_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
 
---
--- Name: measurement; Type: TABLE; Schema: public; Owner: archadmin
---
+ALTER SEQUENCE public.measurement_group_measurement_group_id_seq OWNED BY public.measurement_group.measurement_group_id;
 
 CREATE TABLE public.measurement (
-    measurement_group_id integer NOT NULL,
-    measurement_id integer,
+    measurement_group_id integer,
+    measurement_id integer NOT NULL,
     national_id character varying(50),
     discipline character varying(100),
     session_name character varying(255),
@@ -56,14 +41,7 @@ CREATE TABLE public.measurement (
     comment text
 );
 
-
-ALTER TABLE public.measurement OWNER TO archadmin;
-
---
--- Name: mittaus_measurement_group_id_seq; Type: SEQUENCE; Schema: public; Owner: archadmin
---
-
-CREATE SEQUENCE public.mittaus_measurement_group_id_seq
+CREATE SEQUENCE public.measurement_measurement_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -71,123 +49,49 @@ CREATE SEQUENCE public.mittaus_measurement_group_id_seq
     NO MAXVALUE
     CACHE 1;
 
-
-ALTER SEQUENCE public.mittaus_measurement_group_id_seq OWNER TO archadmin;
-
---
--- Name: mittaus_measurement_group_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: archadmin
---
-
-ALTER SEQUENCE public.mittaus_measurement_group_id_seq OWNED BY public.measurement.measurement_group_id;
-
-
---
--- Name: report; Type: TABLE; Schema: public; Owner: archadmin
---
+ALTER SEQUENCE public.measurement_measurement_id_seq OWNED BY public.measurement.measurement_id;
 
 CREATE TABLE public.report (
-    session_id integer NOT NULL,
-    race_report text NOT NULL
+    report_id integer NOT NULL,
+    sportti_id character varying(50),
+    session_id integer,
+    race_report text
 );
 
-ALTER TABLE public.report OWNER TO archadmin;
+CREATE SEQUENCE public.report_report_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
 
---
--- Name: report_user; Type: TABLE; Schema: public; Owner: archadmin
---
+ALTER SEQUENCE public.report_report_id_seq OWNED BY public.report.report_id;
 
-CREATE TABLE public.report_user (
-    session_id integer NOT NULL,
-    sportti_id character varying(50) NOT NULL
-);
-
-ALTER TABLE public.report_user OWNER TO archadmin;
-
---
--- Name: measurement measurement_group_id; Type: DEFAULT; Schema: public; Owner: archadmin
---
-
-ALTER TABLE ONLY public.measurement ALTER COLUMN measurement_group_id SET DEFAULT nextval('public.mittaus_measurement_group_id_seq'::regclass);
-
-
---
--- Name: mittaus_measurement_group_id_seq; Type: SEQUENCE SET; Schema: public; Owner: archadmin
---
-
-SELECT pg_catalog.setval('public.mittaus_measurement_group_id_seq', 1, false);
-
-
---
--- Name: measurement mittaus_pkey; Type: CONSTRAINT; Schema: public; Owner: archadmin
---
-
-ALTER TABLE ONLY public.measurement
-    ADD CONSTRAINT mittaus_pkey PRIMARY KEY (measurement_group_id);
-
-
-
---
--- Name: athlete urheilija_pkey; Type: CONSTRAINT; Schema: public; Owner: archadmin
---
+ALTER TABLE ONLY public.measurement ALTER COLUMN measurement_id SET DEFAULT nextval('public.measurement_measurement_id_seq'::regclass);
+ALTER TABLE ONLY public.measurement_group ALTER COLUMN measurement_group_id SET DEFAULT nextval('public.measurement_group_measurement_group_id_seq'::regclass);
+ALTER TABLE ONLY public.report ALTER COLUMN report_id SET DEFAULT nextval('public.report_report_id_seq'::regclass);
 
 ALTER TABLE ONLY public.athlete
-    ADD CONSTRAINT urheilija_pkey PRIMARY KEY (national_id);
+    ADD CONSTRAINT athlete_pkey PRIMARY KEY (national_id);
 
-
---
--- Name: measurement mittaus_national_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: archadmin
---
+ALTER TABLE ONLY public.measurement_group
+    ADD CONSTRAINT measurement_group_pkey PRIMARY KEY (measurement_group_id);
 
 ALTER TABLE ONLY public.measurement
-    ADD CONSTRAINT mittaus_national_id_fkey FOREIGN KEY (national_id) REFERENCES public.athlete(national_id) ON DELETE CASCADE;
-
-
---
--- Name: report report_pkey; Type: CONSTRAINT; Schema: public; Owner: archadmin
---
+    ADD CONSTRAINT measurement_pkey PRIMARY KEY (measurement_id);
 
 ALTER TABLE ONLY public.report
-    ADD CONSTRAINT report_pkey PRIMARY KEY (session_id);
+    ADD CONSTRAINT report_pkey PRIMARY KEY (report_id);
 
---
--- Name: report_user report_user_pkey; Type: CONSTRAINT; Schema: public; Owner: archadmin
---
+ALTER TABLE ONLY public.measurement
+    ADD CONSTRAINT measurement_measurement_group_id_fkey FOREIGN KEY (measurement_group_id) REFERENCES public.measurement_group(measurement_group_id) ON DELETE CASCADE;
 
-ALTER TABLE ONLY public.report_user
-    ADD CONSTRAINT report_user_pkey PRIMARY KEY (session_id, sportti_id);
-
---
--- Name: report report_session_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: archadmin
---
+ALTER TABLE ONLY public.measurement
+    ADD CONSTRAINT measurement_national_id_fkey FOREIGN KEY (national_id) REFERENCES public.athlete(national_id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.report
-    ADD CONSTRAINT report_session_id_fkey
-    FOREIGN KEY (session_id) REFERENCES public.measurement(measurement_group_id) ON DELETE CASCADE;
+    ADD CONSTRAINT report_session_id_fkey FOREIGN KEY (session_id) REFERENCES public.measurement_group(measurement_group_id) ON DELETE CASCADE;
 
---
--- Name: report_user report_user_session_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: archadmin
---
-
-ALTER TABLE ONLY public.report_user
-    ADD CONSTRAINT report_user_session_id_fkey
-    FOREIGN KEY (session_id) REFERENCES public.report(session_id) ON DELETE CASCADE;
-
---
--- Name: report_user report_user_sportti_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: archadmin
---
-
-ALTER TABLE ONLY public.report_user
-    ADD CONSTRAINT report_user_sportti_id_fkey
-    FOREIGN KEY (sportti_id) REFERENCES public.athlete(national_id) ON DELETE CASCADE;
-
---
--- Name: SCHEMA public; Type: ACL; Schema: -; Owner: pg_database_owner
---
-
-GRANT ALL ON SCHEMA public TO archadmin;
-
-
---
--- PostgreSQL database dump complete
---
-
+ALTER TABLE ONLY public.report
+    ADD CONSTRAINT report_sportti_id_fkey FOREIGN KEY (sportti_id) REFERENCES public.athlete(national_id) ON DELETE CASCADE;
