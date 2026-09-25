@@ -8,6 +8,18 @@
 * refactor fis serach return params - ([2b3f1fe](https://github.com/CSCfi/kuha-rest-api/commit/2b3f1fe842d0c4dde268e893bff8573667123f67))
 
 
+## [1.3.6](https://github.com/CSCfi/kuha-rest-api/compare/v1.3.5...v1.3.6) (2026-09-24)
+
+
+### Features
+
+* archinisis - adapt to measurement_group schema and restore data endpoint ([b49d061](https://github.com/CSCfi/kuha-rest-api/commit/b49d061ca7c7f0b546ef4d070f6871510c8448e4))
+
+
+### Miscellaneous Chores
+
+* release 1.3.6 ([1b78e5e](https://github.com/CSCfi/kuha-rest-api/commit/1b78e5e8ef7caa2e40282ff8c640b6185f2beaae))
+
 ## [1.3.4](https://github.com/CSCfi/kuha-rest-api/compare/v1.3.3...v1.3.4) (2026-05-08)
 
 
